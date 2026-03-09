@@ -10,8 +10,8 @@ A lightweight **tabletop role‑playing system** designed to keep rules simple w
 
 This project documentation is available in multiple languages.
 
-- 🇬🇧 English (official) → docs/en/
-- 🇧🇷 Português → docs/pt-br/
+- 🇬🇧 English (official) → [English Documentation](docs/en/)
+- 🇧🇷 Português → [Documentação em Português](docs/PT-br/)
 
 ## Quick Navigation
 
@@ -99,7 +99,7 @@ docs/
       reference/
       weapons/
 
-   pt-br/
+   PT-br/
       combat/
       core/
       equipment/
