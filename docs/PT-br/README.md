@@ -69,11 +69,11 @@ Equipamentos que afetam sobrevivência e tática.
 
 Tipos de armas e regras relacionadas.
 
-- [Armas de Fogo](weapons/firearms.md)
-- [Armas Corpo a Corpo](weapons/melee.md)
-- [Explosivos](weapons/explosives.md)
-- [Penetração](weapons/penetration.md)
-- [Alcance de Armas](weapons/weapon_ranges.md)
+- [Armas de Fogo](weapons/categories/firearms.md)
+- [Armas Corpo a Corpo](weapons/categories/melee.md)
+- [Explosivos](weapons/categories/explosives.md)
+- [Penetração](weapons/mechanics/penetration.md)
+- [Alcance de Armas](weapons/mechanics/weapon_ranges.md)
 
 ## Referência
 
