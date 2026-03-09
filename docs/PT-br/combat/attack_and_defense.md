@@ -69,7 +69,7 @@ A cada turno os pontos sao recuperados para usar magias ou meta-habilidades.
 ### Defesa Magica durante o combate
 
 ```text
-Defesa = **Armadura + Escudo fisico (se houver) + Escudo magico**
+Defesa = **Armadura + Escudo fisico (se houver) + Escudo energético (ou mágico, dependendo do cenário)**
 ```
 
 Veja também:
