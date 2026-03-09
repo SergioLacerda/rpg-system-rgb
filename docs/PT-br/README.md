@@ -15,7 +15,7 @@ Vetor   Nome       Função
 - - --
 R       Vermelho   ataques, potência, teste de força, acerto, dano aplicado.
 G       Verde      agilidade, mobililidade, esquiva, velocidade de reação.
-B       Azul       escudo magico, proteção especial, intelecto, sabedoria, energia, resistência
+B       Azul       Escudo energético, escudo magico, proteção especial, intelecto, sabedoria, energia, resistência
 ```
 
 Foi projetado com quatro princípios:

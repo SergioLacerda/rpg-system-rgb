@@ -9,11 +9,11 @@ A armadura interage com o **Modelo de Dano** e também pode se combinar com **es
 A proteção da armadura pode ser entendida como:
 
 ```text
-Defesa Total = Armadura (proteção física) + Escudo mágico / energético (pontos B)
+Defesa Total = Armadura (proteção física) + Escudo energético (ou mágico, dependendo do cenário) (pontos B)
 ```
 
 **Observação:**  
-O escudo mágico ou energético é aplicado apenas se o **Fator Azul (B)** estiver ativo no cenário da campanha.
+O Escudo energético (ou mágico, dependendo do cenário) é aplicado apenas se o **Fator Azul (B)** estiver ativo no cenário da campanha.
 
 Exemplo:
 
