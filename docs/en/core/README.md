@@ -14,3 +14,5 @@ The core rules describe how characters are built and how the RGB vectors interac
 
 - [Skills and Abilities](skills_and_abilities.md)  
   Optional abilities and meta-skills that expand character capabilities.
+
+← [Back to README](../README.md)

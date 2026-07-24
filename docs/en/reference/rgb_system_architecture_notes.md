@@ -30,8 +30,8 @@ Each layer answers a different design question.
 
 Documents:
 
-- system_overview.md
-- rgb_damage_interaction_model.md
+- [System Overview](../introduction/system_overview.md)
+- [RGB Damage Interaction Model](rgb_damage_interaction_model.md)
 
 Purpose:
 
@@ -53,8 +53,8 @@ Core system design.
 
 Documents:
 
-- gameplay_loop.md
-- combat_decision_model.md
+- [Gameplay Loop](gameplay_loop.md)
+- [Combat Decision Model](../combat/combat_decision_model.md)
 
 Purpose:
 
@@ -96,8 +96,8 @@ Gameplay framework.
 
 Documents:
 
-- attack_and_defense.md
-- movement.md
+- [Attack and Defense](../combat/attack_and_defense.md)
+- [Movement](../combat/movement.md)
 
 Purpose:
 
@@ -118,8 +118,8 @@ Combat system.
 
 Documents:
 
-- damage_model.md
-- rgb_damage_interaction_model.md
+- [Damage Model](../combat/damage_model.md)
+- [RGB Damage Interaction Model](rgb_damage_interaction_model.md)
 
 Purpose:
 
@@ -149,11 +149,11 @@ Damage engine.
 
 Documents:
 
-- armor.md
-- shields.md
-- firearms.md
-- melee.md
-- explosives.md
+- [Armor](../equipment/armor.md)
+- [Shields](../equipment/shields.md)
+- [Firearms](../weapons/categories/firearms.md)
+- [Melee](../weapons/categories/melee.md)
+- [Explosives](../weapons/categories/explosives.md)
 
 Purpose:
 

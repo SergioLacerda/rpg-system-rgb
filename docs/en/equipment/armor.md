@@ -89,7 +89,7 @@ Remaining Damage → Character
 
 For full rules see:
 
-- damage_model.md
+- [Damage Model](../combat/damage_model.md)
 
 ## Design Philosophy
 

@@ -1,144 +1,183 @@
-# Exemplo de Gameplay
+# Exemplo de Combate
 
-Este exemplo ilustra como uma **sessão típica funciona no Sistema RGB**.
+Este exemplo demonstra como o combate é resolvido usando o **Sistema RGB**.
 
-O jogo normalmente alterna entre três fases principais:
+Dois personagens entram em combate e resolvem ações usando as regras principais:
 
-- interação narrativa
-- exploração
-- combate
+- vetores RGB
+- movimento
+- ataque e defesa
+- armadura e escudos
+- cálculo de dano
 
-Essas fases formam o **ciclo principal de jogo** usado na maioria das campanhas RGB.
+## Personagens
 
-## Exemplo de Cenário
+## Personagem A – Combatente de Assalto
 
-Um pequeno grupo de operativos investiga atividades suspeitas em um distrito industrial.
+```text
+R = 3
+G = 2
+B = 1
+```
 
-O grupo é composto por:
+Valores derivados:
 
-- **Stormy** – especialista em combate móvel
-- **Agente de Segurança** – operador tático treinado
-- **Técnico de Suporte** – especialista em equipamentos e análise
+```text
+Vida = 4 + (R × 2) = 10
+Escudo = B × 3 = 3
+Movimento = G × 2 = 4 metros
+```
 
-O Mestre descreve o ambiente e os jogadores decidem como proceder.
+Equipamento:
 
-## Fase 1 — Narrativa
+- Armadura Média (Proteção 4)
+- Rifle
 
-A sessão começa com interpretação e interação narrativa.
+## Personagem B – Operador Móvel
+
+```text
+R = 2
+G = 3
+B = 2
+```
+
+Valores derivados:
+
+```text
+Vida = 8
+Escudo = 6
+Movimento = 6 metros
+```
+
+Equipamento:
+
+- Armadura Leve (Proteção 2)
+- SMG
+
+## Exemplo de Turno de Combate
+
+## Passo 1 — Posicionamento
+
+Os personagens se movem de acordo com:
+
+```text
+Movimento = G × 2 metros
+```
+
+O Personagem B se move primeiro devido à maior mobilidade.
+
+## Passo 2 — Ataque
+
+O Personagem A dispara o rifle.
+
+Exemplo de dano da arma:
+
+```text
+Dano da Arma = 6
+Penetração = 2
+```
+
+## Passo 3 — Interação com Armadura
+
+A armadura reduz o dano recebido após a penetração.
 
 Exemplo:
 
-A equipe recebe informações sobre carregamentos ilegais de tecnologia em um distrito de armazéns.
-
-Os jogadores podem:
-
-- questionar NPCs
-- coletar informações
-- planejar a abordagem
-- negociar ou intimidar
-
-Nesta fase normalmente não há regras rígidas, a menos que o Mestre peça testes.
-
-## Fase 2 — Exploração
-
-Os jogadores se movem pelo ambiente e interagem com objetos ou locais.
-
-Exemplos:
-
-- vasculhar edifícios
-- contornar sistemas de segurança
-- escanear o ambiente
-- evitar patrulhas
-
-O Mestre pode solicitar testes RGB quando necessário.
-
-Exemplo:
-
 ```text
-Teste de Agilidade → baseado em G
-Teste de Força → baseado em R
-Interação técnica / energética → baseada em B
+Armadura do Alvo = 2
+Penetração = 2
+Armadura Efetiva = 0
 ```
 
-A exploração incentiva o uso criativo de equipamentos e habilidades.
+A armadura é ignorada.
 
-## Fase 3 — Combate
+## Passo 4 — Absorção por Escudo
 
-Se ocorrer um conflito, o jogo entra na **fase de combate**.
-
-O combate utiliza o sistema tático RGB.
-
-Sequência básica:
+O escudo absorve dano antes da vida.
 
 ```text
-Movimento
-↓
-Ação (ataque / habilidade)
-↓
-Resolução de defesa
-↓
-Cálculo de dano
+Escudo = 6
+Dano = 6
 ```
 
-Exemplo de encontro:
-
-Stormy encontra dois agentes hostis dentro do armazém.
-
-Os jogadores utilizam:
-
-- movimento (G)
-- ataques (R)
-- escudos ou habilidades (B)
-
-O confronto é resolvido usando as regras de combate RGB.
-
-## Resolução da Sessão
-
-Após o encontro, o jogo retorna para a fase narrativa.
-
-Possíveis consequências:
-
-- os personagens se recuperam do combate
-- os jogadores investigam o local
-- novos elementos da história surgem
-
-Esse ciclo continua ao longo da sessão.
-
-## Ciclo de Gameplay RGB
-
-A estrutura geral do jogo pode ser resumida assim:
+Resultado:
 
 ```text
-Narrativa
-↓
-Exploração
-↓
-Combate
-↓
-Recuperação / Progresso da História
+Escudo Restante = 0
+Dano à Vida = 0
 ```
 
-Esse ciclo permite que o sistema RGB suporte diferentes estilos de jogo mantendo regras simples.
+## Segundo Ataque
 
-## Filosofia de Design
+O Personagem B ataca com uma SMG.
 
-O sistema RGB separa **fluxo narrativo** de **mecânicas de combate**.
+```text
+Dano da Arma = 4
+Penetração = 1
+```
 
-- fases narrativas permanecem flexíveis
-- exploração incentiva criatividade
-- combate utiliza regras táticas claras
+Armadura do Personagem A:
 
-Esse equilíbrio permite que o mesmo sistema funcione em:
+```text
+Armadura = 4
+Armadura Efetiva = 3
+```
 
-- campanhas modernas
-- mundos de fantasia
-- cenários de ficção científica
-- histórias com superpoderes
+Cálculo de dano:
+
+```text
+Dano = 4 - 3 = 1
+```
+
+O Personagem A recebe:
+
+```text
+Dano à Vida = 1
+Vida Restante = 9
+```
+
+## Resumo do Fluxo de Dano
+
+O sistema RGB resolve dano usando uma estrutura em camadas.
+
+```text
+Dano da Arma
+↓
+Penetração
+↓
+Redução por Armadura
+↓
+Absorção por Escudo
+↓
+Dano Restante → Personagem
+```
+
+## Interpretação Tática
+
+O exemplo mostra o papel dos vetores RGB:
+
+```text
+R → determina poder ofensivo
+G → determina mobilidade e posicionamento
+B → determina capacidade de escudo
+```
+
+Cada vetor sustenta uma estratégia de combate diferente.
+
+## Objetivo de Design
+
+A resolução de combate no sistema RGB foi projetada para ser:
+
+- rápida de calcular
+- taticamente significativa
+- consistente entre cenários
+
+Como as mesmas fórmulas se aplicam a todos os personagens, o sistema permanece fácil de balancear.
 
 ## Veja Também
 
-- gameplay_loop.md
-- combat_example.md
-- combat_walkthrough.md
+- [Ataque e Defesa](../combat/attack_and_defense.md)
+- [Movimento](../combat/movement.md)
+- [Modelo de Dano](../combat/damage_model.md)
 
 ← [Voltar para README](README.md)

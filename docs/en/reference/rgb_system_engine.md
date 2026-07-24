@@ -73,10 +73,10 @@ Examples:
 
 Documents:
 
-- firearms.md
-- melee.md
-- armor.md
-- shields.md
+- [Firearms](../weapons/categories/firearms.md)
+- [Melee](../weapons/categories/melee.md)
+- [Armor](../equipment/armor.md)
+- [Shields](../equipment/shields.md)
 
 ## Damage Engine
 
@@ -96,8 +96,8 @@ Character
 
 Documents:
 
-- damage_model.md
-- rgb_damage_interaction_model.md
+- [Damage Model](../combat/damage_model.md)
+- [RGB Damage Interaction Model](rgb_damage_interaction_model.md)
 
 ## Combat System
 
@@ -112,8 +112,8 @@ Examples:
 
 Documents:
 
-- movement.md
-- attack_and_defense.md
+- [Movement](../combat/movement.md)
+- [Attack and Defense](../combat/attack_and_defense.md)
 
 ## Gameplay Layer
 
@@ -133,9 +133,9 @@ Recovery
 
 Documents:
 
-- character_creation.md
-- gameplay_loop.md
-- combat_decision_model.md
+- [Character Creation](../core/character_creation.md)
+- [Gameplay Loop](gameplay_loop.md)
+- [Combat Decision Model](../combat/combat_decision_model.md)
 
 ## RGB Ability Engine
 
@@ -153,8 +153,7 @@ Limit
 
 Documents:
 
-- skills_and_abilities.md
-- rgb_ability_engine.md
+- [Skills and Abilities](../core/skills_and_abilities.md)
 
 ## Campaign Setting
 

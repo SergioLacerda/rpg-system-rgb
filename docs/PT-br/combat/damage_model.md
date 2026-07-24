@@ -66,7 +66,7 @@ Algumas armas podem ignorar parte da proteção da armadura.
 
 Penetração representa a capacidade de uma arma atravessar armaduras.
 
-→ Veja [Penetração](../weapons/penetration.md)
+→ Veja [Penetração](../weapons/mechanics/penetration.md)
 
 ## 6. Dano Final
 
@@ -100,3 +100,23 @@ Dano da Arma
 
 Esse modelo em camadas permite que o sistema permaneça simples,
 ao mesmo tempo que suporta decisões táticas de combate.
+
+## Modelo de Interação RGB
+
+O sistema também pode ser visualizado como uma interação entre os vetores RGB:
+
+```text
+        G
+   mobilidade / reação
+
+R - B
+poder / dano    escudo / energia
+```
+
+Cada vetor representa uma estratégia defensiva ou ofensiva diferente no combate.
+
+- **R (Vermelho)** influencia o dano e o poder físico
+- **G (Verde)** influencia o movimento e a reação
+- **B (Azul)** influencia escudos e defesas especiais
+
+Juntos, eles criam um sistema tático equilibrado.

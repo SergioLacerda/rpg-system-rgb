@@ -47,9 +47,9 @@ Weapons define how much damage is applied before defenses.
 
 See:
 
-- ../weapons/firearms.md
-- ../weapons/melee.md
-- ../weapons/explosives.md
+- ../weapons/categories/firearms.md
+- ../weapons/categories/melee.md
+- ../weapons/categories/explosives.md
 
 ### 3. Armor Reduction
 
@@ -95,7 +95,7 @@ Penetration represents the ability of a weapon to bypass armor defenses.
 
 See:
 
-- ../weapons/penetration.md
+- ../weapons/mechanics/penetration.md
 
 Penetration is applied **before armor reduction**.
 

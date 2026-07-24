@@ -74,7 +74,7 @@ Defesa = **Armadura + Escudo fisico (se houver) + Escudo energético (ou mágico
 
 Veja também:
 
-- [Armas de Fogo](../weapons/firearms.md)
+- [Armas de Fogo](../weapons/categories/firearms.md)
 - [Armaduras](../equipment/armor.md)
 
 ← [Voltar para README](../README.md)

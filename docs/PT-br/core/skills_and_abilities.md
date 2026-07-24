@@ -6,6 +6,26 @@ Habilidades podem ser adquiridas por treino, compra ou seleção na criação do
 O uso dessas habilidades é opcional e depende do cenário definido pelo mestre.
 O mestre pode limitar o uso de habilidades por combate, cena ou dia.
 
+## Estrutura de Habilidades RGB
+
+As habilidades no sistema RGB são organizadas em torno dos **três vetores fundamentais**.
+
+```text
+        G
+   mobilidade / posicionamento
+
+R ---------------- B
+poder / dano      escudo / defesa
+```
+
+Cada vetor forma naturalmente uma **árvore de habilidades**.
+
+- **R (Vermelho)** → habilidades ofensivas
+- **G (Verde)** → habilidades de mobilidade
+- **B (Azul)** → habilidades defensivas / de energia
+
+Essa estrutura permite que o sistema escale naturalmente com diferentes cenários.
+
 ## Meta Habilidades ou magias
 
 Meta Habilidades se referem a talentos sobrenaturais que podem melhorar talentos existentes
@@ -21,6 +41,16 @@ Estilo samurai: a cada nível o usuário domina uma escola de arte marciais envo
 - Dobrar potência
 - Ataque retardatário
 - Pressão de ar
+- Golpe de Poder
+- Quebra de Armadura
+
+Exemplo de progressão:
+
+```text
+Nível 3 → +1 R em ataques à distância (Precisão)
+Nível 6 → Golpe de poder duplo
+Nível 9 → Ataque de impacto em área
+```
 
 ## Verde (G)
 
@@ -41,6 +71,7 @@ Estilo samurai: a cada nível o usuário domina uma escola de arte marciais envo
 - Escudo inteligente / armadura viva
 - Invisibilidade
 - Clones
+- Absorção de Energia
 
 ## Fatores do sistema
 
@@ -87,9 +118,7 @@ O mestre pode ajustar essa proporção dependendo do universo do jogo.
 
 Absorve dano com pontos Vermelho (R).
 
-```text
-
-Caso tenha fator Azul (B)
+Caso tenha fator Azul (B):
 
 ```text
 Absorve dano com pontos Azul (B).
@@ -111,15 +140,19 @@ Mobilidade
 
 - voo
 - levitação
+- teleporte
 
 Percepção
 
 - visão noturna
 - sensores avançados
+- percepção ampliada
 
 Tecnologia
 
 - controle remoto de dispositivos
+- habilidades de hacking
+- interface com drones
 
 ## Como criar uma habilidade RGB
 
@@ -133,4 +166,7 @@ Toda habilidade deve definir:
 
 Veja também:
 
-← [Voltar para Criação de Personagem](character_creation.md)
+- [Criação de Personagem](character_creation.md)
+- [Atributos](attributes.md)
+
+← [Voltar para README](README.md)

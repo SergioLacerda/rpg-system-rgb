@@ -92,6 +92,6 @@ Because of this separation, equipment remains **lightweight and modular** within
 
 - [Armor](armor.md)
 - [Shields](shields.md)
-- [Firearms](../weapons/firearms.md)
+- [Firearms](../weapons/categories/firearms.md)
 
 ← [Back to README](README.md)

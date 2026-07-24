@@ -73,10 +73,10 @@ Exemplos:
 
 Documentos relacionados:
 
-- firearms.md
-- melee.md
-- armor.md
-- shields.md
+- [Armas de Fogo](../weapons/categories/firearms.md)
+- [Armas Corpo a Corpo](../weapons/categories/melee.md)
+- [Armaduras](../equipment/armor.md)
+- [Escudos](../equipment/shields.md)
 
 ## Motor de Dano
 
@@ -96,8 +96,8 @@ Personagem
 
 Documentos relacionados:
 
-- damage_model.md
-- rgb_damage_interaction_model.md
+- [Modelo de Dano](../combat/damage_model.md)
+- [Modelo de Interação RGB](rgb_damage_interaction_model.md)
 
 ## Sistema de Combate
 
@@ -112,8 +112,8 @@ Exemplos:
 
 Documentos relacionados:
 
-- movement.md
-- attack_and_defense.md
+- [Movimento](../combat/movement.md)
+- [Ataque e Defesa](../combat/attack_and_defense.md)
 
 ## Camada de Gameplay
 
@@ -133,9 +133,9 @@ Recuperação
 
 Documentos relacionados:
 
-- character_creation.md
-- gameplay_loop.md
-- combat_decision_model.md
+- [Criação de Personagem](../core/character_creation.md)
+- [Loop de Jogo](gameplay_loop.md)
+- [Modelo de Decisão de Combate](../combat/combat_decision_model.md)
 
 ## RGB Ability Engine
 
@@ -153,8 +153,7 @@ Limite
 
 Documentos relacionados:
 
-- skills_and_abilities.md
-- rgb_ability_engine.md
+- [Habilidades e Perícias](../core/skills_and_abilities.md)
 
 ## Cenário da Campanha
 

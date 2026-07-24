@@ -90,7 +90,7 @@ Dano Restante → Personagem
 
 Para as regras completas veja:
 
-- damage_model.md
+- [Modelo de Dano](../combat/damage_model.md)
 
 ## Filosofia de Design
 

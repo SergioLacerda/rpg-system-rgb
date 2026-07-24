@@ -71,8 +71,8 @@ Aplicar modelo de dano
 
 Isso mantém o sistema consistente com:
 
-- attack_and_defense.md
-- damage_model.md
+- [Ataque e Defesa](../../combat/attack_and_defense.md)
+- [Modelo de Dano](../../combat/damage_model.md)
 
 ## Filosofia de Design
 
