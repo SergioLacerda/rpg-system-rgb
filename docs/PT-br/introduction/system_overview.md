@@ -16,9 +16,9 @@ O sistema é dividido em várias seções principais.
 
 As regras básicas definem os vetores RGB e a criação de personagens.
 
-→ [Atributos](attributes.md)  
-→ [Criação de Personagem](character_creation.md)  
-→ [Habilidades](skills_and_abilities.md)
+→ [Atributos](../core/attributes.md)  
+→ [Criação de Personagem](../core/character_creation.md)  
+→ [Habilidades](../core/skills_and_abilities.md)
 
 ## Sistema de Combate
 
@@ -41,9 +41,9 @@ Equipamentos fornecem opções defensivas e táticas.
 
 Armas determinam como o dano é aplicado durante o combate.
 
-→ [Armas de Fogo](../weapons/firearms.md)  
-→ [Armas Corpo a Corpo](../weapons/melee.md)  
-→ [Explosivos](../weapons/explosives.md)
+→ [Armas de Fogo](../weapons/categories/firearms.md)  
+→ [Armas Corpo a Corpo](../weapons/categories/melee.md)  
+→ [Explosivos](../weapons/categories/explosives.md)
 
 ## Referência
 

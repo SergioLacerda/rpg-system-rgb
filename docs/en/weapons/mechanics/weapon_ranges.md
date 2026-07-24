@@ -71,8 +71,8 @@ Apply damage model
 
 This keeps the system consistent with:
 
-- attack_and_defense.md
-- damage_model.md
+- [Attack and Defense](../../combat/attack_and_defense.md)
+- [Damage Model](../../combat/damage_model.md)
 
 ## Design Philosophy
 
@@ -86,8 +86,8 @@ This ensures that positioning has real impact during combat.
 
 ## See Also
 
-- [Firearms](firearms.md)
+- [Firearms](../categories/firearms.md)
 - [Penetration](penetration.md)
-- [Damage Model](../combat/damage_model.md)
+- [Damage Model](../../combat/damage_model.md)
 
-← [Back to Firearms](firearms.md)
+← [Back to Firearms](../categories/firearms.md)

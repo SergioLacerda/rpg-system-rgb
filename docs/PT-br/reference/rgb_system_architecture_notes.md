@@ -30,8 +30,8 @@ Cada camada responde a uma pergunta diferente de design.
 
 Documentos:
 
-- system_overview.md
-- rgb_damage_interaction_model.md
+- [Visão Geral do Sistema](../introduction/system_overview.md)
+- [Modelo de Interação RGB](rgb_damage_interaction_model.md)
 
 Objetivo:
 
@@ -53,8 +53,8 @@ Design do sistema central.
 
 Documentos:
 
-- gameplay_loop.md
-- combat_decision_model.md
+- [Loop de Jogo](gameplay_loop.md)
+- [Modelo de Decisão de Combate](../combat/combat_decision_model.md)
 
 Objetivo:
 
@@ -96,8 +96,8 @@ Estrutura de gameplay.
 
 Documentos:
 
-- attack_and_defense.md
-- movement.md
+- [Ataque e Defesa](../combat/attack_and_defense.md)
+- [Movimento](../combat/movement.md)
 
 Objetivo:
 
@@ -118,8 +118,8 @@ Sistema de combate.
 
 Documentos:
 
-- damage_model.md
-- rgb_damage_interaction_model.md
+- [Modelo de Dano](../combat/damage_model.md)
+- [Modelo de Interação RGB](rgb_damage_interaction_model.md)
 
 Objetivo:
 
@@ -149,11 +149,11 @@ Motor de dano.
 
 Documentos:
 
-- armor.md
-- shields.md
-- firearms.md
-- melee.md
-- explosives.md
+- [Armaduras](../equipment/armor.md)
+- [Escudos](../equipment/shields.md)
+- [Armas de Fogo](../weapons/categories/firearms.md)
+- [Armas Corpo a Corpo](../weapons/categories/melee.md)
+- [Explosivos](../weapons/categories/explosives.md)
 
 Objetivo:
 

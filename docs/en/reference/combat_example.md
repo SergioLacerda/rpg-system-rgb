@@ -176,8 +176,8 @@ Because the same formulas apply to all characters, the system remains easy to ba
 
 ## See Also
 
-- [Attack and Defense](attack_and_defense.md)
-- [Movement](movement.md)
-- [Damage Model](damage_model.md)
+- [Attack and Defense](../combat/attack_and_defense.md)
+- [Movement](../combat/movement.md)
+- [Damage Model](../combat/damage_model.md)
 
 ← [Back to README](README.md)

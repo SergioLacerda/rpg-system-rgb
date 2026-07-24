@@ -63,4 +63,15 @@ Observações adicionais sobre o design do sistema.
 
 → [Notas Extras](extra.md)
 
+---
+
+## Lacunas Conhecidas / Notas de Manutenção
+
+- **Verificação de links:** esta documentação atualmente é verificada
+  manualmente. Recomenda-se adicionar um verificador automático de links
+  markdown ao CI para evitar que referências quebradas passem despercebidas.
+- **RGB Ability Engine:** uma referência anterior a um documento
+  `rgb_ability_engine.md` foi removida de `rgb_system_engine.md` — nenhum
+  documento desse tipo chegou a ser criado neste repositório.
+
 ← [Voltar para README](../README.md)

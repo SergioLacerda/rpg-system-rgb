@@ -76,7 +76,7 @@ Defense = Armor + Physical Shield (if any) + Magical Shield
 
 See also:
 
-- [Firearms](../weapons/firearms.md)
+- [Firearms](../weapons/categories/firearms.md)
 - [Armor](../equipment/armor.md)
 
 ← [Back to README](README.md)

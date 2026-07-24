@@ -16,9 +16,9 @@ The system is divided into several major sections.
 
 The core rules define the RGB vectors and character creation.
 
-→ [Attributes](attributes.md)  
-→ [Character Creation](character_creation.md)  
-→ [Skills and Abilities](skills_and_abilities.md)
+→ [Attributes](../core/attributes.md)  
+→ [Character Creation](../core/character_creation.md)  
+→ [Skills and Abilities](../core/skills_and_abilities.md)
 
 ## Combat System
 
@@ -26,7 +26,7 @@ Combat rules define how characters interact during encounters.
 
 → [Attack and Defense](../combat/attack_and_defense.md)  
 → [Combat Decision Model](../combat/combat_decision_model.md)
-→ [Damage Model](../combat/damage_model.md.md)
+→ [Damage Model](../combat/damage_model.md)
 → [Movement](../combat/movement.md)
 
 ## Equipment
@@ -41,9 +41,9 @@ Equipment provides defensive and tactical options.
 
 Weapons determine how damage is applied during combat.
 
-→ [Firearms](../weapons/firearms.md)  
-→ [Melee Weapons](../weapons/melee.md)  
-→ [Explosives](../weapons/explosives.md)
+→ [Firearms](../weapons/categories/firearms.md)  
+→ [Melee Weapons](../weapons/categories/melee.md)  
+→ [Explosives](../weapons/categories/explosives.md)
 
 ## Reference
 

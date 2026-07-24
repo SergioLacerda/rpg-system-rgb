@@ -92,6 +92,6 @@ Devido a essa separação, os equipamentos permanecem **simples e modulares** de
 
 - [Armadura](armor.md)
 - [Escudos](shields.md)
-- [Armas de Fogo](../weapons/firearms.md)
+- [Armas de Fogo](../weapons/categories/firearms.md)
 
 ← [Voltar para README](README.md)
