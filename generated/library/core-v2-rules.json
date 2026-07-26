@@ -1,0 +1,505 @@
+{
+  "schema": "rgb-docs-generated-projection/0.1",
+  "projection_id": "projection.library.core-rules.v0_1",
+  "surface": "library",
+  "owner": "Library",
+  "status": "proposed",
+  "authority_type": "generated_artifact",
+  "description": "Reader-facing Library slice for the initial Core V2 rules inventory.",
+  "generated_from": [
+    "core.vector.r",
+    "core.vector.g",
+    "core.vector.b",
+    "core.resource.health",
+    "core.resource.shield",
+    "core.combat.attack-margin",
+    "core.damage.flow",
+    "core.damage.impact-source",
+    "core.damage.penetration",
+    "core.damage.armor-reduction",
+    "core.damage.shield-absorption",
+    "core.ability.contract",
+    "core.example.combat-turn"
+  ],
+  "source_index": "docs/core/semantic/core-v2.index.json",
+  "semantic_source": "docs/core/semantic/source/core-v2-rules.v0.1.json",
+  "provenance": {
+    "decision_refs": [
+      "docs/adr/adr-001-ai-first-documentation-authority.md",
+      "docs/adr/adr-001-ai-first-documentation-authority.md"
+    ],
+    "source_revision": "manual"
+  },
+  "required_disclosures": [
+    "derived_projection",
+    "bridge_markdown_authority",
+    "localized_status"
+  ],
+  "generation_gate": [
+    "source units exist",
+    "owner contract allows library surface",
+    "output remains projection"
+  ],
+  "units": [
+    {
+      "id": "core.vector.r",
+      "kind": "concept",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Red Vector",
+      "retrieval_summary": "R changes the source of pressure through force, impact, disruption, or transformation.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/core/attributes.md",
+        "markdown_pt_br": "docs/core/PT-br/core/attributes.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.action.press"
+        ]
+      },
+      "tags": [
+        "core",
+        "vector",
+        "pressure",
+        "impact",
+        "interruption"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/adr/adr-002-rgb-core-v2-design-control.md",
+          "docs/adr/adr-002-rgb-core-v2-design-control.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.vector.g",
+      "kind": "concept",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Green Vector",
+      "retrieval_summary": "G changes relation to pressure through movement, timing, evasion, reach, or positioning.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/core/attributes.md",
+        "markdown_pt_br": "docs/core/PT-br/core/attributes.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.action.reposition",
+          "core.combat.evade"
+        ]
+      },
+      "tags": [
+        "core",
+        "vector",
+        "relation",
+        "movement",
+        "timing",
+        "positioning"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/adr/adr-002-rgb-core-v2-design-control.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.vector.b",
+      "kind": "concept",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Blue Vector",
+      "retrieval_summary": "B preserves continuity under pressure through endurance, blocking, shields, stabilization, resistance, or protection.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/core/attributes.md",
+        "markdown_pt_br": "docs/core/PT-br/core/attributes.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.action.sustain",
+          "core.damage.shield-absorption",
+          "core.resource.shield"
+        ]
+      },
+      "tags": [
+        "core",
+        "vector",
+        "preservation",
+        "shield",
+        "stabilization",
+        "resistance"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/adr/adr-002-rgb-core-v2-design-control.md",
+          "docs/adr/adr-002-rgb-core-v2-design-control.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.resource.health",
+      "kind": "resource",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Health",
+      "statement": "Health is calculated as 4 + R + B, combining pressure tolerance and preservation.",
+      "retrieval_summary": "Health is calculated as 4 + R + B, combining pressure tolerance and preservation.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/core/character_creation.md",
+        "markdown_pt_br": "docs/core/PT-br/core/character_creation.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.term.health"
+        ],
+        "depends_on": [
+          "core.vector.r",
+          "core.vector.b"
+        ]
+      },
+      "tags": [
+        "character",
+        "resource",
+        "health",
+        "formula"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/adr/adr-002-rgb-core-v2-design-control.md"
+        ],
+        "source_revision": "accepted-adr-001"
+      }
+    },
+    {
+      "id": "core.resource.shield",
+      "kind": "resource",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Shield",
+      "retrieval_summary": "Energy shields are typically calculated as B x 3 and absorb remaining damage after armor reduction.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/equipment/shields.md",
+        "markdown_pt_br": "docs/core/PT-br/equipment/shields.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.damage.shield-absorption",
+          "core.term.shield-absorption"
+        ],
+        "depends_on": [
+          "core.vector.b"
+        ]
+      },
+      "tags": [
+        "equipment",
+        "resource",
+        "shield",
+        "formula"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/equipment/shields.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.combat.attack-margin",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Attack Margin",
+      "statement": "Attack Margin equals Attacker R plus modifiers minus Defender G plus modifiers; zero or higher is at least a basic hit.",
+      "retrieval_summary": "Attack Margin equals Attacker R plus modifiers minus Defender G plus modifiers; zero or higher is at least a basic hit.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/combat/attack_and_defense.md",
+        "markdown_pt_br": "docs/core/PT-br/combat/attack_and_defense.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.term.attack-margin"
+        ],
+        "depends_on": [
+          "core.vector.r",
+          "core.vector.g"
+        ],
+        "illustrated_by": [
+          "core.example.combat-turn"
+        ]
+      },
+      "tags": [
+        "combat",
+        "attack",
+        "margin",
+        "resolution"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/adr/adr-002-rgb-core-v2-design-control.md"
+        ],
+        "source_revision": "accepted-adr-001"
+      }
+    },
+    {
+      "id": "core.damage.flow",
+      "kind": "procedure",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Damage Resolution Flow",
+      "statement": "Damage resolves through hit or contact check, Impact Source, penetration, armor reduction, shield absorption, then remaining health or state consequence.",
+      "retrieval_summary": "Damage resolves through hit/contact check, Impact Source, penetration, armor reduction, shield absorption, then remaining health or state consequence.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/combat/damage_model.md",
+        "markdown_pt_br": "docs/core/PT-br/combat/damage_model.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.combat.attack-margin",
+          "core.damage.impact-source",
+          "core.damage.penetration",
+          "core.damage.armor-reduction",
+          "core.damage.shield-absorption"
+        ],
+        "illustrated_by": [
+          "core.example.combat-turn"
+        ]
+      },
+      "tags": [
+        "combat",
+        "damage",
+        "procedure",
+        "pipeline"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/core/en/combat/damage_model.md"
+        ],
+        "source_revision": "accepted-adr-001"
+      }
+    },
+    {
+      "id": "core.damage.impact-source",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Impact Source",
+      "statement": "Impact may come from a weapon, attribute, ability, procedure, or explicit exception; examples cannot override the declared impact source.",
+      "retrieval_summary": "Impact may come from a weapon, attribute, ability, procedure, or explicit exception; examples cannot override the declared source.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/combat/damage_model.md",
+        "markdown_pt_br": "docs/core/PT-br/combat/damage_model.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.term.impact-source"
+        ],
+        "depends_on": [
+          "core.combat.attack-margin"
+        ]
+      },
+      "tags": [
+        "combat",
+        "damage",
+        "impact",
+        "authority"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/adr/adr-002-rgb-core-v2-design-control.md"
+        ],
+        "source_revision": "accepted-adr-001"
+      }
+    },
+    {
+      "id": "core.damage.penetration",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Penetration",
+      "statement": "Penetration reduces armor before armor reduces incoming damage.",
+      "retrieval_summary": "Penetration reduces armor before armor reduces incoming damage.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/weapons/mechanics/penetration.md",
+        "markdown_pt_br": "docs/core/PT-br/weapons/mechanics/penetration.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.damage.armor-reduction"
+        ],
+        "depends_on": [
+          "core.damage.impact-source"
+        ]
+      },
+      "tags": [
+        "combat",
+        "damage",
+        "penetration",
+        "armor"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/core/en/weapons/mechanics/penetration.md"
+        ],
+        "source_revision": "accepted-adr-001"
+      }
+    },
+    {
+      "id": "core.damage.armor-reduction",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Armor Reduction",
+      "statement": "Armor reduces incoming damage per hit after penetration and before shield absorption.",
+      "retrieval_summary": "Armor reduces incoming damage per hit after penetration and before shield absorption.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/equipment/armor.md",
+        "markdown_pt_br": "docs/core/PT-br/equipment/armor.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.term.armor-reduction"
+        ],
+        "depends_on": [
+          "core.damage.impact-source",
+          "core.damage.penetration"
+        ]
+      },
+      "tags": [
+        "combat",
+        "damage",
+        "armor",
+        "mitigation"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/core/en/equipment/armor.md"
+        ],
+        "source_revision": "accepted-adr-001"
+      }
+    },
+    {
+      "id": "core.damage.shield-absorption",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Shield Absorption",
+      "statement": "Shields absorb remaining damage after armor reduction and before it reaches health or state consequences.",
+      "retrieval_summary": "Shields absorb remaining damage after armor reduction and before it reaches health or state consequences.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/equipment/shields.md",
+        "markdown_pt_br": "docs/core/PT-br/equipment/shields.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.term.shield-absorption"
+        ],
+        "depends_on": [
+          "core.vector.b",
+          "core.resource.shield",
+          "core.damage.armor-reduction"
+        ]
+      },
+      "tags": [
+        "combat",
+        "damage",
+        "shield",
+        "absorption"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/core/en/equipment/shields.md"
+        ],
+        "source_revision": "accepted-adr-001"
+      }
+    },
+    {
+      "id": "core.ability.contract",
+      "kind": "ability",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Ability Contract",
+      "statement": "Canonical abilities must declare id, name, vector, tier, requirements, action type, cost, range, duration, effect, limits, tags, and source status.",
+      "retrieval_summary": "Canonical abilities must declare id, name, vector, tier, requirements, action type, cost, range, duration, effect, limits, tags, and source status.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/core/skills_and_abilities.md",
+        "markdown_pt_br": "docs/core/PT-br/core/skills_and_abilities.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.vector.r",
+          "core.vector.g",
+          "core.vector.b"
+        ]
+      },
+      "tags": [
+        "core",
+        "ability",
+        "contract",
+        "schema",
+        "specialist"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/core/en/core/skills_and_abilities.md"
+        ],
+        "source_revision": "accepted-adr-001"
+      }
+    },
+    {
+      "id": "core.example.combat-turn",
+      "kind": "example",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Combat Turn Example",
+      "retrieval_summary": "Combat example illustrates movement, impact source, armor, shield, and remaining damage.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/reference/combat_example.md",
+        "markdown_pt_br": "docs/core/PT-br/reference/combat_example.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.combat.attack-margin",
+          "core.damage.flow",
+          "core.damage.impact-source",
+          "core.damage.armor-reduction",
+          "core.damage.shield-absorption"
+        ]
+      },
+      "tags": [
+        "example",
+        "combat",
+        "damage",
+        "reference"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/reference/combat_example.md"
+        ],
+        "source_revision": "manual"
+      }
+    }
+  ]
+}

@@ -10,29 +10,29 @@ A lightweight **tabletop role‑playing system** designed to keep rules simple w
 
 This project documentation is available in multiple languages.
 
-- 🇬🇧 English (official) → [English Documentation](docs/en/)
-- 🇧🇷 Português → [Documentação em Português](docs/PT-br/)
+- 🇬🇧 English (official) → [English Documentation](docs/core/en/)
+- 🇧🇷 Português → [Documentação em Português](docs/core/PT-br/)
 
 ## Quick Navigation
 
-- Quick Start → [Quick Start](docs/en/introduction/quick_start.md)
-- System Overview → [System Overview](docs/en/introduction/system_overview.md)
-- One page Rules → [One page Rules](docs/en/introduction/rgb_one_page_rules.md)
+- Quick Start → [Quick Start](docs/core/en/introduction/quick_start.md)
+- System Overview → [System Overview](docs/core/en/introduction/system_overview.md)
+- One page Rules → [One page Rules](docs/core/en/introduction/rgb_one_page_rules.md)
 
-- Core Rules → [Core Rules](docs/en/core/)
-- Combat System → [Combat System](docs/en/combat/)
-- Damage Model → [Damage Model](docs/en/combat/damage_model.md)
-- Combat Decision Model → [Combat Decision Model](docs/en/combat/combat_decision_model.md)
+- Core Rules → [Core Rules](docs/core/en/core/)
+- Combat System → [Combat System](docs/core/en/combat/)
+- Damage Model → [Damage Model](docs/core/en/combat/damage_model.md)
+- Combat Decision Model → [Combat Decision Model](docs/core/en/combat/combat_decision_model.md)
 
-- Equipment → [Equipment](docs/en/equipment/)
-- Weapons → [Weapons](docs/en/weapons/)
+- Equipment → [Equipment](docs/core/en/equipment/)
+- Weapons → [Weapons](docs/core/en/weapons/)
 
-- Examples & Reference → [Examples & Reference](docs/en/reference/)
-- Damage Model and Interaction Design Notes → [Damage Model and Interaction Design Notes](docs/en/reference/rgb_damage_interaction_model.md)
-- Gameplay Loop → [Gameplay Loop](docs/en/reference/gameplay_loop.md)
-- RGB System Architecture → [RGB System Architecture](docs/en/reference/rgb_system_architecture_notes.md)
-- RGB Interaction Model → [RGB Interaction Model](docs/en/reference/rgb_damage_interaction_model.md)
-- RGB System Engine → [RGB System Engine](docs/en/reference/rgb_system_engine.md)
+- Examples & Reference → [Examples & Reference](docs/core/en/reference/)
+- Damage Model and Interaction Design Notes → [Damage Model and Interaction Design Notes](docs/core/en/reference/rgb_damage_interaction_model.md)
+- Gameplay Loop → [Gameplay Loop](docs/core/en/reference/gameplay_loop.md)
+- RGB System Architecture → [RGB System Architecture](docs/core/en/reference/rgb_system_architecture_notes.md)
+- RGB Interaction Model → [RGB Interaction Model](docs/core/en/reference/rgb_damage_interaction_model.md)
+- RGB System Engine → [RGB System Engine](docs/core/en/reference/rgb_system_engine.md)
 
 ## Core Concept
 
@@ -92,24 +92,31 @@ This allows the system to work both for **story‑driven campaigns** and **tacti
 ```text
 rpg-system-rgb/
 docs/
-   en/
-      combat/
-      core/
-      equipment/
-      reference/
-      weapons/
+   core/
+      en/
+         combat/
+         core/
+         equipment/
+         reference/
+         weapons/
 
-   PT-br/
-      combat/
-      core/
-      equipment/
-      reference/
-      weapons/
+      PT-br/
+         combat/
+         core/
+         equipment/
+         reference/
+         weapons/
+
+      semantic/
+
+   adr/
+generated/
 README.md
 LICENSE
 ```
 
-The **English documentation is the official reference version** of the system.
+The **English documentation under `docs/core/en` is the official reference
+version** of the system.
 
 Translations aim to remain synchronized with the English documentation.
 
