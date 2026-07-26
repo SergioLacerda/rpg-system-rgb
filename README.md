@@ -91,28 +91,66 @@ This allows the system to work both for **story‑driven campaigns** and **tacti
 
 ```text
 rpg-system-rgb/
+cmd/
+   rgb/              core rule engine entrypoint
+   rgb-compiler/     renders docs/core/**/*.md into HTML + print pages
+   rgb-tooling/      validates docs/core/semantic/**, generates projections
+
+internal/
+   app/              thin orchestration layer (only import path for cmd/*)
+   components/
+      core/          RGB rule engine: characters, actions, combat, states
+      tooling/       semantic-docs validators + projection generator
+      compiler/      Markdown parser + HTML/print renderer
+      library/       site assembly + PDF export instructions
+      maker/         campaign/content structuring (stub, not yet implemented)
+      specialist/    rule consultation and validation (stub, not yet implemented)
+      bundles/       consolidated bundle format (stub, not yet implemented)
+
 docs/
    core/
-      en/
+      en/            canonical bilingual rule source (bridge)
          combat/
          core/
          equipment/
          reference/
          weapons/
 
-      PT-br/
+      PT-br/         localized projection
          combat/
          core/
          equipment/
          reference/
          weapons/
 
-      semantic/
+      semantic/      stable IDs, l10n manifest, projection manifest, contracts
 
-   adr/
-generated/
-README.md
+   adr/               architecture decision records
+   architecture/       C4 diagrams (context, containers, components)
+   engineering/         review workflow and guardrail documentation
+
+skills/
+   maker/            RGB Maker skill (placeholder, not yet implemented)
+   specialist/       RGB Specialist skill (placeholder, not yet implemented)
+
+web/
+   landing/          unified landing page (placeholder, not yet implemented)
+
+generated/            derived artifacts only, never edited by hand
+   ai-context/       AI context packs
+   bundles/          consolidated projection bundle
+   landing/          landing page summary data
+   library/          compiled HTML site + print-ready pages
+   pdf/              PDF export manifest
+   search/           search index
+
+tests/                repo-wide guardrails (architecture, semantic docs, features)
+
+Makefile
+go.mod
+.golangci.yml
 LICENSE
+README.md
 ```
 
 The **English documentation under `docs/core/en` is the official reference
