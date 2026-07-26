@@ -220,7 +220,7 @@
       ],
       "source_refs": [
         "docs/core/semantic/schema-v0.1.md",
-        "scripts/validate_semantic_index.go"
+        "internal/components/tooling/validate_index.go"
       ]
     },
     {
