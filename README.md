@@ -120,6 +120,43 @@ version** of the system.
 
 Translations aim to remain synchronized with the English documentation.
 
+## Development
+
+Common commands (see `Makefile` for the full list):
+
+### Tests
+
+```bash
+make test        # run the full test suite
+make test-arch   # run the Clean Architecture boundary guardrail tests
+make cover       # run tests with a coverage report
+```
+
+### Documentation guardrails
+
+```bash
+make validate    # validate docs/core/semantic/** (l10n, index, contracts, projections)
+make generate    # regenerate the semantic projection JSON artifacts
+```
+
+### HTML site and PDF
+
+```bash
+make compile     # render docs/core/**/*.md into a static HTML site and print-ready pages
+```
+
+`make compile` writes:
+
+- `generated/library/html/{en,PT-br}/**` — static HTML site (1:1 mirror of `docs/core/**/*.md`), with per-locale navigation index pages
+- `generated/library/print/core-v2-rules-{en,PT-br}.html` — print-ready pages, ordered per `docs/core/semantic/projection-manifest.v0.1.json`
+- `generated/library/PDF_EXPORT.md` — instructions for exporting the print-ready pages to PDF (print-to-PDF from a browser; PDF export is a documented manual step by design, not an automated build step)
+
+### Full gate
+
+```bash
+make review-structure   # vet + lint + test + test-arch + validate
+```
+
 ## Contributing
 
 Contributions are welcome.
