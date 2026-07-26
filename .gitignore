@@ -1,3 +1,15 @@
+#Runtime
 .strategist/.compiled/
 .strategist
 .analysis
+.sdd
+
+#Seeds
+.claude
+.gemini
+.codex
+.github
+.vscode
+AGENTS.md
+CLAUDE.md
+GEMINI.md

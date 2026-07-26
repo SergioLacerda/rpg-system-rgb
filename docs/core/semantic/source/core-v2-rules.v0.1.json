@@ -1,0 +1,440 @@
+{
+  "schema": "rgb-docs-semantic-source/0.1",
+  "source_index": "docs/core/semantic/core-v2.index.json",
+  "authority_decision": "docs/adr/adr-001-ai-first-documentation-authority.md",
+  "source_locale": "en",
+  "default_localized_locale": "PT-br",
+  "description": "Accepted semantic source slice for stable RGB Core V2 combat, resource, and ability contract units.",
+  "units": [
+    {
+      "id": "core.resource.health",
+      "kind": "resource",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Health",
+      "statement": "Health is calculated as 4 + R + B, combining pressure tolerance and preservation.",
+      "formula": "Health = 4 + R + B",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/core/character_creation.md",
+        "markdown_pt_br": "docs/core/PT-br/core/character_creation.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.vector.r",
+          "core.vector.b"
+        ],
+        "clarifies": [
+          "core.term.health"
+        ]
+      },
+      "provenance": {
+        "source_revision": "accepted-adr-001",
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/adr/adr-002-rgb-core-v2-design-control.md"
+        ]
+      },
+      "translation_expectations": {
+        "pt_br": {
+          "projection_path": "docs/core/PT-br/core/character_creation.md",
+          "required_terms": [
+            {
+              "en": "Health",
+              "pt_br": "Vida"
+            },
+            {
+              "en": "Health = 4 + R + B",
+              "pt_br": "Vida = 4 + R + B"
+            }
+          ]
+        }
+      },
+      "component_consumers": [
+        "Core",
+        "Specialist",
+        "tooling",
+        "bundles"
+      ]
+    },
+    {
+      "id": "core.combat.attack-margin",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Attack Margin",
+      "statement": "Attack Margin equals Attacker R plus modifiers minus Defender G plus modifiers; zero or higher is at least a basic hit.",
+      "formula": "Attack Margin = Attacker (R + modifiers) - Defender (G + modifiers)",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/combat/attack_and_defense.md",
+        "markdown_pt_br": "docs/core/PT-br/combat/attack_and_defense.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.vector.r",
+          "core.vector.g"
+        ],
+        "clarifies": [
+          "core.term.attack-margin"
+        ],
+        "illustrated_by": [
+          "core.example.combat-turn"
+        ]
+      },
+      "provenance": {
+        "source_revision": "accepted-adr-001",
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/adr/adr-002-rgb-core-v2-design-control.md"
+        ]
+      },
+      "translation_expectations": {
+        "pt_br": {
+          "projection_path": "docs/core/PT-br/combat/attack_and_defense.md",
+          "required_terms": [
+            {
+              "en": "Attack Margin",
+              "pt_br": "Margem de Ataque"
+            }
+          ]
+        }
+      },
+      "component_consumers": [
+        "Core",
+        "Specialist",
+        "tooling",
+        "bundles"
+      ]
+    },
+    {
+      "id": "core.damage.flow",
+      "kind": "procedure",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Damage Resolution Flow",
+      "statement": "Damage resolves through hit or contact check, Impact Source, penetration, armor reduction, shield absorption, then remaining health or state consequence.",
+      "ordered_steps": [
+        "Hit or Contact Check",
+        "Impact Source",
+        "Penetration",
+        "Armor Reduction",
+        "Shield Absorption",
+        "Remaining Damage"
+      ],
+      "projection_paths": {
+        "markdown_en": "docs/core/en/combat/damage_model.md",
+        "markdown_pt_br": "docs/core/PT-br/combat/damage_model.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.combat.attack-margin",
+          "core.damage.impact-source",
+          "core.damage.penetration",
+          "core.damage.armor-reduction",
+          "core.damage.shield-absorption"
+        ],
+        "illustrated_by": [
+          "core.example.combat-turn"
+        ]
+      },
+      "provenance": {
+        "source_revision": "accepted-adr-001",
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/core/en/combat/damage_model.md"
+        ]
+      },
+      "translation_expectations": {
+        "pt_br": {
+          "projection_path": "docs/core/PT-br/combat/damage_model.md",
+          "required_terms": [
+            {
+              "en": "Impact Source",
+              "pt_br": "Fonte de Impacto"
+            },
+            {
+              "en": "Penetration",
+              "pt_br": "Penetração"
+            },
+            {
+              "en": "Armor Reduction",
+              "pt_br": "Redução por Armadura"
+            },
+            {
+              "en": "Shield Absorption",
+              "pt_br": "Absorção por Escudo"
+            },
+            {
+              "en": "Remaining Damage",
+              "pt_br": "Dano Restante"
+            }
+          ]
+        }
+      },
+      "component_consumers": [
+        "Core",
+        "Specialist",
+        "tooling",
+        "bundles"
+      ]
+    },
+    {
+      "id": "core.damage.impact-source",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Impact Source",
+      "statement": "Impact may come from a weapon, attribute, ability, procedure, or explicit exception; examples cannot override the declared impact source.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/combat/damage_model.md",
+        "markdown_pt_br": "docs/core/PT-br/combat/damage_model.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.combat.attack-margin"
+        ],
+        "clarifies": [
+          "core.term.impact-source"
+        ]
+      },
+      "provenance": {
+        "source_revision": "accepted-adr-001",
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/adr/adr-002-rgb-core-v2-design-control.md"
+        ]
+      },
+      "translation_expectations": {
+        "pt_br": {
+          "projection_path": "docs/core/PT-br/combat/damage_model.md",
+          "required_terms": [
+            {
+              "en": "Impact Source",
+              "pt_br": "Fonte de Impacto"
+            }
+          ]
+        }
+      },
+      "component_consumers": [
+        "Core",
+        "Specialist",
+        "tooling",
+        "bundles"
+      ]
+    },
+    {
+      "id": "core.damage.penetration",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Penetration",
+      "statement": "Penetration reduces armor before armor reduces incoming damage.",
+      "formula": "Effective Armor = Armor - Penetration",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/weapons/mechanics/penetration.md",
+        "markdown_pt_br": "docs/core/PT-br/weapons/mechanics/penetration.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.damage.impact-source"
+        ],
+        "clarifies": [
+          "core.damage.armor-reduction"
+        ]
+      },
+      "provenance": {
+        "source_revision": "accepted-adr-001",
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/core/en/weapons/mechanics/penetration.md"
+        ]
+      },
+      "translation_expectations": {
+        "pt_br": {
+          "projection_path": "docs/core/PT-br/weapons/mechanics/penetration.md",
+          "required_terms": [
+            {
+              "en": "Penetration",
+              "pt_br": "Penetração"
+            },
+            {
+              "en": "Effective Armor",
+              "pt_br": "Armadura Efetiva"
+            }
+          ]
+        }
+      },
+      "component_consumers": [
+        "Core",
+        "Specialist",
+        "tooling",
+        "bundles"
+      ]
+    },
+    {
+      "id": "core.damage.armor-reduction",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Armor Reduction",
+      "statement": "Armor reduces incoming damage per hit after penetration and before shield absorption.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/equipment/armor.md",
+        "markdown_pt_br": "docs/core/PT-br/equipment/armor.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.damage.impact-source",
+          "core.damage.penetration"
+        ],
+        "clarifies": [
+          "core.term.armor-reduction"
+        ]
+      },
+      "provenance": {
+        "source_revision": "accepted-adr-001",
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/core/en/equipment/armor.md"
+        ]
+      },
+      "translation_expectations": {
+        "pt_br": {
+          "projection_path": "docs/core/PT-br/equipment/armor.md",
+          "required_terms": [
+            {
+              "en": "Armor Reduction",
+              "pt_br": "Redução por Armadura"
+            }
+          ]
+        }
+      },
+      "component_consumers": [
+        "Core",
+        "Specialist",
+        "tooling",
+        "bundles"
+      ]
+    },
+    {
+      "id": "core.damage.shield-absorption",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Shield Absorption",
+      "statement": "Shields absorb remaining damage after armor reduction and before it reaches health or state consequences.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/equipment/shields.md",
+        "markdown_pt_br": "docs/core/PT-br/equipment/shields.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.vector.b",
+          "core.resource.shield",
+          "core.damage.armor-reduction"
+        ],
+        "clarifies": [
+          "core.term.shield-absorption"
+        ]
+      },
+      "provenance": {
+        "source_revision": "accepted-adr-001",
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/core/en/equipment/shields.md"
+        ]
+      },
+      "translation_expectations": {
+        "pt_br": {
+          "projection_path": "docs/core/PT-br/equipment/shields.md",
+          "required_terms": [
+            {
+              "en": "Shield Absorption",
+              "pt_br": "Absorção por Escudo"
+            },
+            {
+              "en": "Shield = B x 3",
+              "pt_br": "Escudo = B × 3"
+            }
+          ]
+        }
+      },
+      "component_consumers": [
+        "Core",
+        "Specialist",
+        "tooling",
+        "bundles"
+      ]
+    },
+    {
+      "id": "core.ability.contract",
+      "kind": "ability",
+      "locale": "en",
+      "authority_type": "canonical_semantic",
+      "source_status": "canonical",
+      "title": "Ability Contract",
+      "statement": "Canonical abilities must declare id, name, vector, tier, requirements, action type, cost, range, duration, effect, limits, tags, and source status.",
+      "required_fields": [
+        "id",
+        "name",
+        "vector",
+        "tier",
+        "requirements",
+        "action_type",
+        "cost",
+        "range",
+        "duration",
+        "effect",
+        "limits",
+        "tags",
+        "source_status"
+      ],
+      "projection_paths": {
+        "markdown_en": "docs/core/en/core/skills_and_abilities.md",
+        "markdown_pt_br": "docs/core/PT-br/core/skills_and_abilities.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.vector.r",
+          "core.vector.g",
+          "core.vector.b"
+        ]
+      },
+      "provenance": {
+        "source_revision": "accepted-adr-001",
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/core/en/core/skills_and_abilities.md"
+        ]
+      },
+      "translation_expectations": {
+        "pt_br": {
+          "projection_path": "docs/core/PT-br/core/skills_and_abilities.md",
+          "required_terms": [
+            {
+              "en": "Ability Contract",
+              "pt_br": "Contrato de Habilidade"
+            },
+            {
+              "en": "canonical",
+              "pt_br": "canônica"
+            }
+          ]
+        }
+      },
+      "component_consumers": [
+        "Core",
+        "Maker",
+        "Specialist",
+        "tooling",
+        "bundles"
+      ]
+    }
+  ]
+}

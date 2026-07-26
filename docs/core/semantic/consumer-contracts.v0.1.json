@@ -1,0 +1,425 @@
+{
+  "schema": "rgb-docs-consumer-contracts/0.1",
+  "source_index": "docs/core/semantic/core-v2.index.json",
+  "description": "Public AI-first documentation consumer contracts for Core, Maker, Specialist, tooling, Library, PDF, landing, and bundles.",
+  "contracts": [
+    {
+      "id": "consumer.core.v0_1",
+      "component": "Core",
+      "status": "proposed",
+      "description": "Core owns the canonical rules surface during the bridge and may later promote accepted semantic source units through an ADR.",
+      "allowed_inputs": [
+        "canonical_markdown_bridge",
+        "canonical_semantic",
+        "translation",
+        "design_record"
+      ],
+      "required_unit_fields": [
+        "id",
+        "kind",
+        "locale",
+        "authority_type",
+        "source_status",
+        "title",
+        "source_path",
+        "projection_paths",
+        "relationships",
+        "index",
+        "provenance",
+        "component_consumers"
+      ],
+      "allowed_projection_surfaces": [
+        "markdown_en",
+        "markdown_pt_br",
+        "search_index"
+      ],
+      "forbidden_authority_types": [
+        "generated_artifact"
+      ],
+      "required_disclosures": [
+        "draft",
+        "stale",
+        "needs_review",
+        "missing",
+        "localized"
+      ],
+      "outputs": [
+        "canonical markdown bridge updates",
+        "future canonical semantic source units",
+        "Core projection review notes"
+      ],
+      "validation_checks": [
+        "source IDs exist",
+        "canonical bridge units expose markdown_en",
+        "translations declare source_unit and translation_status"
+      ],
+      "source_refs": [
+        "docs/adr/adr-001-ai-first-documentation-authority.md",
+        "docs/core/semantic/schema-v0.1.md"
+      ]
+    },
+    {
+      "id": "consumer.maker.v0_1",
+      "component": "Maker",
+      "status": "proposed",
+      "description": "Maker consumes stable IDs, abilities, terms, constraints, tags, status, and provenance to draft content without becoming rule authority.",
+      "allowed_inputs": [
+        "canonical_markdown_bridge",
+        "canonical_semantic",
+        "translation",
+        "design_record"
+      ],
+      "required_unit_fields": [
+        "id",
+        "kind",
+        "locale",
+        "authority_type",
+        "source_status",
+        "title",
+        "relationships",
+        "index",
+        "provenance"
+      ],
+      "allowed_projection_surfaces": [
+        "markdown_en",
+        "markdown_pt_br",
+        "ai_context_pack",
+        "search_index"
+      ],
+      "forbidden_authority_types": [
+        "projection",
+        "generated_artifact"
+      ],
+      "required_disclosures": [
+        "draft",
+        "stale",
+        "needs_review",
+        "generated"
+      ],
+      "outputs": [
+        "draft content proposals",
+        "structured creation inputs"
+      ],
+      "validation_checks": [
+        "generated proposals keep source IDs",
+        "draft content is not marked canonical",
+        "ability units keep required contract fields"
+      ],
+      "source_refs": [
+        "docs/adr/adr-001-ai-first-documentation-authority.md",
+        "docs/core/en/core/skills_and_abilities.md"
+      ]
+    },
+    {
+      "id": "consumer.specialist.v0_1",
+      "component": "Specialist",
+      "status": "proposed",
+      "description": "Specialist consumes source IDs, retrieval summaries, paths, locale, status, relationships, and provenance for traceable answers and context packs.",
+      "allowed_inputs": [
+        "canonical_markdown_bridge",
+        "canonical_semantic",
+        "translation",
+        "projection",
+        "design_record"
+      ],
+      "required_unit_fields": [
+        "id",
+        "kind",
+        "locale",
+        "authority_type",
+        "source_status",
+        "source_path",
+        "relationships",
+        "index",
+        "provenance"
+      ],
+      "allowed_projection_surfaces": [
+        "markdown_en",
+        "markdown_pt_br",
+        "ai_context_pack",
+        "search_index"
+      ],
+      "forbidden_authority_types": [
+        "generated_artifact"
+      ],
+      "required_disclosures": [
+        "draft",
+        "stale",
+        "needs_review",
+        "localized",
+        "generated"
+      ],
+      "outputs": [
+        "traceable answers",
+        "AI context packs"
+      ],
+      "validation_checks": [
+        "answers cite source IDs",
+        "localized status is disclosed",
+        "generated context packs include provenance"
+      ],
+      "source_refs": [
+        "docs/adr/adr-001-ai-first-documentation-authority.md",
+        "docs/core/semantic/schema-v0.1.md"
+      ]
+    },
+    {
+      "id": "consumer.tooling.v0_1",
+      "component": "tooling",
+      "status": "proposed",
+      "description": "Tooling validates indexes, contracts, projections, stale translations, and generated artifact provenance without deciding rules.",
+      "allowed_inputs": [
+        "canonical_markdown_bridge",
+        "canonical_semantic",
+        "translation",
+        "projection",
+        "generated_artifact",
+        "design_record"
+      ],
+      "required_unit_fields": [
+        "id",
+        "kind",
+        "locale",
+        "authority_type",
+        "source_status",
+        "title",
+        "source_path",
+        "projection_paths",
+        "relationships",
+        "index",
+        "provenance",
+        "component_consumers"
+      ],
+      "allowed_projection_surfaces": [
+        "markdown_en",
+        "markdown_pt_br",
+        "library",
+        "pdf",
+        "landing",
+        "bundle",
+        "ai_context_pack",
+        "search_index"
+      ],
+      "forbidden_authority_types": [],
+      "required_disclosures": [
+        "draft",
+        "stale",
+        "needs_review",
+        "missing",
+        "generated"
+      ],
+      "outputs": [
+        "validation reports",
+        "projection reports",
+        "generated artifact manifests"
+      ],
+      "validation_checks": [
+        "source and projection paths exist",
+        "relationship targets exist",
+        "generated artifacts include provenance"
+      ],
+      "source_refs": [
+        "docs/core/semantic/schema-v0.1.md",
+        "scripts/validate_semantic_index.go"
+      ]
+    },
+    {
+      "id": "consumer.library.v0_1",
+      "component": "Library",
+      "status": "proposed",
+      "description": "Library consumes accepted source IDs and curated ordering to publish reader-facing pages.",
+      "allowed_inputs": [
+        "canonical_markdown_bridge",
+        "canonical_semantic",
+        "translation",
+        "projection"
+      ],
+      "required_unit_fields": [
+        "id",
+        "kind",
+        "locale",
+        "source_status",
+        "title",
+        "projection_paths",
+        "index",
+        "provenance"
+      ],
+      "allowed_projection_surfaces": [
+        "markdown_en",
+        "markdown_pt_br",
+        "library",
+        "search_index"
+      ],
+      "forbidden_authority_types": [
+        "generated_artifact"
+      ],
+      "required_disclosures": [
+        "draft",
+        "stale",
+        "needs_review",
+        "localized"
+      ],
+      "outputs": [
+        "Library pages",
+        "Library navigation metadata"
+      ],
+      "validation_checks": [
+        "Library pages reference source IDs",
+        "Library output is marked as projection",
+        "curated ordering keeps provenance"
+      ],
+      "source_refs": [
+        "docs/adr/adr-001-ai-first-documentation-authority.md",
+        "docs/adr/adr-001-ai-first-documentation-authority.md"
+      ]
+    },
+    {
+      "id": "consumer.pdf.v0_1",
+      "component": "PDF",
+      "status": "proposed",
+      "description": "PDF consumes accepted source IDs, release selection, revision metadata, and provenance to build release artifacts.",
+      "allowed_inputs": [
+        "canonical_markdown_bridge",
+        "canonical_semantic",
+        "translation",
+        "projection"
+      ],
+      "required_unit_fields": [
+        "id",
+        "kind",
+        "locale",
+        "source_status",
+        "title",
+        "projection_paths",
+        "provenance"
+      ],
+      "allowed_projection_surfaces": [
+        "markdown_en",
+        "markdown_pt_br",
+        "pdf"
+      ],
+      "forbidden_authority_types": [
+        "generated_artifact"
+      ],
+      "required_disclosures": [
+        "draft",
+        "stale",
+        "needs_review",
+        "localized"
+      ],
+      "outputs": [
+        "PDF release artifacts",
+        "PDF release manifests"
+      ],
+      "validation_checks": [
+        "PDF release manifests include source IDs",
+        "release metadata includes source revision",
+        "PDF output is marked as projection"
+      ],
+      "source_refs": [
+        "docs/adr/adr-001-ai-first-documentation-authority.md",
+        "docs/adr/adr-001-ai-first-documentation-authority.md"
+      ]
+    },
+    {
+      "id": "consumer.landing.v0_1",
+      "component": "landing",
+      "status": "proposed",
+      "description": "Landing consumes curated summaries, entry points, titles, tags, and source IDs for onboarding and navigation.",
+      "allowed_inputs": [
+        "canonical_markdown_bridge",
+        "canonical_semantic",
+        "translation",
+        "projection"
+      ],
+      "required_unit_fields": [
+        "id",
+        "kind",
+        "locale",
+        "source_status",
+        "title",
+        "index",
+        "provenance"
+      ],
+      "allowed_projection_surfaces": [
+        "markdown_en",
+        "markdown_pt_br",
+        "landing",
+        "search_index"
+      ],
+      "forbidden_authority_types": [
+        "generated_artifact"
+      ],
+      "required_disclosures": [
+        "draft",
+        "stale",
+        "needs_review"
+      ],
+      "outputs": [
+        "landing summaries",
+        "navigation entry points"
+      ],
+      "validation_checks": [
+        "landing summaries reference source IDs",
+        "landing content is marked as projection",
+        "rules authority is not assigned to landing output"
+      ],
+      "source_refs": [
+        "docs/adr/adr-001-ai-first-documentation-authority.md",
+        "docs/adr/adr-001-ai-first-documentation-authority.md"
+      ]
+    },
+    {
+      "id": "consumer.bundles.v0_1",
+      "component": "bundles",
+      "status": "proposed",
+      "description": "Bundles consume stable IDs, dependencies, locale, status, paths, and provenance for distribution and AI context pack slices.",
+      "allowed_inputs": [
+        "canonical_markdown_bridge",
+        "canonical_semantic",
+        "translation",
+        "projection",
+        "generated_artifact"
+      ],
+      "required_unit_fields": [
+        "id",
+        "kind",
+        "locale",
+        "authority_type",
+        "source_status",
+        "projection_paths",
+        "relationships",
+        "index",
+        "provenance"
+      ],
+      "allowed_projection_surfaces": [
+        "markdown_en",
+        "markdown_pt_br",
+        "bundle",
+        "ai_context_pack",
+        "search_index"
+      ],
+      "forbidden_authority_types": [],
+      "required_disclosures": [
+        "draft",
+        "stale",
+        "needs_review",
+        "localized",
+        "generated"
+      ],
+      "outputs": [
+        "distribution bundles",
+        "AI context packs"
+      ],
+      "validation_checks": [
+        "bundles include source IDs",
+        "dependencies reference known unit IDs",
+        "generated bundle artifacts include provenance"
+      ],
+      "source_refs": [
+        "docs/adr/adr-001-ai-first-documentation-authority.md",
+        "docs/core/semantic/schema-v0.1.md"
+      ]
+    }
+  ]
+}

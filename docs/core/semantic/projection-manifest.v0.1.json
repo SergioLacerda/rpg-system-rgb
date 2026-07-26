@@ -1,0 +1,239 @@
+{
+  "schema": "rgb-docs-projection-manifest/0.1",
+  "source_index": "docs/core/semantic/core-v2.index.json",
+  "consumer_contracts": "docs/core/semantic/consumer-contracts.v0.1.json",
+  "description": "Pilot derived projection manifest for Library, PDF, landing, bundles, AI context packs, and search indexes.",
+  "projections": [
+    {
+      "id": "projection.library.core-rules.v0_1",
+      "surface": "library",
+      "owner": "Library",
+      "status": "proposed",
+      "description": "Reader-facing Library slice for the initial Core V2 rules inventory.",
+      "source_units": [
+        "core.vector.r",
+        "core.vector.g",
+        "core.vector.b",
+        "core.resource.health",
+        "core.resource.shield",
+        "core.combat.attack-margin",
+        "core.damage.flow",
+        "core.damage.impact-source",
+        "core.damage.penetration",
+        "core.damage.armor-reduction",
+        "core.damage.shield-absorption",
+        "core.ability.contract",
+        "core.example.combat-turn"
+      ],
+      "output_path": "generated/library/core-v2-rules.json",
+      "provenance": {
+        "source_revision": "manual",
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/adr/adr-001-ai-first-documentation-authority.md"
+        ]
+      },
+      "required_disclosures": [
+        "derived_projection",
+        "bridge_markdown_authority",
+        "localized_status"
+      ],
+      "generation_gate": [
+        "source units exist",
+        "owner contract allows library surface",
+        "output remains projection"
+      ]
+    },
+    {
+      "id": "projection.pdf.core-rules.v0_1",
+      "surface": "pdf",
+      "owner": "PDF",
+      "status": "proposed",
+      "description": "Release-oriented Core V2 rules selection for future PDF output.",
+      "source_units": [
+        "core.resource.health",
+        "core.resource.shield",
+        "core.combat.attack-margin",
+        "core.damage.flow",
+        "core.damage.penetration",
+        "core.damage.armor-reduction",
+        "core.damage.shield-absorption",
+        "core.example.combat-turn"
+      ],
+      "output_path": "generated/pdf/core-v2-rules.manifest.json",
+      "provenance": {
+        "source_revision": "manual",
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/adr/adr-001-ai-first-documentation-authority.md"
+        ]
+      },
+      "required_disclosures": [
+        "derived_projection",
+        "release_selection",
+        "bridge_markdown_authority"
+      ],
+      "generation_gate": [
+        "source units exist",
+        "owner contract allows pdf surface",
+        "release metadata includes source revision"
+      ]
+    },
+    {
+      "id": "projection.landing.core-summary.v0_1",
+      "surface": "landing",
+      "owner": "landing",
+      "status": "proposed",
+      "description": "Onboarding summary and entry-point metadata for Core V2.",
+      "source_units": [
+        "core.vector.r",
+        "core.vector.g",
+        "core.vector.b",
+        "core.combat.attack-margin",
+        "core.damage.flow",
+        "core.ability.contract"
+      ],
+      "output_path": "generated/landing/core-v2-summary.json",
+      "provenance": {
+        "source_revision": "manual",
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/adr/adr-001-ai-first-documentation-authority.md"
+        ]
+      },
+      "required_disclosures": [
+        "navigation_only",
+        "not_rules_authority",
+        "bridge_markdown_authority"
+      ],
+      "generation_gate": [
+        "source units exist",
+        "owner contract allows landing surface",
+        "landing output is not marked canonical"
+      ]
+    },
+    {
+      "id": "projection.bundle.core-rules.v0_1",
+      "surface": "bundle",
+      "owner": "bundles",
+      "status": "proposed",
+      "description": "Distribution slice for Core V2 source IDs, dependencies, locale, status, and provenance.",
+      "source_units": [
+        "core.vector.r",
+        "core.vector.g",
+        "core.vector.b",
+        "core.resource.health",
+        "core.resource.shield",
+        "core.combat.attack-margin",
+        "core.damage.flow",
+        "core.damage.impact-source",
+        "core.damage.penetration",
+        "core.damage.armor-reduction",
+        "core.damage.shield-absorption",
+        "core.ability.contract",
+        "core.term.impact-source",
+        "core.term.health",
+        "core.term.attack-margin",
+        "core.term.armor-reduction",
+        "core.term.shield-absorption"
+      ],
+      "output_path": "generated/bundles/core-v2-rules.bundle.json",
+      "provenance": {
+        "source_revision": "manual",
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/adr/adr-001-ai-first-documentation-authority.md"
+        ]
+      },
+      "required_disclosures": [
+        "derived_projection",
+        "source_ids_required",
+        "generated_status"
+      ],
+      "generation_gate": [
+        "source units exist",
+        "owner contract allows bundle surface",
+        "bundle includes provenance"
+      ]
+    },
+    {
+      "id": "projection.ai-context.core-specialist.v0_1",
+      "surface": "ai_context_pack",
+      "owner": "bundles",
+      "status": "proposed",
+      "description": "Compact traceable context pack for Specialist workflows over the Core V2 pilot.",
+      "source_units": [
+        "core.vector.r",
+        "core.vector.g",
+        "core.vector.b",
+        "core.combat.attack-margin",
+        "core.damage.flow",
+        "core.damage.impact-source",
+        "core.damage.armor-reduction",
+        "core.damage.shield-absorption",
+        "core.ability.contract",
+        "core.example.combat-turn"
+      ],
+      "output_path": "generated/ai-context/core-specialist-pack.json",
+      "provenance": {
+        "source_revision": "manual",
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/adr/adr-001-ai-first-documentation-authority.md"
+        ]
+      },
+      "required_disclosures": [
+        "derived_projection",
+        "localized_status",
+        "generated_status",
+        "source_ids_required"
+      ],
+      "generation_gate": [
+        "source units exist",
+        "owner contract allows ai_context_pack surface",
+        "context pack cites source IDs"
+      ]
+    },
+    {
+      "id": "projection.search.core-index.v0_1",
+      "surface": "search_index",
+      "owner": "tooling",
+      "status": "proposed",
+      "description": "Search metadata over stable IDs, tags, retrieval summaries, relationships, and status.",
+      "source_units": [
+        "core.vector.r",
+        "core.vector.g",
+        "core.vector.b",
+        "core.resource.health",
+        "core.resource.shield",
+        "core.combat.attack-margin",
+        "core.combat.evade",
+        "core.damage.flow",
+        "core.damage.impact-source",
+        "core.damage.penetration",
+        "core.damage.armor-reduction",
+        "core.damage.shield-absorption",
+        "core.ability.contract",
+        "core.example.combat-turn"
+      ],
+      "output_path": "generated/search/core-v2.index.json",
+      "provenance": {
+        "source_revision": "manual",
+        "decision_refs": [
+          "docs/adr/adr-001-ai-first-documentation-authority.md",
+          "docs/adr/adr-001-ai-first-documentation-authority.md"
+        ]
+      },
+      "required_disclosures": [
+        "derived_index",
+        "not_rules_authority",
+        "status_visible"
+      ],
+      "generation_gate": [
+        "source units exist",
+        "owner contract allows search_index surface",
+        "search output is not marked canonical"
+      ]
+    }
+  ]
+}
