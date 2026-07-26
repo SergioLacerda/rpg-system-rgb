@@ -57,12 +57,9 @@ Builds híbridas também são possíveis.
 ## Progressão do Personagem
 
 À medida que personagens ganham experiência, eles se tornam mais fortes.
-
-```text
-+2 pontos de vetor por nível
-```
-
-O Mestre determina quando personagens sobem de nível de acordo com a campanha.
+Veja [Progressão](progression.md) para as regras completas de avanço,
+incluindo a escolha por avanço entre crescimento de vetor e alternativas
+como novas habilidades, especialização ou novos recursos.
 
 ## Vida
 
@@ -111,6 +108,7 @@ sistema naturalmente produz builds equilibradas e variadas.
 Veja também:
 
 - [Atributos](attributes.md)
+- [Progressão](progression.md)
 - [Combate](../combat/attack_and_defense.md)
 - [Movimento](../combat/movement.md)
 
