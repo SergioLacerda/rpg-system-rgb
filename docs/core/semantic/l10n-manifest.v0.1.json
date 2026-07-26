@@ -106,6 +106,15 @@
       "notes": []
     },
     {
+      "source": "docs/core/en/core/progression.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/core/progression.md",
+      "authority_type": "rule",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
       "source": "docs/core/en/core/skills_and_abilities.md",
       "locale": "PT-br",
       "localized": "docs/core/PT-br/core/skills_and_abilities.md",
