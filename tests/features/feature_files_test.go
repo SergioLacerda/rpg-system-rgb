@@ -2,25 +2,39 @@ package features
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
 
-func TestCoreV2FeatureFilesExist(t *testing.T) {
-	files := []string{
-		"combat/attack_evasion.feature",
-		"damage/armor_shield_absorption.feature",
-		"core/rgb_obstacle_approaches.feature",
-		"encounters/laboratory_evacuation.feature",
+// readFeatureFile reads a .feature file relative to tests/features.
+func readFeatureFile(t *testing.T, file string) string {
+	t.Helper()
+	body, err := os.ReadFile(file)
+	if err != nil {
+		t.Fatal(err)
 	}
+	return string(body)
+}
 
-	for _, file := range files {
+// discoverFeatureFiles walks tests/features for every .feature file, so new
+// files are picked up without editing this test (structural review F2).
+func discoverFeatureFiles(t *testing.T) []string {
+	t.Helper()
+	files, err := filepath.Glob("*/*.feature")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(files) == 0 {
+		t.Fatal("no .feature files found under tests/features")
+	}
+	return files
+}
+
+func TestCoreV2FeatureFilesExist(t *testing.T) {
+	for _, file := range discoverFeatureFiles(t) {
 		t.Run(file, func(t *testing.T) {
-			body, err := os.ReadFile(file)
-			if err != nil {
-				t.Fatal(err)
-			}
-			text := string(body)
+			text := readFeatureFile(t, file)
 			for _, required := range []string{"Feature:", "Scenario"} {
 				if !strings.Contains(text, required) {
 					t.Fatalf("%s missing %q", file, required)

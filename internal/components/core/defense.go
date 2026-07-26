@@ -2,18 +2,30 @@ package core
 
 import "fmt"
 
+// Procedure names a specific defensive or offensive technique, per the
+// defense procedure taxonomy in docs/core/en/combat/attack_and_defense.md
+// (decision matrix D-004). Procedures are not collapsed into one generic
+// defense formula: each declares its own vector owner.
 type Procedure string
 
 const (
-	ProcedureAttack          Procedure = "attack"
-	ProcedureEvade           Procedure = "evade"
-	ProcedureReposition      Procedure = "reposition"
-	ProcedureBlock           Procedure = "block"
-	ProcedureSustain         Procedure = "sustain"
-	ProcedureInterrupt       Procedure = "interrupt"
+	// ProcedureAttack applies direct R pressure against a target.
+	ProcedureAttack Procedure = "attack"
+	// ProcedureEvade uses G to avoid or alter contact.
+	ProcedureEvade Procedure = "evade"
+	// ProcedureReposition uses G to change range, cover, or engagement.
+	ProcedureReposition Procedure = "reposition"
+	// ProcedureBlock uses B, equipment, or an ability to intentionally receive pressure.
+	ProcedureBlock Procedure = "block"
+	// ProcedureSustain uses B to preserve a state or position under pressure.
+	ProcedureSustain Procedure = "sustain"
+	// ProcedureInterrupt uses R to stop an action by applying pressure first.
+	ProcedureInterrupt Procedure = "interrupt"
+	// ProcedureCounterpressure answers pressure with force after it lands.
 	ProcedureCounterpressure Procedure = "counterpressure"
 )
 
+// Validate reports whether the procedure is a known Core V2 procedure.
 func (procedure Procedure) Validate() error {
 	switch procedure {
 	case ProcedureAttack, ProcedureEvade, ProcedureReposition, ProcedureBlock,
@@ -24,6 +36,7 @@ func (procedure Procedure) Validate() error {
 	}
 }
 
+// Vector returns the RGB vector that owns this procedure.
 func (procedure Procedure) Vector() Vector {
 	switch procedure {
 	case ProcedureEvade, ProcedureReposition:
@@ -37,6 +50,8 @@ func (procedure Procedure) Vector() Vector {
 	}
 }
 
+// DefenseValue returns the character's point value in the vector that owns
+// the given procedure.
 func DefenseValue(character Character, procedure Procedure) (int, error) {
 	if err := procedure.Validate(); err != nil {
 		return 0, err

@@ -14,8 +14,9 @@ func TestResourceDerivationIsDeterministic(t *testing.T) {
 			if resources.MaxHealth != expectedHealth || resources.CurrentHealth != expectedHealth {
 				t.Fatalf("health derivation got max=%d current=%d want=%d", resources.MaxHealth, resources.CurrentHealth, expectedHealth)
 			}
-			if resources.MaxShield != b || resources.CurrentShield != b {
-				t.Fatalf("shield derivation got max=%d current=%d want=%d", resources.MaxShield, resources.CurrentShield, b)
+			expectedShield := b * 3
+			if resources.MaxShield != expectedShield || resources.CurrentShield != expectedShield {
+				t.Fatalf("shield derivation got max=%d current=%d want=%d", resources.MaxShield, resources.CurrentShield, expectedShield)
 			}
 		}
 	}

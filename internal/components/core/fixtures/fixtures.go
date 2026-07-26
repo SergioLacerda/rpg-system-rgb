@@ -1,7 +1,11 @@
+// Package fixtures provides reusable Core V2 characters and encounters for
+// tests, simulations, and playtests. It mirrors tests/fixtures/*.yaml; see
+// tests/fixtures/fixture_files_test.go for the parity guardrail.
 package fixtures
 
 import "github.com/SergioLacerda/rpg-system-rgb/internal/components/core"
 
+// Characters returns the four canonical Core V2 test characters, keyed by ID.
 func Characters() map[string]*core.Character {
 	characters := map[string]*core.Character{}
 	for _, character := range []core.Character{
@@ -10,12 +14,14 @@ func Characters() map[string]*core.Character {
 		mustCharacter("blue-warden", "Blue Warden", core.Vectors{R: 2, G: 2, B: 5}),
 		mustCharacter("rgb-balanced", "RGB Balanced", core.Vectors{R: 3, G: 3, B: 3}),
 	} {
-		copy := character
-		characters[copy.ID] = &copy
+		characterCopy := character
+		characters[characterCopy.ID] = &characterCopy
 	}
 	return characters
 }
 
+// Encounters returns the canonical Core V2 test encounters that exercise
+// the four fixture characters across attack, movement, and damage loops.
 func Encounters() []core.Encounter {
 	return []core.Encounter{
 		{
