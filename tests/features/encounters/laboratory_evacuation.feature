@@ -13,3 +13,16 @@ Feature: Laboratory evacuation
     Then the encounter objective must succeed
     And defeating every mercenary must not be required
     And no undefined rule step may be recorded
+
+  Rule: Objectives can succeed or fail on a round deadline
+
+    Scenario: Objective met before the deadline succeeds
+      Given the laboratory evacuation encounter with a 4 round deadline
+      When the researcher reaches the exit on round 3
+      Then the encounter objective must succeed
+
+    Scenario: Deadline reached without the objective fails the encounter
+      Given the laboratory evacuation encounter with a 4 round deadline
+      When round 4 ends without the researcher at the exit
+      Then the encounter objective must fail
+      And the failure reason must be the reactor collapse

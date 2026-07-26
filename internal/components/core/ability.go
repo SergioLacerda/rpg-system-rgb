@@ -2,13 +2,19 @@ package core
 
 import "fmt"
 
+// Timing declares whether an ability is used as an action or a reaction.
 type Timing string
 
 const (
-	TimingAction   Timing = "action"
+	// TimingAction is used during the actor's own turn.
+	TimingAction Timing = "action"
+	// TimingReaction is used in response to another actor's action.
 	TimingReaction Timing = "reaction"
 )
 
+// Ability is the minimal governed contract every RGB Core V2 ability must
+// declare (decision matrix D-007): vector ownership, cost, timing, and
+// effect are explicit rather than implied.
 type Ability struct {
 	ID           string
 	Name         string
@@ -24,6 +30,8 @@ type Ability struct {
 	Tags         []string
 }
 
+// Validate reports whether the ability satisfies the minimal ability
+// contract required before it can be used by a character or the Specialist.
 func (ability Ability) Validate() error {
 	if ability.ID == "" {
 		return fmt.Errorf("ability ID must be non-empty")

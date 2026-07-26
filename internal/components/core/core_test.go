@@ -29,8 +29,8 @@ func TestCharacterCreationDerivesResourcesFromRAndB(t *testing.T) {
 	if character.Resources.MaxHealth != 10 {
 		t.Fatalf("health must use base + R + B, got %d", character.Resources.MaxHealth)
 	}
-	if character.Resources.MaxShield != 5 {
-		t.Fatalf("shield must derive from B, got %d", character.Resources.MaxShield)
+	if character.Resources.MaxShield != 15 {
+		t.Fatalf("shield must derive from B * 3, got %d", character.Resources.MaxShield)
 	}
 	if !character.HasState(StateHealthy) {
 		t.Fatal("new character must start healthy")
@@ -58,11 +58,11 @@ func TestActionContractValidation(t *testing.T) {
 
 func TestMarginResolutionBands(t *testing.T) {
 	cases := map[int]Outcome{
-		4:  OutcomeStrongSuccess,
+		3:  OutcomeStrongSuccess,
 		1:  OutcomeSuccess,
 		0:  OutcomeSuccessWithCost,
-		-1: OutcomeFailureWithOpportunity,
-		-4: OutcomeClearFailure,
+		-2: OutcomeFailureWithOpportunity,
+		-3: OutcomeClearFailure,
 	}
 	for margin, expected := range cases {
 		if got := ClassifyMargin(margin); got != expected {
@@ -71,7 +71,7 @@ func TestMarginResolutionBands(t *testing.T) {
 	}
 
 	resolution := Resolve(5, 1, 3)
-	if resolution.Margin != 3 || resolution.Outcome != OutcomeSuccess {
+	if resolution.Margin != 3 || resolution.Outcome != OutcomeStrongSuccess {
 		t.Fatalf("unexpected resolution: %#v", resolution)
 	}
 }
@@ -110,6 +110,10 @@ func TestDamagePipelineOrderAndStateConsequences(t *testing.T) {
 		t.Fatal(err)
 	}
 	target.Resources.Armor = 2
+	// The damage pipeline is tested against an explicit shield reserve,
+	// independent of the B-derived MaxShield, so this scenario stays
+	// stable regardless of the shield derivation formula.
+	target.Resources.CurrentShield = 3
 
 	result, err := ApplyDamage(&target, DamageInput{Impact: 7, Penetration: 1})
 	if err != nil {
