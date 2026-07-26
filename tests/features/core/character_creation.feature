@@ -19,3 +19,13 @@ Feature: Character creation derives canonical resources
       Given a new character with R 4, G 3 and B 0
       Then the character must not have the shielded state
       And max shield must be 0
+
+  Rule: Starting characters distribute exactly 7 points
+
+    Scenario: A valid starting distribution is accepted
+      Given a starting character with R 3, G 2 and B 2
+      Then the character must be valid
+
+    Scenario: An oversized distribution is rejected for starting characters
+      Given a starting character with R 5, G 2 and B 2
+      Then character creation must fail with a budget error

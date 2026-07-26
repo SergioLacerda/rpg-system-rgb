@@ -66,6 +66,17 @@ func TestDamageFeatureArmorShieldHealthFlow(t *testing.T) {
 // mirrors: tests/features/core/rgb_obstacle_approaches.feature#Break a blocked door
 // mirrors: tests/features/core/rgb_obstacle_approaches.feature#Bypass a blocked door
 // mirrors: tests/features/core/rgb_obstacle_approaches.feature#Hold a closing door
+// mirrors: tests/features/combat/attack_evasion.feature#Situational modifier converts a miss into a hit
+func TestSituationalModifierConvertsMissIntoHitFeatureExample(t *testing.T) {
+	resolution := core.Resolve(2, 2, 3)
+	if resolution.Margin != 1 {
+		t.Fatalf("margin got %d want 1", resolution.Margin)
+	}
+	if resolution.Outcome != core.OutcomeSuccess {
+		t.Fatalf("outcome got %s want %s", resolution.Outcome, core.OutcomeSuccess)
+	}
+}
+
 // mirrors: tests/features/combat/attack_evasion.feature#Canonical margin boundaries
 func TestCanonicalMarginBoundariesFeatureExamples(t *testing.T) {
 	cases := []struct {

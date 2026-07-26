@@ -36,3 +36,37 @@ Feature: Armor and shield absorption
       When the target receives an impact of 4 with penetration 0
       Then health must lose 0 points
       And the target must remain healthy
+
+  Rule: Shield reserve is not restored during combat
+
+    Scenario: Shield stays depleted across consecutive hits
+      Given a target whose shield reserve was reduced to 0
+      When the target receives a second impact of 3
+      Then shield absorption must be 0
+      And health must lose 3 points
+      And the target must not have the shielded state
+
+  Rule: Penetration only cancels armor
+
+    Scenario: Excess penetration does not increase damage
+      Given an incoming impact of 4
+      And penetration of 6
+      And target armor of 2
+      And target shield reserve of 0
+      When damage is resolved
+      Then armor must reduce 0 points
+      And health must lose 4 points
+
+  Rule: Impact source depends on the attack category
+
+    Scenario: Melee impact combines weapon and R
+      Given an attacker with R equal to 3
+      And a melee weapon with impact value 2
+      When the attacker lands a melee hit
+      Then the impact before mitigation must be 5
+
+    Scenario: Firearm impact uses the weapon value only
+      Given an attacker with R equal to 3
+      And a firearm with impact value 4
+      When the attacker lands a ranged hit
+      Then the impact before mitigation must be 4
