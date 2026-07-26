@@ -13,10 +13,16 @@ type Character struct {
 	Abilities []Ability
 }
 
+// StartingPointBudget is the canonical number of points a starting player
+// character distributes among R, G, and B, per
+// docs/core/en/core/character_creation.md.
+const StartingPointBudget = 7
+
 // NewCharacter builds a Character with resources derived from vectors and
-// validates its abilities. It does not enforce the starting point budget
-// (decision matrix D-002 closure evidence); callers that need a starting
-// player character should validate the budget separately.
+// validates its abilities. It does not enforce the starting point budget:
+// it is also used to build NPCs and fixtures whose vectors intentionally
+// fall outside that budget. Use NewStartingCharacter for player characters
+// at creation time.
 func NewCharacter(id, name string, vectors Vectors, abilities []Ability) (Character, error) {
 	if id == "" {
 		return Character{}, fmt.Errorf("character ID must be non-empty")
@@ -46,6 +52,16 @@ func NewCharacter(id, name string, vectors Vectors, abilities []Ability) (Charac
 		character.States[StateShielded] = true
 	}
 	return character, nil
+}
+
+// NewStartingCharacter builds a Character like NewCharacter, but additionally
+// enforces the starting point budget (R + G + B must equal
+// StartingPointBudget), per docs/core/en/core/character_creation.md.
+func NewStartingCharacter(id, name string, vectors Vectors, abilities []Ability) (Character, error) {
+	if total := vectors.R + vectors.G + vectors.B; total != StartingPointBudget {
+		return Character{}, fmt.Errorf("starting character must distribute exactly %d points, got %d", StartingPointBudget, total)
+	}
+	return NewCharacter(id, name, vectors, abilities)
 }
 
 // AddState marks the character as holding the given state. Adding

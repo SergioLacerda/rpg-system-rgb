@@ -43,3 +43,17 @@ func TestNoPreservationMeansNoShieldStateFeatureExample(t *testing.T) {
 		t.Fatalf("max shield got %d want 0", character.Resources.MaxShield)
 	}
 }
+
+// mirrors: tests/features/core/character_creation.feature#A valid starting distribution is accepted
+func TestValidStartingDistributionAcceptedFeatureExample(t *testing.T) {
+	if _, err := core.NewStartingCharacter("fixture", "Fixture", core.Vectors{R: 3, G: 2, B: 2}, nil); err != nil {
+		t.Fatalf("valid 7-point distribution must be accepted: %v", err)
+	}
+}
+
+// mirrors: tests/features/core/character_creation.feature#An oversized distribution is rejected for starting characters
+func TestOversizedStartingDistributionRejectedFeatureExample(t *testing.T) {
+	if _, err := core.NewStartingCharacter("fixture", "Fixture", core.Vectors{R: 5, G: 2, B: 2}, nil); err == nil {
+		t.Fatal("a 9-point distribution must be rejected for starting characters")
+	}
+}

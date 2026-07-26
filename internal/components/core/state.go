@@ -37,13 +37,27 @@ const (
 	StateDetected State = "detected"
 )
 
+// allStates is the single source of truth for the Core V2 state model.
+// validState and AllStates both derive from it so the valid-state check and
+// the enumerable list can never drift apart.
+var allStates = []State{
+	StateHealthy, StateInjured, StateDowned, StateExposed, StateCovered,
+	StateEngaged, StateDistant, StateSuppressed, StateDisarmed, StateGuarded,
+	StateShielded, StateVulnerable, StateStabilized, StateHidden, StateDetected,
+}
+
+// AllStates returns every state in the Core V2 state model.
+func AllStates() []State {
+	states := make([]State, len(allStates))
+	copy(states, allStates)
+	return states
+}
+
 func validState(state State) bool {
-	switch state {
-	case StateHealthy, StateInjured, StateDowned, StateExposed, StateCovered,
-		StateEngaged, StateDistant, StateSuppressed, StateDisarmed, StateGuarded,
-		StateShielded, StateVulnerable, StateStabilized, StateHidden, StateDetected:
-		return true
-	default:
-		return false
+	for _, candidate := range allStates {
+		if candidate == state {
+			return true
+		}
 	}
+	return false
 }
