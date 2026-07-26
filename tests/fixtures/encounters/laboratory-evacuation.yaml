@@ -1,0 +1,30 @@
+encounter:
+  id: laboratory-evacuation
+  maximum_rounds: 4
+objectives:
+  success:
+    - researcher.state == evacuated
+  failure:
+    - researcher.state == captured
+    - reactor.state == collapsed
+pressures:
+  R:
+    - mercenary_blockade
+  G:
+    - unstable_routes
+  B:
+    - protect_researcher
+actions:
+  - actor: blue-warden
+    target: researcher
+    vector: B
+    procedure: sustain
+    result_state: guarded
+  - actor: green-runner
+    target: researcher
+    vector: G
+    procedure: reposition
+    result_state: distant
+expected_invariants:
+  - success does not require defeating every mercenary
+  - undefined_steps == 0

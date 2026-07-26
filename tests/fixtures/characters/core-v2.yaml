@@ -1,0 +1,25 @@
+characters:
+  - id: red-vanguard
+    role: pressure-heavy
+    vectors:
+      R: 5
+      G: 2
+      B: 2
+  - id: green-runner
+    role: mobility-heavy
+    vectors:
+      R: 2
+      G: 5
+      B: 2
+  - id: blue-warden
+    role: preservation-heavy
+    vectors:
+      R: 2
+      G: 2
+      B: 5
+  - id: rgb-balanced
+    role: balanced
+    vectors:
+      R: 3
+      G: 3
+      B: 3
