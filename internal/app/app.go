@@ -1,3 +1,5 @@
+// Package app is the application layer: it wires component boundaries
+// together and exposes use cases to the entrypoints in cmd.
 package app
 
 import (
@@ -14,6 +16,7 @@ import (
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/tooling"
 )
 
+// Components returns the registered component boundaries of the scaffold.
 func Components() []components.Component {
 	return []components.Component{
 		core.Descriptor(),
@@ -26,11 +29,12 @@ func Components() []components.Component {
 	}
 }
 
+// Hello reports the scaffold status and its registered components.
 func Hello() string {
 	var builder strings.Builder
 	builder.WriteString("RGB System V2 scaffold ready")
 	for _, component := range Components() {
-		builder.WriteString(fmt.Sprintf("\n- %s: %s", component.ID, component.Name))
+		fmt.Fprintf(&builder, "\n- %s: %s", component.ID, component.Name)
 	}
 	return builder.String()
 }
