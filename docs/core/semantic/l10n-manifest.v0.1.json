@@ -1,0 +1,325 @@
+{
+  "schema": "rgb-docs-l10n/0.1",
+  "source_locale": "en",
+  "localized_locales": [
+    "PT-br"
+  ],
+  "authority_types": [
+    "concept",
+    "rule",
+    "procedure",
+    "example",
+    "design_note",
+    "translation",
+    "generated_artifact"
+  ],
+  "translation_statuses": [
+    "current",
+    "needs_review",
+    "stale",
+    "missing",
+    "intentionally_divergent",
+    "not_applicable"
+  ],
+  "authority_decision": "docs/adr/adr-003-docs-l10n-maintenance-pattern.md",
+  "description": "Advisory source-to-localized traceability manifest for RGB System documentation.",
+  "documents": [
+    {
+      "source": "docs/core/en/README.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/README.md",
+      "authority_type": "concept",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/combat/README.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/combat/README.md",
+      "authority_type": "concept",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/combat/attack_and_defense.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/combat/attack_and_defense.md",
+      "authority_type": "rule",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/combat/combat_decision_model.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/combat/combat_decision_model.md",
+      "authority_type": "procedure",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/combat/damage_model.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/combat/damage_model.md",
+      "authority_type": "rule",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/combat/movement.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/combat/movement.md",
+      "authority_type": "rule",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/core/README.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/core/README.md",
+      "authority_type": "concept",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/core/attributes.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/core/attributes.md",
+      "authority_type": "rule",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/core/character_creation.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/core/character_creation.md",
+      "authority_type": "procedure",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/core/skills_and_abilities.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/core/skills_and_abilities.md",
+      "authority_type": "rule",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/equipment/README.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/equipment/README.md",
+      "authority_type": "concept",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/equipment/armor.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/equipment/armor.md",
+      "authority_type": "rule",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/equipment/gear.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/equipment/gear.md",
+      "authority_type": "rule",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/equipment/shields.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/equipment/shields.md",
+      "authority_type": "rule",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/introduction/quick_start.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/introduction/quick_start.md",
+      "authority_type": "procedure",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/introduction/rgb_one_page_rules.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/introduction/rgb_one_page_rules.md",
+      "authority_type": "rule",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/introduction/system_overview.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/introduction/system_overview.md",
+      "authority_type": "concept",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/reference/README.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/reference/README.md",
+      "authority_type": "concept",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/reference/character_sheet.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/reference/character_sheet.md",
+      "authority_type": "example",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/reference/combat_example.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/reference/combat_example.md",
+      "authority_type": "example",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/reference/combat_walkthrough.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/reference/combat_walkthrough.md",
+      "authority_type": "example",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/reference/extra.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/reference/extra.md",
+      "authority_type": "design_note",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/reference/gameplay_example.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/reference/gameplay_example.md",
+      "authority_type": "example",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/reference/gameplay_loop.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/reference/gameplay_loop.md",
+      "authority_type": "procedure",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/reference/rgb_damage_interaction_model.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/reference/rgb_damage_interaction_model.md",
+      "authority_type": "design_note",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/reference/rgb_system_architecture_notes.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/reference/rgb_system_architecture_notes.md",
+      "authority_type": "design_note",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/reference/rgb_system_engine.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/reference/rgb_system_engine.md",
+      "authority_type": "concept",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/weapons/README.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/weapons/README.md",
+      "authority_type": "concept",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/weapons/categories/explosives.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/weapons/categories/explosives.md",
+      "authority_type": "rule",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/weapons/categories/firearms.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/weapons/categories/firearms.md",
+      "authority_type": "rule",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/weapons/categories/melee.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/weapons/categories/melee.md",
+      "authority_type": "rule",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/weapons/mechanics/penetration.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/weapons/mechanics/penetration.md",
+      "authority_type": "rule",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    },
+    {
+      "source": "docs/core/en/weapons/mechanics/weapon_ranges.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/weapons/mechanics/weapon_ranges.md",
+      "authority_type": "rule",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
+    }
+  ]
+}
