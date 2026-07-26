@@ -2,16 +2,21 @@ package core
 
 import "fmt"
 
+// DamageInput is the raw impact and penetration entering the damage
+// pipeline, per docs/core/en/combat/damage_model.md.
 type DamageInput struct {
 	Impact      int
 	Penetration int
 }
 
+// DamageStep records one named stage of the damage pipeline, in resolution order.
 type DamageStep struct {
 	Name  string
 	Value int
 }
 
+// DamageResult is the outcome of running the damage pipeline: the ordered
+// steps and the totals applied at each mitigation layer.
 type DamageResult struct {
 	Steps          []DamageStep
 	ArmorReduced   int
@@ -19,6 +24,9 @@ type DamageResult struct {
 	HealthDamage   int
 }
 
+// ApplyDamage runs the canonical damage pipeline against target: penetration
+// reduces armor, armor reduces impact, shield absorbs what armor did not,
+// and the remainder becomes health damage and a state consequence.
 func ApplyDamage(target *Character, input DamageInput) (DamageResult, error) {
 	if target == nil {
 		return DamageResult{}, fmt.Errorf("target must be non-nil")
@@ -59,18 +67,4 @@ func ApplyDamage(target *Character, input DamageInput) (DamageResult, error) {
 		ShieldAbsorbed: shieldAbsorbed,
 		HealthDamage:   healthDamage,
 	}, nil
-}
-
-func min(left, right int) int {
-	if left < right {
-		return left
-	}
-	return right
-}
-
-func max(left, right int) int {
-	if left > right {
-		return left
-	}
-	return right
 }

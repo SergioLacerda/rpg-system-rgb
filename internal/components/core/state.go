@@ -1,23 +1,40 @@
 package core
 
+// State is a tactical condition a character can hold, per the minimal Core
+// V2 state model (decision matrix D-006).
 type State string
 
 const (
-	StateHealthy    State = "healthy"
-	StateInjured    State = "injured"
-	StateDowned     State = "downed"
-	StateExposed    State = "exposed"
-	StateCovered    State = "covered"
-	StateEngaged    State = "engaged"
-	StateDistant    State = "distant"
+	// StateHealthy means the character has taken no health-affecting damage.
+	StateHealthy State = "healthy"
+	// StateInjured means the character has taken health damage but is not downed.
+	StateInjured State = "injured"
+	// StateDowned means the character has no health remaining.
+	StateDowned State = "downed"
+	// StateExposed means the character lacks cover or concealment.
+	StateExposed State = "exposed"
+	// StateCovered means the character gained cover or concealment.
+	StateCovered State = "covered"
+	// StateEngaged means the character is in close contact with a threat.
+	StateEngaged State = "engaged"
+	// StateDistant means the character has increased range from a threat.
+	StateDistant State = "distant"
+	// StateSuppressed means the character is under sustained pressure that limits action.
 	StateSuppressed State = "suppressed"
-	StateDisarmed   State = "disarmed"
-	StateGuarded    State = "guarded"
-	StateShielded   State = "shielded"
+	// StateDisarmed means the character has lost a weapon or means of R pressure.
+	StateDisarmed State = "disarmed"
+	// StateGuarded means the character is protected by a sustaining ally or effect.
+	StateGuarded State = "guarded"
+	// StateShielded means the character has shield reserve remaining.
+	StateShielded State = "shielded"
+	// StateVulnerable means the character's pressure source has been weakened by R.
 	StateVulnerable State = "vulnerable"
+	// StateStabilized means the character's continuity has been restored under pressure.
 	StateStabilized State = "stabilized"
-	StateHidden     State = "hidden"
-	StateDetected   State = "detected"
+	// StateHidden means the character is not currently detected.
+	StateHidden State = "hidden"
+	// StateDetected means the character has been found despite concealment.
+	StateDetected State = "detected"
 )
 
 func validState(state State) bool {
