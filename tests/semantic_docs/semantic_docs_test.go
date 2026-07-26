@@ -58,7 +58,7 @@ type localizedTerm struct {
 
 func TestSemanticDocsValidationRunner(t *testing.T) {
 	root := repoRoot(t)
-	cmd := exec.Command("go", "run", "scripts/validate_semantic_docs.go")
+	cmd := exec.Command("go", "run", "./cmd/rgb-tooling", "validate")
 	cmd.Dir = root
 	output, err := cmd.CombinedOutput()
 	if err != nil {

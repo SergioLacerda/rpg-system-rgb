@@ -1,4 +1,4 @@
-package main
+package tooling
 
 import (
 	"encoding/json"
@@ -32,22 +32,10 @@ type l10nDocument struct {
 	Notes             []string `json:"notes"`
 }
 
-func main() {
-	if len(os.Args) != 2 {
-		fatal(errors.New("usage: go run scripts/validate_docs_l10n_manifest.go <manifest.json>"))
-	}
-	if err := validateL10nManifest(os.Args[1]); err != nil {
-		fatal(err)
-	}
-}
-
-func fatal(err error) {
-	fmt.Fprintf(os.Stderr, "docs-l10n validation failed: %v\n", err)
-	os.Exit(1)
-}
-
-func validateL10nManifest(manifestFile string) error {
-	bytes, err := os.ReadFile(manifestFile)
+// ValidateDocsL10nManifest validates docs/core/semantic/l10n-manifest.v0.1.json,
+// migrated from scripts/validate_docs_l10n_manifest.go.
+func ValidateDocsL10nManifest(manifestFile string) error {
+	bytes, err := os.ReadFile(manifestFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
 	if err != nil {
 		return err
 	}
@@ -63,14 +51,14 @@ func validateL10nManifest(manifestFile string) error {
 	if manifest.SourceLocale != "en" {
 		return errors.New("source_locale must be `en`")
 	}
-	if !contains(manifest.LocalizedLocales, "PT-br") {
+	if !containsString(manifest.LocalizedLocales, "PT-br") {
 		return errors.New("localized_locales must include `PT-br`")
 	}
 	if manifest.Description == "" {
 		return errors.New("description must be non-empty")
 	}
 
-	repoRoot, err := repoRootFromManifest(manifestFile)
+	repoRoot, err := repoRootFromFile(manifestFile)
 	if err != nil {
 		return err
 	}
@@ -92,12 +80,12 @@ func validateL10nManifest(manifestFile string) error {
 
 	sources := map[string]bool{}
 	for _, document := range manifest.Documents {
-		if err := validateDocument(repoRoot, document, authorityTypes, statuses, sources); err != nil {
+		if err := validateL10nDocument(repoRoot, document, authorityTypes, statuses, sources); err != nil {
 			return err
 		}
 		sources[document.Source] = true
 	}
-	if err := validateSourceCoverage(repoRoot, sources); err != nil {
+	if err := validateL10nSourceCoverage(repoRoot, sources); err != nil {
 		return err
 	}
 
@@ -105,41 +93,14 @@ func validateL10nManifest(manifestFile string) error {
 	return nil
 }
 
-func repoRootFromManifest(manifestFile string) (string, error) {
-	abs, err := filepath.Abs(manifestFile)
-	if err != nil {
-		return "", err
+func validateL10nDocument(repoRoot string, document l10nDocument, authorityTypes, statuses map[string]bool, sources map[string]bool) error {
+	if err := validateL10nDocumentSource(repoRoot, document, authorityTypes, statuses, sources); err != nil {
+		return err
 	}
-	for dir := filepath.Dir(abs); ; dir = filepath.Dir(dir) {
-		if fileExists(filepath.Join(dir, "README.md")) && dirExists(filepath.Join(dir, "docs")) {
-			return dir, nil
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			return "", fmt.Errorf("could not find repository root from %s", manifestFile)
-		}
-	}
+	return validateL10nDocumentLocalized(repoRoot, document)
 }
 
-func validateAcceptedDecision(repoRoot, pathValue string) error {
-	if pathValue == "" {
-		return errors.New("authority_decision must be non-empty")
-	}
-	if filepath.IsAbs(pathValue) {
-		return errors.New("authority_decision must be repository-relative")
-	}
-	decisionPath := filepath.Join(repoRoot, filepath.FromSlash(pathValue))
-	bytes, err := os.ReadFile(decisionPath)
-	if err != nil {
-		return fmt.Errorf("authority_decision does not exist: %s", pathValue)
-	}
-	if !containsBytes(bytes, []byte("## Status\n\nAccepted.")) {
-		return fmt.Errorf("authority_decision must have status Accepted: %s", pathValue)
-	}
-	return nil
-}
-
-func validateDocument(repoRoot string, document l10nDocument, authorityTypes, statuses map[string]bool, sources map[string]bool) error {
+func validateL10nDocumentSource(repoRoot string, document l10nDocument, authorityTypes, statuses map[string]bool, sources map[string]bool) error {
 	if document.Source == "" {
 		return errors.New("documents[].source must be non-empty")
 	}
@@ -164,7 +125,10 @@ func validateDocument(repoRoot string, document l10nDocument, authorityTypes, st
 	if document.SourceRevision == "" {
 		return fmt.Errorf("%s: source_revision must be non-empty", document.Source)
 	}
+	return nil
+}
 
+func validateL10nDocumentLocalized(repoRoot string, document l10nDocument) error {
 	switch document.TranslationStatus {
 	case "missing", "not_applicable":
 		if document.Localized == "" {
@@ -184,7 +148,7 @@ func validateDocument(repoRoot string, document l10nDocument, authorityTypes, st
 	return nil
 }
 
-func validateSourceCoverage(repoRoot string, sources map[string]bool) error {
+func validateL10nSourceCoverage(repoRoot string, sources map[string]bool) error {
 	return filepath.WalkDir(filepath.Join(repoRoot, "docs/core/en"), func(path string, entry fs.DirEntry, walkErr error) error {
 		if walkErr != nil {
 			return walkErr
@@ -215,15 +179,7 @@ func validateExistingRepoPath(repoRoot, pathValue, source, field string) error {
 	return nil
 }
 
-func stringSet(values []string) map[string]bool {
-	result := make(map[string]bool, len(values))
-	for _, value := range values {
-		result[value] = true
-	}
-	return result
-}
-
-func contains(values []string, target string) bool {
+func containsString(values []string, target string) bool {
 	for _, value := range values {
 		if value == target {
 			return true
@@ -232,35 +188,6 @@ func contains(values []string, target string) bool {
 	return false
 }
 
-func containsBytes(haystack, needle []byte) bool {
-	if len(needle) == 0 {
-		return true
-	}
-	for index := 0; index+len(needle) <= len(haystack); index++ {
-		match := true
-		for offset := range needle {
-			if haystack[index+offset] != needle[offset] {
-				match = false
-				break
-			}
-		}
-		if match {
-			return true
-		}
-	}
-	return false
-}
-
 func hasSlashPrefix(pathValue, prefix string) bool {
 	return len(pathValue) >= len(prefix) && pathValue[:len(prefix)] == prefix
-}
-
-func fileExists(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
-}
-
-func dirExists(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && info.IsDir()
 }

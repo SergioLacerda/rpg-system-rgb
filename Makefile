@@ -1,4 +1,4 @@
-.PHONY: fmt hello test test-arch cover lint vet validate review-structure
+.PHONY: fmt hello test test-arch cover lint vet validate generate compile review-structure
 
 GO ?= go
 GOCACHE ?= /tmp/go-cache
@@ -34,7 +34,13 @@ lint:
 	fi
 
 validate:
-	$(GOENV) $(GO) run scripts/validate_semantic_docs.go
+	$(GOENV) $(GO) run ./cmd/rgb-tooling validate
+
+generate:
+	$(GOENV) $(GO) run ./cmd/rgb-tooling generate
+
+compile:
+	$(GOENV) $(GO) run ./cmd/rgb-compiler
 
 # Full base-structure review gate. See:
 # docs/engineering/base-structure-review-workflow.md

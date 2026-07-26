@@ -1,4 +1,4 @@
-package main
+package tooling
 
 import (
 	"fmt"
@@ -14,22 +14,19 @@ var forbiddenPublicPathMarkers = []string{
 	".strategist/",
 }
 
-func main() {
-	if err := validateProjectPaths(); err != nil {
-		fmt.Fprintf(os.Stderr, "project-path validation failed: %v\n", err)
-		os.Exit(1)
-	}
-	fmt.Println("project-path validation passed")
-}
-
-func validateProjectPaths() error {
+// ValidateProjectPaths checks the repository's public-facing directory
+// shape and rejects internal path markers leaking into public surfaces,
+// migrated from scripts/validate_project_paths.go. Unlike the original
+// script, this takes repoRoot explicitly instead of assuming the process
+// working directory is the repository root.
+func ValidateProjectPaths(repoRoot string) error {
 	requiredDirs := []string{
 		"docs/core",
 		"docs/adr",
 		"generated",
 	}
 	for _, dir := range requiredDirs {
-		if !pathDirExists(dir) {
+		if !pathDirExists(filepath.Join(repoRoot, filepath.FromSlash(dir))) {
 			return fmt.Errorf("required directory missing: %s", dir)
 		}
 	}
@@ -41,7 +38,7 @@ func validateProjectPaths() error {
 		"docs/semantic",
 	}
 	for _, dir := range forbiddenDirs {
-		if pathExists(dir) {
+		if pathExists(filepath.Join(repoRoot, filepath.FromSlash(dir))) {
 			return fmt.Errorf("forbidden legacy directory exists: %s", dir)
 		}
 	}
@@ -52,10 +49,11 @@ func validateProjectPaths() error {
 		"generated",
 	}
 	for _, root := range publicRoots {
-		if err := rejectRuntimeRefs(root); err != nil {
+		if err := rejectRuntimeRefs(filepath.Join(repoRoot, filepath.FromSlash(root))); err != nil {
 			return err
 		}
 	}
+	fmt.Println("project-path validation passed")
 	return nil
 }
 
@@ -79,7 +77,7 @@ func rejectRuntimeRefs(root string) error {
 }
 
 func rejectRuntimeRefsInFile(path string) error {
-	bytes, err := os.ReadFile(path)
+	bytes, err := os.ReadFile(path) //nolint:gosec // G304: path comes from a WalkDir over the repo's own public tree, by design
 	if err != nil {
 		return err
 	}

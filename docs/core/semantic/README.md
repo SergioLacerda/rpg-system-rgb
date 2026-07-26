@@ -29,59 +29,24 @@ During the pilot:
 Validate the pilot with:
 
 ```bash
-go run scripts/validate_semantic_docs.go
+make validate
+# equivalent: go run ./cmd/rgb-tooling validate
 ```
 
-Validate the documentation L10n manifest with:
+This runs, in order: project paths, semantic index
+([schema-v0.1.md](schema-v0.1.md)), documentation L10n manifest, consumer
+contracts (summarized in the accepted documentation authority ADR
+[ADR-001](../../adr/adr-001-ai-first-documentation-authority.md)), accepted
+semantic source slices, the projection manifest, and generated projection
+artifacts.
+
+Regenerate derived projection artifacts with:
 
 ```bash
-go run scripts/validate_docs_l10n_manifest.go docs/core/semantic/l10n-manifest.v0.1.json
+make generate
+# equivalent: go run ./cmd/rgb-tooling generate
 ```
 
-The explicit index validation command is:
-
-```bash
-go run scripts/validate_semantic_index.go docs/core/semantic/core-v2.index.json
-```
-
-Validate accepted semantic source slices with:
-
-```bash
-go run scripts/validate_semantic_source.go docs/core/semantic/source/core-v2-rules.v0.1.json docs/core/semantic/core-v2.index.json
-```
-
-The schema contract is documented in [schema-v0.1.md](schema-v0.1.md).
-
-Consumer contracts are defined in
-[consumer-contracts.v0.1.json](consumer-contracts.v0.1.json) and summarized in
-the accepted documentation authority ADR
-[ADR-001](../../adr/adr-001-ai-first-documentation-authority.md).
-
-Validate the consumer contracts with:
-
-```bash
-go run scripts/validate_semantic_contracts.go docs/core/semantic/consumer-contracts.v0.1.json docs/core/semantic/core-v2.index.json
-```
-
-Derived projection manifests are defined in
-[projection-manifest.v0.1.json](projection-manifest.v0.1.json) and summarized in
-the accepted documentation authority ADR
-[ADR-001](../../adr/adr-001-ai-first-documentation-authority.md).
-
-Validate the projection manifest with:
-
-```bash
-go run scripts/validate_semantic_projections.go docs/core/semantic/projection-manifest.v0.1.json docs/core/semantic/core-v2.index.json docs/core/semantic/consumer-contracts.v0.1.json
-```
-
-Generate derived projection artifacts with:
-
-```bash
-go run scripts/generate_semantic_projections.go docs/core/semantic/projection-manifest.v0.1.json docs/core/semantic/core-v2.index.json docs/core/semantic/source/core-v2-rules.v0.1.json
-```
-
-Validate generated projection artifacts with:
-
-```bash
-go run scripts/validate_generated_projections.go docs/core/semantic/projection-manifest.v0.1.json
-```
+`rgb-tooling` (`internal/components/tooling`) replaced the standalone
+`scripts/*.go` module that previously implemented each of these checks as a
+separate `go run scripts/validate_*.go` invocation.

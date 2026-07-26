@@ -1,8 +1,7 @@
-package main
+package tooling
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -96,21 +95,12 @@ type generatedProjectionUnit struct {
 	Provenance       map[string]any      `json:"provenance,omitempty"`
 }
 
-func main() {
-	if len(os.Args) != 4 {
-		fatal(errors.New("usage: go run scripts/generate_semantic_projections.go <manifest.json> <index.json> <source.json>"))
-	}
-	if err := generateProjections(os.Args[1], os.Args[2], os.Args[3]); err != nil {
-		fatal(err)
-	}
-}
-
-func fatal(err error) {
-	fmt.Fprintf(os.Stderr, "semantic-projection generation failed: %v\n", err)
-	os.Exit(1)
-}
-
-func generateProjections(manifestFile, indexFile, sourceFile string) error {
+// Generate produces the derived generated/*/*.json projection artifacts
+// from the projection manifest, semantic index, and semantic source,
+// migrated from scripts/generate_semantic_projections.go. Unlike the
+// original script, output paths are resolved against repoRoot explicitly
+// instead of the process working directory.
+func Generate(repoRoot, manifestFile, indexFile, sourceFile string) error {
 	var manifest generationManifest
 	if err := readJSON(manifestFile, &manifest); err != nil {
 		return err
@@ -133,37 +123,50 @@ func generateProjections(manifestFile, indexFile, sourceFile string) error {
 		sourceUnits[unit.ID] = unit
 	}
 
-	for _, projection := range manifest.Projections {
+	for _, proj := range manifest.Projections {
 		output := generatedProjection{
 			Schema:              "rgb-docs-generated-projection/0.1",
-			ProjectionID:        projection.ID,
-			Surface:             projection.Surface,
-			Owner:               projection.Owner,
-			Status:              projection.Status,
+			ProjectionID:        proj.ID,
+			Surface:             proj.Surface,
+			Owner:               proj.Owner,
+			Status:              proj.Status,
 			AuthorityType:       "generated_artifact",
-			Description:         projection.Description,
-			GeneratedFrom:       projection.SourceUnits,
-			SourceIndex:         indexFile,
-			SemanticSource:      sourceFile,
-			Provenance:          projection.Provenance,
-			RequiredDisclosures: projection.RequiredDisclosures,
-			GenerationGate:      projection.GenerationGate,
-			Units:               make([]generatedProjectionUnit, 0, len(projection.SourceUnits)),
+			Description:         proj.Description,
+			GeneratedFrom:       proj.SourceUnits,
+			SourceIndex:         repoRelative(repoRoot, indexFile),
+			SemanticSource:      repoRelative(repoRoot, sourceFile),
+			Provenance:          proj.Provenance,
+			RequiredDisclosures: proj.RequiredDisclosures,
+			GenerationGate:      proj.GenerationGate,
+			Units:               make([]generatedProjectionUnit, 0, len(proj.SourceUnits)),
 		}
-		for _, unitID := range projection.SourceUnits {
+		for _, unitID := range proj.SourceUnits {
 			indexUnit, ok := indexUnits[unitID]
 			if !ok {
-				return fmt.Errorf("%s: unknown source unit %s", projection.ID, unitID)
+				return fmt.Errorf("%s: unknown source unit %s", proj.ID, unitID)
 			}
 			output.Units = append(output.Units, projectUnit(indexUnit, sourceUnits[unitID]))
 		}
-		if err := writeGeneratedProjection(projection.OutputPath, output); err != nil {
+		outputPath := filepath.Join(repoRoot, filepath.FromSlash(proj.OutputPath))
+		if err := writeGeneratedProjection(outputPath, output); err != nil {
 			return err
 		}
-		fmt.Printf("generated %s\n", projection.OutputPath)
+		fmt.Printf("generated %s\n", proj.OutputPath)
 	}
 
 	return nil
+}
+
+// GenerateDefault runs Generate against the standard
+// docs/core/semantic/** manifest, index, and source paths under repoRoot.
+func GenerateDefault(repoRoot string) error {
+	semantic := filepath.Join(repoRoot, "docs", "core", "semantic")
+	return Generate(
+		repoRoot,
+		filepath.Join(semantic, "projection-manifest.v0.1.json"),
+		filepath.Join(semantic, "core-v2.index.json"),
+		filepath.Join(semantic, "source", "core-v2-rules.v0.1.json"),
+	)
 }
 
 func projectUnit(indexUnit generationIndexUnit, sourceUnit generationSourceUnit) generatedProjectionUnit {
@@ -190,7 +193,7 @@ func projectUnit(indexUnit generationIndexUnit, sourceUnit generationSourceUnit)
 }
 
 func readJSON(path string, target any) error {
-	bytes, err := os.ReadFile(path)
+	bytes, err := os.ReadFile(path) //nolint:gosec // G304: path is a caller-supplied source file, by design for this generator
 	if err != nil {
 		return err
 	}
@@ -206,8 +209,8 @@ func writeGeneratedProjection(path string, projection generatedProjection) error
 		return err
 	}
 	bytes = append(bytes, '\n')
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
 		return err
 	}
-	return os.WriteFile(path, bytes, 0o644)
+	return os.WriteFile(path, bytes, 0o644) //nolint:gosec // G306: generated JSON artifacts are intended to be readable, matching the existing generated/*.json files
 }

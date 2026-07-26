@@ -1,4 +1,4 @@
-package main
+package tooling
 
 import (
 	"encoding/json"
@@ -39,26 +39,14 @@ type contractSourceIndex struct {
 	ComponentConsumers []string `json:"component_consumers"`
 }
 
-func main() {
-	if len(os.Args) != 3 {
-		fatal(errors.New("usage: go run scripts/validate_semantic_contracts.go <contracts.json> <index.json>"))
-	}
-	if err := validateContracts(os.Args[1], os.Args[2]); err != nil {
-		fatal(err)
-	}
-}
-
-func fatal(err error) {
-	fmt.Fprintf(os.Stderr, "semantic-contract validation failed: %v\n", err)
-	os.Exit(1)
-}
-
-func validateContracts(contractsFile, indexFile string) error {
-	contractsBytes, err := os.ReadFile(contractsFile)
+// ValidateConsumerContracts validates docs/core/semantic/consumer-contracts.v0.1.json
+// against its parent index, migrated from scripts/validate_semantic_contracts.go.
+func ValidateConsumerContracts(contractsFile, indexFile string) error {
+	contractsBytes, err := os.ReadFile(contractsFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
 	if err != nil {
 		return err
 	}
-	indexBytes, err := os.ReadFile(indexFile)
+	indexBytes, err := os.ReadFile(indexFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
 	if err != nil {
 		return err
 	}
@@ -72,10 +60,15 @@ func validateContracts(contractsFile, indexFile string) error {
 		return fmt.Errorf("invalid source index JSON: %w", err)
 	}
 
+	repoRoot, err := repoRootFromFile(contractsFile)
+	if err != nil {
+		return err
+	}
+
 	if contracts.Schema != expectedContractsSchema {
 		return fmt.Errorf("schema must be `%s`", expectedContractsSchema)
 	}
-	if contracts.SourceIndex != indexFile {
+	if contracts.SourceIndex != repoRelative(repoRoot, indexFile) {
 		return fmt.Errorf("source_index must match validation index path `%s`", indexFile)
 	}
 	if contracts.Description == "" {
@@ -83,11 +76,6 @@ func validateContracts(contractsFile, indexFile string) error {
 	}
 	if len(contracts.Contracts) == 0 {
 		return errors.New("contracts must be non-empty")
-	}
-
-	repoRoot, err := repoRootFromContracts(contractsFile)
-	if err != nil {
-		return err
 	}
 
 	authorityTypes := stringSet(index.AuthorityTypes)
@@ -123,36 +111,6 @@ func validateContracts(contractsFile, indexFile string) error {
 	return nil
 }
 
-func repoRootFromContracts(contractsFile string) (string, error) {
-	abs, err := filepath.Abs(contractsFile)
-	if err != nil {
-		return "", err
-	}
-	return findRepoRoot(filepath.Dir(abs))
-}
-
-func findRepoRoot(start string) (string, error) {
-	for dir := start; ; dir = filepath.Dir(dir) {
-		if fileExists(filepath.Join(dir, "README.md")) && dirExists(filepath.Join(dir, "docs")) {
-			return dir, nil
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			return "", fmt.Errorf("could not find repository root from %s", start)
-		}
-	}
-}
-
-func fileExists(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
-}
-
-func dirExists(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && info.IsDir()
-}
-
 func validateContract(
 	repoRoot string,
 	contract consumerContract,
@@ -162,6 +120,21 @@ func validateContract(
 	projectionSurfaces map[string]bool,
 	componentConsumers map[string]bool,
 	knownUnitFields map[string]bool,
+) error {
+	if err := validateContractIdentity(contract, seenIDs, sourceStatuses, componentConsumers); err != nil {
+		return err
+	}
+	if err := validateContractValueLists(contract, authorityTypes, projectionSurfaces, knownUnitFields); err != nil {
+		return err
+	}
+	return validateContractSourceRefs(repoRoot, contract)
+}
+
+func validateContractIdentity(
+	contract consumerContract,
+	seenIDs map[string]bool,
+	sourceStatuses map[string]bool,
+	componentConsumers map[string]bool,
 ) error {
 	if contract.ID == "" {
 		return errors.New("contract id must be non-empty")
@@ -178,6 +151,15 @@ func validateContract(
 	if contract.Description == "" {
 		return fmt.Errorf("%s: description must be non-empty", contract.ID)
 	}
+	return nil
+}
+
+func validateContractValueLists(
+	contract consumerContract,
+	authorityTypes map[string]bool,
+	projectionSurfaces map[string]bool,
+	knownUnitFields map[string]bool,
+) error {
 	if err := validateKnownValues(contract.ID, "allowed_inputs", contract.AllowedInputs, authorityTypes); err != nil {
 		return err
 	}
@@ -198,9 +180,10 @@ func validateContract(
 	if err := validateNonEmptyStrings(contract.ID, "outputs", contract.Outputs); err != nil {
 		return err
 	}
-	if err := validateNonEmptyStrings(contract.ID, "validation_checks", contract.ValidationChecks); err != nil {
-		return err
-	}
+	return validateNonEmptyStrings(contract.ID, "validation_checks", contract.ValidationChecks)
+}
+
+func validateContractSourceRefs(repoRoot string, contract consumerContract) error {
 	if err := validateNonEmptyStrings(contract.ID, "source_refs", contract.SourceRefs); err != nil {
 		return err
 	}
@@ -245,12 +228,4 @@ func validateRepoPath(repoRoot, pathValue, contractID, field string) error {
 		return fmt.Errorf("%s: %s does not exist: %s", contractID, field, pathValue)
 	}
 	return nil
-}
-
-func stringSet(values []string) map[string]bool {
-	result := make(map[string]bool, len(values))
-	for _, value := range values {
-		result[value] = true
-	}
-	return result
 }

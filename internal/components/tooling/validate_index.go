@@ -1,4 +1,4 @@
-package main
+package tooling
 
 import (
 	"encoding/json"
@@ -8,38 +8,41 @@ import (
 	"path/filepath"
 )
 
+const expectedSemanticIndexSchema = "rgb-docs-semantic-index/0.1"
+
+// SemanticIndex is the decoded shape of docs/core/semantic/core-v2.index.json.
 type SemanticIndex struct {
-	Schema                 string   `json:"schema"`
-	SourceLocale           string   `json:"source_locale"`
-	DefaultLocalizedLocale string   `json:"default_localized_locale"`
-	AuthorityTypes         []string `json:"authority_types"`
-	SourceStatuses         []string `json:"source_statuses"`
-	Kinds                  []string `json:"kinds"`
-	ProjectionSurfaces     []string `json:"projection_surfaces"`
-	ComponentConsumers     []string `json:"component_consumers"`
-	Units                  []Unit   `json:"units"`
+	Schema                 string              `json:"schema"`
+	SourceLocale           string              `json:"source_locale"`
+	DefaultLocalizedLocale string              `json:"default_localized_locale"`
+	AuthorityTypes         []string            `json:"authority_types"`
+	SourceStatuses         []string            `json:"source_statuses"`
+	Kinds                  []string            `json:"kinds"`
+	ProjectionSurfaces     []string            `json:"projection_surfaces"`
+	ComponentConsumers     []string            `json:"component_consumers"`
+	Units                  []SemanticIndexUnit `json:"units"`
 }
 
-type Unit struct {
-	ID                 string              `json:"id"`
-	Kind               string              `json:"kind"`
-	Locale             string              `json:"locale"`
-	AuthorityType      string              `json:"authority_type"`
-	SourceStatus       string              `json:"source_status"`
-	Title              string              `json:"title"`
-	SourcePath         string              `json:"source_path"`
-	ProjectionPaths    map[string]string   `json:"projection_paths"`
-	Relationships      map[string][]string `json:"relationships"`
-	Index              UnitIndex           `json:"index"`
-	Provenance         map[string]any      `json:"provenance"`
-	ComponentConsumers []string            `json:"component_consumers"`
-	SourceUnit         string              `json:"source_unit,omitempty"`
-	TranslationStatus  string              `json:"translation_status,omitempty"`
+// SemanticIndexUnit is one semantic unit entry in the index.
+type SemanticIndexUnit struct {
+	ID                 string                 `json:"id"`
+	Kind               string                 `json:"kind"`
+	Locale             string                 `json:"locale"`
+	AuthorityType      string                 `json:"authority_type"`
+	SourceStatus       string                 `json:"source_status"`
+	Title              string                 `json:"title"`
+	SourcePath         string                 `json:"source_path"`
+	ProjectionPaths    map[string]string      `json:"projection_paths"`
+	Relationships      map[string][]string    `json:"relationships"`
+	Index              SemanticIndexUnitIndex `json:"index"`
+	Provenance         map[string]any         `json:"provenance"`
+	ComponentConsumers []string               `json:"component_consumers"`
+	SourceUnit         string                 `json:"source_unit,omitempty"`
+	TranslationStatus  string                 `json:"translation_status,omitempty"`
 }
 
-const expectedSchema = "rgb-docs-semantic-index/0.1"
-
-type UnitIndex struct {
+// SemanticIndexUnitIndex is the retrieval metadata block of a unit.
+type SemanticIndexUnitIndex struct {
 	Track            []string `json:"track"`
 	Tags             []string `json:"tags"`
 	RetrievalSummary string   `json:"retrieval_summary"`
@@ -54,22 +57,10 @@ var relationshipFieldsWithUnitIDs = []string{
 	"supersedes",
 }
 
-func main() {
-	if len(os.Args) != 2 {
-		fatal(errors.New("usage: go run scripts/validate_semantic_index.go <index.json>"))
-	}
-	if err := validate(os.Args[1]); err != nil {
-		fatal(err)
-	}
-}
-
-func fatal(err error) {
-	fmt.Fprintf(os.Stderr, "semantic-index validation failed: %v\n", err)
-	os.Exit(1)
-}
-
-func validate(indexFile string) error {
-	bytes, err := os.ReadFile(indexFile)
+// ValidateSemanticIndex validates docs/core/semantic/core-v2.index.json,
+// migrated from scripts/validate_semantic_index.go.
+func ValidateSemanticIndex(indexFile string) error {
+	bytes, err := os.ReadFile(indexFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
 	if err != nil {
 		return err
 	}
@@ -78,18 +69,8 @@ func validate(indexFile string) error {
 	if err := json.Unmarshal(bytes, &index); err != nil {
 		return fmt.Errorf("invalid JSON: %w", err)
 	}
-
-	if index.Schema != expectedSchema {
-		return fmt.Errorf("schema must be `%s`", expectedSchema)
-	}
-	if index.SourceLocale == "" {
-		return errors.New("missing top-level field `source_locale`")
-	}
-	if index.DefaultLocalizedLocale == "" {
-		return errors.New("missing top-level field `default_localized_locale`")
-	}
-	if len(index.Units) == 0 {
-		return errors.New("missing or empty top-level field `units`")
+	if err := validateIndexTopLevelFields(index); err != nil {
+		return err
 	}
 
 	authorityTypes, err := requiredSet("authority_types", index.AuthorityTypes)
@@ -113,21 +94,21 @@ func validate(indexFile string) error {
 		return err
 	}
 
-	repoRoot, err := repoRootFromIndex(indexFile)
+	repoRoot, err := repoRootFromFile(indexFile)
 	if err != nil {
 		return err
 	}
 
 	unitIDs := make(map[string]bool)
 	for _, unit := range index.Units {
-		if err := validateUnit(repoRoot, unit, authorityTypes, sourceStatuses, kinds, projectionSurfaces, componentConsumers, unitIDs); err != nil {
+		if err := validateIndexUnit(repoRoot, unit, authorityTypes, sourceStatuses, kinds, projectionSurfaces, componentConsumers, unitIDs); err != nil {
 			return err
 		}
 		unitIDs[unit.ID] = true
 	}
 
 	for _, unit := range index.Units {
-		if err := validateRelationships(unit, unitIDs); err != nil {
+		if err := validateIndexRelationships(unit, unitIDs); err != nil {
 			return err
 		}
 	}
@@ -136,44 +117,56 @@ func validate(indexFile string) error {
 	return nil
 }
 
-func repoRootFromIndex(indexFile string) (string, error) {
-	abs, err := filepath.Abs(indexFile)
-	if err != nil {
-		return "", err
+func validateIndexTopLevelFields(index SemanticIndex) error {
+	if index.Schema != expectedSemanticIndexSchema {
+		return fmt.Errorf("schema must be `%s`", expectedSemanticIndexSchema)
 	}
-	return findRepoRoot(filepath.Dir(abs))
-}
-
-func findRepoRoot(start string) (string, error) {
-	for dir := start; ; dir = filepath.Dir(dir) {
-		if fileExists(filepath.Join(dir, "README.md")) && dirExists(filepath.Join(dir, "docs")) {
-			return dir, nil
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			return "", fmt.Errorf("could not find repository root from %s", start)
-		}
+	if index.SourceLocale == "" {
+		return errors.New("missing top-level field `source_locale`")
 	}
+	if index.DefaultLocalizedLocale == "" {
+		return errors.New("missing top-level field `default_localized_locale`")
+	}
+	if len(index.Units) == 0 {
+		return errors.New("missing or empty top-level field `units`")
+	}
+	return nil
 }
 
-func fileExists(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
-}
-
-func dirExists(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && info.IsDir()
-}
-
-func validateUnit(
+func validateIndexUnit(
 	repoRoot string,
-	unit Unit,
+	unit SemanticIndexUnit,
 	authorityTypes map[string]bool,
 	sourceStatuses map[string]bool,
 	kinds map[string]bool,
 	projectionSurfaces map[string]bool,
 	componentConsumers map[string]bool,
+	seenIDs map[string]bool,
+) error {
+	if err := validateIndexUnitIdentity(repoRoot, unit, authorityTypes, sourceStatuses, kinds, seenIDs); err != nil {
+		return err
+	}
+	if err := validateIndexUnitProjections(repoRoot, unit, projectionSurfaces); err != nil {
+		return err
+	}
+	if err := validateIndexUnitRetrieval(repoRoot, unit, componentConsumers); err != nil {
+		return err
+	}
+	if err := validateIndexUnitConsumersAndContract(unit, sourceStatuses, componentConsumers); err != nil {
+		return err
+	}
+	if unit.AuthorityType == "generated_artifact" && unit.SourceStatus == "canonical" {
+		return fmt.Errorf("%s: generated artifacts must not use canonical source_status", unit.ID)
+	}
+	return nil
+}
+
+func validateIndexUnitIdentity(
+	repoRoot string,
+	unit SemanticIndexUnit,
+	authorityTypes map[string]bool,
+	sourceStatuses map[string]bool,
+	kinds map[string]bool,
 	seenIDs map[string]bool,
 ) error {
 	if unit.ID == "" {
@@ -197,9 +190,10 @@ func validateUnit(
 	if unit.Title == "" {
 		return fmt.Errorf("%s: title must be non-empty", unit.ID)
 	}
-	if err := validatePath(repoRoot, unit.SourcePath, unit.ID, "source_path"); err != nil {
-		return err
-	}
+	return validateIndexPath(repoRoot, unit.SourcePath, unit.ID, "source_path")
+}
+
+func validateIndexUnitProjections(repoRoot string, unit SemanticIndexUnit, projectionSurfaces map[string]bool) error {
 	if len(unit.ProjectionPaths) == 0 {
 		return fmt.Errorf("%s: projection_paths must be non-empty", unit.ID)
 	}
@@ -207,13 +201,17 @@ func validateUnit(
 		if !projectionSurfaces[surface] {
 			return fmt.Errorf("%s: unknown projection surface `%s`", unit.ID, surface)
 		}
-		if err := validatePath(repoRoot, path, unit.ID, "projection_paths."+surface); err != nil {
+		if err := validateIndexPath(repoRoot, path, unit.ID, "projection_paths."+surface); err != nil {
 			return err
 		}
 	}
 	if unit.AuthorityType == "canonical_markdown_bridge" && unit.ProjectionPaths["markdown_en"] == "" {
 		return fmt.Errorf("%s: canonical Markdown bridge units must expose projection_paths.markdown_en", unit.ID)
 	}
+	return nil
+}
+
+func validateIndexUnitRetrieval(repoRoot string, unit SemanticIndexUnit, componentConsumers map[string]bool) error {
 	if unit.Relationships == nil {
 		return fmt.Errorf("%s: relationships must be an object", unit.ID)
 	}
@@ -234,9 +232,10 @@ func validateUnit(
 	if len(unit.Provenance) == 0 {
 		return fmt.Errorf("%s: provenance must be non-empty", unit.ID)
 	}
-	if err := validateProvenance(repoRoot, unit); err != nil {
-		return err
-	}
+	return validateIndexProvenance(repoRoot, unit)
+}
+
+func validateIndexUnitConsumersAndContract(unit SemanticIndexUnit, sourceStatuses map[string]bool, componentConsumers map[string]bool) error {
 	if len(unit.ComponentConsumers) == 0 {
 		return fmt.Errorf("%s: component_consumers must be non-empty", unit.ID)
 	}
@@ -245,16 +244,10 @@ func validateUnit(
 			return fmt.Errorf("%s: unknown component consumer `%s`", unit.ID, consumer)
 		}
 	}
-	if err := validateTranslationContract(unit, sourceStatuses); err != nil {
-		return err
-	}
-	if unit.AuthorityType == "generated_artifact" && unit.SourceStatus == "canonical" {
-		return fmt.Errorf("%s: generated artifacts must not use canonical source_status", unit.ID)
-	}
-	return nil
+	return validateIndexTranslationContract(unit, sourceStatuses)
 }
 
-func validateProvenance(repoRoot string, unit Unit) error {
+func validateIndexProvenance(repoRoot string, unit SemanticIndexUnit) error {
 	sourceRevision, ok := unit.Provenance["source_revision"].(string)
 	if !ok || sourceRevision == "" {
 		return fmt.Errorf("%s: provenance.source_revision must be a non-empty string", unit.ID)
@@ -273,14 +266,14 @@ func validateProvenance(repoRoot string, unit Unit) error {
 		if !ok {
 			return fmt.Errorf("%s: provenance.decision_refs[%d] must be a string", unit.ID, index)
 		}
-		if err := validatePath(repoRoot, ref, unit.ID, fmt.Sprintf("provenance.decision_refs[%d]", index)); err != nil {
+		if err := validateIndexPath(repoRoot, ref, unit.ID, fmt.Sprintf("provenance.decision_refs[%d]", index)); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func validateTranslationContract(unit Unit, sourceStatuses map[string]bool) error {
+func validateIndexTranslationContract(unit SemanticIndexUnit, sourceStatuses map[string]bool) error {
 	if unit.Kind != "translation" && unit.AuthorityType != "translation" {
 		return nil
 	}
@@ -296,7 +289,7 @@ func validateTranslationContract(unit Unit, sourceStatuses map[string]bool) erro
 	return nil
 }
 
-func validateRelationships(unit Unit, unitIDs map[string]bool) error {
+func validateIndexRelationships(unit SemanticIndexUnit, unitIDs map[string]bool) error {
 	for _, field := range relationshipFieldsWithUnitIDs {
 		for _, targetID := range unit.Relationships[field] {
 			if !unitIDs[targetID] {
@@ -310,7 +303,7 @@ func validateRelationships(unit Unit, unitIDs map[string]bool) error {
 	return nil
 }
 
-func validatePath(repoRoot, pathValue, unitID, field string) error {
+func validateIndexPath(repoRoot, pathValue, unitID, field string) error {
 	if pathValue == "" {
 		return fmt.Errorf("%s: %s must be non-empty", unitID, field)
 	}

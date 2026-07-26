@@ -1,4 +1,4 @@
-package main
+package tooling
 
 import (
 	"encoding/json"
@@ -52,26 +52,15 @@ type sourceIndexForSourceValidation struct {
 	} `json:"units"`
 }
 
-func main() {
-	if len(os.Args) != 3 {
-		fatal(errors.New("usage: go run scripts/validate_semantic_source.go <source.json> <index.json>"))
-	}
-	if err := validateSemanticSource(os.Args[1], os.Args[2]); err != nil {
-		fatal(err)
-	}
-}
-
-func fatal(err error) {
-	fmt.Fprintf(os.Stderr, "semantic-source validation failed: %v\n", err)
-	os.Exit(1)
-}
-
-func validateSemanticSource(sourceFile, indexFile string) error {
-	sourceBytes, err := os.ReadFile(sourceFile)
+// ValidateSemanticSource validates a promoted semantic source file (e.g.
+// docs/core/semantic/source/core-v2-rules.v0.1.json) against its parent
+// index, migrated from scripts/validate_semantic_source.go.
+func ValidateSemanticSource(sourceFile, indexFile string) error {
+	sourceBytes, err := os.ReadFile(sourceFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
 	if err != nil {
 		return err
 	}
-	indexBytes, err := os.ReadFile(indexFile)
+	indexBytes, err := os.ReadFile(indexFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
 	if err != nil {
 		return err
 	}
@@ -85,30 +74,11 @@ func validateSemanticSource(sourceFile, indexFile string) error {
 		return fmt.Errorf("invalid index JSON: %w", err)
 	}
 
-	if source.Schema != expectedSemanticSourceSchema {
-		return fmt.Errorf("schema must be `%s`", expectedSemanticSourceSchema)
-	}
-	if source.SourceIndex != indexFile {
-		return fmt.Errorf("source_index must match validation index path `%s`", indexFile)
-	}
-	if source.SourceLocale != "en" {
-		return errors.New("source_locale must be `en`")
-	}
-	if source.DefaultLocalizedLocale != "PT-br" {
-		return errors.New("default_localized_locale must be `PT-br`")
-	}
-	if source.Description == "" {
-		return errors.New("description must be non-empty")
-	}
-	if len(source.Units) == 0 {
-		return errors.New("units must be non-empty")
-	}
-
-	repoRoot, err := repoRootFromSemanticSource(sourceFile)
+	repoRoot, err := repoRootFromFile(sourceFile)
 	if err != nil {
 		return err
 	}
-	if err := validateAcceptedDecision(repoRoot, source.AuthorityDecision); err != nil {
+	if err := validateSemanticSourceTopLevel(source, repoRoot, indexFile); err != nil {
 		return err
 	}
 
@@ -129,42 +99,41 @@ func validateSemanticSource(sourceFile, indexFile string) error {
 	return nil
 }
 
-func repoRootFromSemanticSource(sourceFile string) (string, error) {
-	abs, err := filepath.Abs(sourceFile)
-	if err != nil {
-		return "", err
+func validateSemanticSourceTopLevel(source semanticSourceFile, repoRoot, indexFile string) error {
+	if source.Schema != expectedSemanticSourceSchema {
+		return fmt.Errorf("schema must be `%s`", expectedSemanticSourceSchema)
 	}
-	return findRepoRoot(filepath.Dir(abs))
-}
-
-func findRepoRoot(start string) (string, error) {
-	for dir := start; ; dir = filepath.Dir(dir) {
-		if fileExists(filepath.Join(dir, "README.md")) && dirExists(filepath.Join(dir, "docs")) {
-			return dir, nil
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			return "", fmt.Errorf("could not find repository root from %s", start)
-		}
+	if source.SourceIndex != repoRelative(repoRoot, indexFile) {
+		return fmt.Errorf("source_index must match validation index path `%s`", indexFile)
 	}
+	if source.SourceLocale != "en" {
+		return errors.New("source_locale must be `en`")
+	}
+	if source.DefaultLocalizedLocale != "PT-br" {
+		return errors.New("default_localized_locale must be `PT-br`")
+	}
+	if source.Description == "" {
+		return errors.New("description must be non-empty")
+	}
+	if len(source.Units) == 0 {
+		return errors.New("units must be non-empty")
+	}
+	return validateAcceptedDecision(repoRoot, source.AuthorityDecision)
 }
 
-func fileExists(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
-}
-
-func dirExists(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && info.IsDir()
-}
-
+// validateAcceptedDecision confirms a referenced ADR exists and has been
+// accepted. Shared by the semantic-source and l10n-manifest validators
+// (previously two near-identical copies in scripts/validate_semantic_source.go
+// and scripts/validate_docs_l10n_manifest.go).
 func validateAcceptedDecision(repoRoot, pathValue string) error {
 	if pathValue == "" {
 		return errors.New("authority_decision must be non-empty")
 	}
+	if filepath.IsAbs(pathValue) {
+		return errors.New("authority_decision must be repository-relative")
+	}
 	decisionPath := filepath.Join(repoRoot, filepath.FromSlash(pathValue))
-	bytes, err := os.ReadFile(decisionPath)
+	bytes, err := os.ReadFile(decisionPath) //nolint:gosec // G304: path is repo-root-joined and validated repository-relative above
 	if err != nil {
 		return fmt.Errorf("authority_decision does not exist: %s", pathValue)
 	}
@@ -175,6 +144,33 @@ func validateAcceptedDecision(repoRoot, pathValue string) error {
 }
 
 func validateSemanticSourceUnit(repoRoot string, unit semanticSourceUnit, indexIDs, seenIDs map[string]bool) error {
+	if err := validateSemanticSourceUnitIdentity(unit, indexIDs, seenIDs); err != nil {
+		return err
+	}
+	if len(unit.ProjectionPaths) == 0 {
+		return fmt.Errorf("%s: projection_paths must be non-empty", unit.ID)
+	}
+	for surface, pathValue := range unit.ProjectionPaths {
+		if err := validateExistingSemanticSourcePath(repoRoot, unit.ID, "projection_paths."+surface, pathValue); err != nil {
+			return err
+		}
+	}
+	if unit.Relationships == nil {
+		return fmt.Errorf("%s: relationships must be an object", unit.ID)
+	}
+	if len(unit.Provenance) == 0 {
+		return fmt.Errorf("%s: provenance must be non-empty", unit.ID)
+	}
+	if err := validateSemanticSourceProvenance(repoRoot, unit); err != nil {
+		return err
+	}
+	if len(unit.ComponentConsumers) == 0 {
+		return fmt.Errorf("%s: component_consumers must be non-empty", unit.ID)
+	}
+	return validateTranslationExpectations(repoRoot, unit)
+}
+
+func validateSemanticSourceUnitIdentity(unit semanticSourceUnit, indexIDs, seenIDs map[string]bool) error {
 	if unit.ID == "" {
 		return errors.New("unit id must be non-empty")
 	}
@@ -201,29 +197,6 @@ func validateSemanticSourceUnit(repoRoot string, unit semanticSourceUnit, indexI
 	}
 	if unit.Statement == "" {
 		return fmt.Errorf("%s: statement must be non-empty", unit.ID)
-	}
-	if len(unit.ProjectionPaths) == 0 {
-		return fmt.Errorf("%s: projection_paths must be non-empty", unit.ID)
-	}
-	for surface, pathValue := range unit.ProjectionPaths {
-		if err := validateExistingSemanticSourcePath(repoRoot, unit.ID, "projection_paths."+surface, pathValue); err != nil {
-			return err
-		}
-	}
-	if unit.Relationships == nil {
-		return fmt.Errorf("%s: relationships must be an object", unit.ID)
-	}
-	if len(unit.Provenance) == 0 {
-		return fmt.Errorf("%s: provenance must be non-empty", unit.ID)
-	}
-	if err := validateSemanticSourceProvenance(repoRoot, unit); err != nil {
-		return err
-	}
-	if len(unit.ComponentConsumers) == 0 {
-		return fmt.Errorf("%s: component_consumers must be non-empty", unit.ID)
-	}
-	if err := validateTranslationExpectations(repoRoot, unit); err != nil {
-		return err
 	}
 	return nil
 }
@@ -262,7 +235,7 @@ func validateTranslationExpectations(repoRoot string, unit semanticSourceUnit) e
 		return fmt.Errorf("%s: translation_expectations.pt_br.projection_path must be non-empty", unit.ID)
 	}
 	fullPath := filepath.Join(repoRoot, filepath.FromSlash(expectation.ProjectionPath))
-	bytes, err := os.ReadFile(fullPath)
+	bytes, err := os.ReadFile(fullPath) //nolint:gosec // G304: path is repo-root-joined from a declared projection path, by design
 	if err != nil {
 		return fmt.Errorf("%s: PT-br projection does not exist: %s", unit.ID, expectation.ProjectionPath)
 	}
