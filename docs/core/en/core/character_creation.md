@@ -55,13 +55,10 @@ Hybrid builds are also possible.
 
 ## Character Progression
 
-As characters gain experience they become stronger.
-
-```text
-+2 vector points per level
-```
-
-The Game Master determines when characters gain a level depending on the campaign.
+As characters gain experience they become stronger. See
+[Progression](progression.md) for the full advancement rules, including
+the per-advancement choice between vector growth and alternatives such as
+new abilities, specialization, or new resources.
 
 ## Health
 
@@ -107,6 +104,7 @@ Because every character distributes points between the same three vectors, the s
 See also:
 
 - [Attributes](attributes.md)
+- [Progression](progression.md)
 - [Combat](../combat/attack_and_defense.md)
 - [Movement](../combat/movement.md)
 

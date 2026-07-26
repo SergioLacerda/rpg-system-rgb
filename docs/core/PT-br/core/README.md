@@ -22,6 +22,15 @@ Regras para criação de personagens utilizando os vetores RGB.
 
 ---
 
+### Progressão
+
+Regras de avanço de personagem: crescimento de vetor e escolhas
+alternativas de avanço.
+
+→ [Progressão](progression.md)
+
+---
+
 ### Habilidades
 
 Sistema opcional de habilidades e capacidades especiais.
