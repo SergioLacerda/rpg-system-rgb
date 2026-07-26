@@ -1,3 +1,4 @@
+// Command rgb is the CLI entrypoint for the RGB System V2 scaffold.
 package main
 
 import (

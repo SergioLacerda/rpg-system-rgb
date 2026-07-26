@@ -1,0 +1,49 @@
+# golangci-lint v2 configuration.
+# Quality baseline (M018) and clean-architecture guardrails (M001).
+# Run: make lint
+version: "2"
+
+run:
+  timeout: 3m
+  tests: true
+
+linters:
+  default: standard
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - unused
+    - ineffassign
+    - misspell
+    - revive
+    - gocyclo
+    - gosec
+    - nakedret
+    - unparam
+    - depguard
+  settings:
+    gocyclo:
+      min-complexity: 15
+    depguard:
+      rules:
+        # Domain components must stay free of application/orchestration deps.
+        components-stay-pure:
+          files:
+            - "**/internal/components/**"
+          deny:
+            - pkg: github.com/SergioLacerda/rpg-system-rgb/internal/app
+              desc: components must not depend on the application layer
+            - pkg: github.com/SergioLacerda/rpg-system-rgb/cmd
+              desc: components must not depend on entrypoints
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - gosec
+          - gocyclo
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
