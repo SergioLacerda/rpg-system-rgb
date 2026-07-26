@@ -1,5 +1,6 @@
 // Command rgb-compiler renders the canonical RGB System documentation into
-// a static HTML site and print-ready pages for manual PDF export.
+// print-ready pages for manual PDF export, and optionally a static HTML
+// site.
 package main
 
 import (
@@ -10,12 +11,30 @@ import (
 )
 
 func main() {
+	if len(os.Args) < 2 {
+		fatal("usage: rgb-compiler <all|no-html> [repo-root]")
+	}
+
 	repoRoot := "."
-	if len(os.Args) >= 2 {
-		repoRoot = os.Args[1]
+	if len(os.Args) >= 3 {
+		repoRoot = os.Args[2]
 	}
-	if err := app.Compile(repoRoot); err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
+
+	var err error
+	switch os.Args[1] {
+	case "all":
+		err = app.Compile(repoRoot, true)
+	case "no-html":
+		err = app.Compile(repoRoot, false)
+	default:
+		fatal(fmt.Sprintf("unknown subcommand %q", os.Args[1]))
 	}
+	if err != nil {
+		fatal(err.Error())
+	}
+}
+
+func fatal(message string) {
+	fmt.Fprintln(os.Stderr, message)
+	os.Exit(1)
 }
