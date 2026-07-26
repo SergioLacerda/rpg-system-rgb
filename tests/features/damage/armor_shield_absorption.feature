@@ -70,3 +70,19 @@ Feature: Armor and shield absorption
       And a firearm with impact value 4
       When the attacker lands a ranged hit
       Then the impact before mitigation must be 4
+
+  Rule: Weapon category determines default penetration
+
+    Scenario Outline: Weapon category penetration defaults
+      Given a <category> weapon
+      When default penetration is looked up
+      Then default penetration must be <penetration>
+
+      Examples:
+        | category      | penetration |
+        | pistol        | 1           |
+        | smg           | 2           |
+        | carbine       | 2           |
+        | assault_rifle | 3           |
+        | sniper_rifle  | 4           |
+        | machine_gun   | 3           |

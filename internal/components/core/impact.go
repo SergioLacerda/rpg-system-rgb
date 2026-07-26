@@ -32,3 +32,46 @@ func ComputeImpact(source ImpactSource, weaponValue, attackerR int) (int, error)
 		return 0, fmt.Errorf("unknown impact source %q", source)
 	}
 }
+
+// WeaponCategory identifies a firearm class with a canonical penetration
+// value, per docs/core/en/weapons/mechanics/penetration.md. This table is
+// narrower than, and not a 1:1 join with, the finer-grained weapon list in
+// docs/core/en/weapons/categories/firearms.md's damage table.
+type WeaponCategory string
+
+const (
+	// WeaponCategoryPistol is a lightweight sidearm.
+	WeaponCategoryPistol WeaponCategory = "pistol"
+	// WeaponCategorySMG is a high-rate-of-fire short-to-medium range weapon.
+	WeaponCategorySMG WeaponCategory = "smg"
+	// WeaponCategoryCarbine is a lightweight rifle.
+	WeaponCategoryCarbine WeaponCategory = "carbine"
+	// WeaponCategoryAssaultRifle balances damage and capacity.
+	WeaponCategoryAssaultRifle WeaponCategory = "assault_rifle"
+	// WeaponCategorySniperRifle is a high-damage precision weapon.
+	WeaponCategorySniperRifle WeaponCategory = "sniper_rifle"
+	// WeaponCategoryMachineGun provides sustained suppressive fire.
+	WeaponCategoryMachineGun WeaponCategory = "machine_gun"
+)
+
+// DefaultPenetration returns the category's canonical penetration value,
+// per the Weapon Penetration Table in
+// docs/core/en/weapons/mechanics/penetration.md.
+func (category WeaponCategory) DefaultPenetration() (int, error) {
+	switch category {
+	case WeaponCategoryPistol:
+		return 1, nil
+	case WeaponCategorySMG:
+		return 2, nil
+	case WeaponCategoryCarbine:
+		return 2, nil
+	case WeaponCategoryAssaultRifle:
+		return 3, nil
+	case WeaponCategorySniperRifle:
+		return 4, nil
+	case WeaponCategoryMachineGun:
+		return 3, nil
+	default:
+		return 0, fmt.Errorf("unknown weapon category %q", category)
+	}
+}

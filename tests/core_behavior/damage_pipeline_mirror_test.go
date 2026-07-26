@@ -71,3 +71,27 @@ func TestFirearmImpactUsesWeaponValueOnlyFeatureExample(t *testing.T) {
 		t.Fatalf("firearm impact got %d want 4", impact)
 	}
 }
+
+// mirrors: tests/features/damage/armor_shield_absorption.feature#Weapon category penetration defaults
+func TestWeaponCategoryPenetrationDefaultsFeatureExamples(t *testing.T) {
+	cases := []struct {
+		category    core.WeaponCategory
+		penetration int
+	}{
+		{category: core.WeaponCategoryPistol, penetration: 1},
+		{category: core.WeaponCategorySMG, penetration: 2},
+		{category: core.WeaponCategoryCarbine, penetration: 2},
+		{category: core.WeaponCategoryAssaultRifle, penetration: 3},
+		{category: core.WeaponCategorySniperRifle, penetration: 4},
+		{category: core.WeaponCategoryMachineGun, penetration: 3},
+	}
+	for _, tc := range cases {
+		got, err := tc.category.DefaultPenetration()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got != tc.penetration {
+			t.Fatalf("category=%s penetration got %d want %d", tc.category, got, tc.penetration)
+		}
+	}
+}
