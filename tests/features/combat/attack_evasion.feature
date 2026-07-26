@@ -35,3 +35,21 @@ Feature: Attack versus evasion
         | 1      | 3       | failure_with_opportunity |
         | 0      | 3       | clear_failure            |
         | 0      | 4       | clear_failure            |
+
+  Rule: Modifiers shift the margin before classification
+
+    Scenario: Situational modifier converts a miss into a hit
+      Given an attacker with R equal to 2
+      And a defender with G equal to 3
+      And the attacker has a situational modifier of 2
+      When the attacker makes a direct attack
+      Then the margin must be 1
+      And the margin outcome must be success
+
+  Rule: The teaching shorthand stays consistent with margins
+
+    Scenario: R greater than or equal to G always yields a successful outcome
+      Given any attacker R from 0 to 10
+      And any defender G from 0 to 10
+      When R is greater than or equal to G
+      Then the resolution outcome must be successful

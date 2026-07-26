@@ -45,6 +45,7 @@ func parseYAMLCharacters(t *testing.T) map[string]yamlVectors {
 	return characters
 }
 
+// mirrors: tests/features/fixtures/fixture_parity.feature#Character vectors match across fixture sources
 // TestFixtureParityBetweenYAMLAndGo keeps the YAML fixture (authoring
 // surface) and the Go fixture (test/simulation surface) from silently
 // drifting apart (structural review F5): every character ID and R/G/B
