@@ -101,19 +101,43 @@ type generatedProjectionUnit struct {
 // original script, output paths are resolved against repoRoot explicitly
 // instead of the process working directory.
 func Generate(repoRoot, manifestFile, indexFile, sourceFile string) error {
-	var manifest generationManifest
-	if err := readJSON(manifestFile, &manifest); err != nil {
-		return err
-	}
-	var index generationIndex
-	if err := readJSON(indexFile, &index); err != nil {
-		return err
-	}
-	var source generationSource
-	if err := readJSON(sourceFile, &source); err != nil {
+	manifest, index, source, err := loadGenerationInputs(manifestFile, indexFile, sourceFile)
+	if err != nil {
 		return err
 	}
 
+	indexUnits, sourceUnits := buildGenerationLookups(index, source)
+
+	for _, proj := range manifest.Projections {
+		if err := buildAndWriteProjection(repoRoot, proj, indexFile, sourceFile, indexUnits, sourceUnits); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// loadGenerationInputs reads and parses the projection manifest, semantic
+// index, and semantic source files.
+func loadGenerationInputs(manifestFile, indexFile, sourceFile string) (generationManifest, generationIndex, generationSource, error) {
+	var manifest generationManifest
+	if err := readJSON(manifestFile, &manifest); err != nil {
+		return generationManifest{}, generationIndex{}, generationSource{}, err
+	}
+	var index generationIndex
+	if err := readJSON(indexFile, &index); err != nil {
+		return generationManifest{}, generationIndex{}, generationSource{}, err
+	}
+	var source generationSource
+	if err := readJSON(sourceFile, &source); err != nil {
+		return generationManifest{}, generationIndex{}, generationSource{}, err
+	}
+	return manifest, index, source, nil
+}
+
+// buildGenerationLookups builds ID-keyed lookup maps for the index and
+// source units referenced by projections.
+func buildGenerationLookups(index generationIndex, source generationSource) (map[string]generationIndexUnit, map[string]generationSourceUnit) {
 	indexUnits := map[string]generationIndexUnit{}
 	for _, unit := range index.Units {
 		indexUnits[unit.ID] = unit
@@ -122,38 +146,47 @@ func Generate(repoRoot, manifestFile, indexFile, sourceFile string) error {
 	for _, unit := range source.Units {
 		sourceUnits[unit.ID] = unit
 	}
+	return indexUnits, sourceUnits
+}
 
-	for _, proj := range manifest.Projections {
-		output := generatedProjection{
-			Schema:              "rgb-docs-generated-projection/0.1",
-			ProjectionID:        proj.ID,
-			Surface:             proj.Surface,
-			Owner:               proj.Owner,
-			Status:              proj.Status,
-			AuthorityType:       "generated_artifact",
-			Description:         proj.Description,
-			GeneratedFrom:       proj.SourceUnits,
-			SourceIndex:         repoRelative(repoRoot, indexFile),
-			SemanticSource:      repoRelative(repoRoot, sourceFile),
-			Provenance:          proj.Provenance,
-			RequiredDisclosures: proj.RequiredDisclosures,
-			GenerationGate:      proj.GenerationGate,
-			Units:               make([]generatedProjectionUnit, 0, len(proj.SourceUnits)),
-		}
-		for _, unitID := range proj.SourceUnits {
-			indexUnit, ok := indexUnits[unitID]
-			if !ok {
-				return fmt.Errorf("%s: unknown source unit %s", proj.ID, unitID)
-			}
-			output.Units = append(output.Units, projectUnit(indexUnit, sourceUnits[unitID]))
-		}
-		outputPath := filepath.Join(repoRoot, filepath.FromSlash(proj.OutputPath))
-		if err := writeGeneratedProjection(outputPath, output); err != nil {
-			return err
-		}
-		fmt.Printf("generated %s\n", proj.OutputPath)
+// buildAndWriteProjection builds one generated projection artifact from its
+// manifest entry and the shared index/source lookups, then writes it under
+// repoRoot at the manifest-declared output path.
+func buildAndWriteProjection(
+	repoRoot string,
+	proj generationProjection,
+	indexFile, sourceFile string,
+	indexUnits map[string]generationIndexUnit,
+	sourceUnits map[string]generationSourceUnit,
+) error {
+	output := generatedProjection{
+		Schema:              "rgb-docs-generated-projection/0.1",
+		ProjectionID:        proj.ID,
+		Surface:             proj.Surface,
+		Owner:               proj.Owner,
+		Status:              proj.Status,
+		AuthorityType:       "generated_artifact",
+		Description:         proj.Description,
+		GeneratedFrom:       proj.SourceUnits,
+		SourceIndex:         repoRelative(repoRoot, indexFile),
+		SemanticSource:      repoRelative(repoRoot, sourceFile),
+		Provenance:          proj.Provenance,
+		RequiredDisclosures: proj.RequiredDisclosures,
+		GenerationGate:      proj.GenerationGate,
+		Units:               make([]generatedProjectionUnit, 0, len(proj.SourceUnits)),
 	}
-
+	for _, unitID := range proj.SourceUnits {
+		indexUnit, ok := indexUnits[unitID]
+		if !ok {
+			return fmt.Errorf("%s: unknown source unit %s", proj.ID, unitID)
+		}
+		output.Units = append(output.Units, projectUnit(indexUnit, sourceUnits[unitID]))
+	}
+	outputPath := filepath.Join(repoRoot, filepath.FromSlash(proj.OutputPath))
+	if err := writeGeneratedProjection(outputPath, output); err != nil {
+		return err
+	}
+	fmt.Printf("generated %s\n", proj.OutputPath)
 	return nil
 }
 

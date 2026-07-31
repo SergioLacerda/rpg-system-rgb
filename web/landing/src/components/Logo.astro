@@ -1,0 +1,22 @@
+---
+import { landingPath } from '../lib/paths';
+
+interface Props { size?: number; withWordmark?: boolean; lang?: string }
+const { size = 38, withWordmark = true, lang = 'pt-br' } = Astro.props;
+---
+<a href={landingPath(`/${lang}/`)} class="logo">
+  <svg width={size} height={size * 0.93} viewBox="0 0 180 170">
+    <polygon points="90,20 150,120 30,120" fill="none" stroke="var(--text)" stroke-width="4"></polygon>
+    <line x1="90" y1="88" x2="140" y2="45" stroke="var(--r)" stroke-width="4"></line>
+    <line x1="90" y1="88" x2="40" y2="45" stroke="var(--b)" stroke-width="4"></line>
+    <line x1="90" y1="88" x2="90" y2="150" stroke="var(--g)" stroke-width="4"></line>
+  </svg>
+  {withWordmark && (
+    <span class="wordmark"><span class="r">R</span><span class="g">G</span><span class="b">B</span> <span class="rest">System</span></span>
+  )}
+</a>
+<style>
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .wordmark { font-family: var(--font-serif); font-size: 18px; letter-spacing: 1px; }
+  .r { color: var(--r); } .g { color: var(--g); } .b { color: var(--b); } .rest { color: var(--text); }
+</style>

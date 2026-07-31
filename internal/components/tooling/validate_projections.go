@@ -55,30 +55,9 @@ type projectionConsumerContract struct {
 // against its index and consumer contracts, migrated from
 // scripts/validate_semantic_projections.go.
 func ValidateProjectionManifest(manifestFile, indexFile, contractsFile string) error {
-	manifestBytes, err := os.ReadFile(manifestFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
+	manifest, index, contracts, err := loadProjectionInputs(manifestFile, indexFile, contractsFile)
 	if err != nil {
 		return err
-	}
-	indexBytes, err := os.ReadFile(indexFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
-	if err != nil {
-		return err
-	}
-	contractsBytes, err := os.ReadFile(contractsFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
-	if err != nil {
-		return err
-	}
-
-	var manifest projectionManifest
-	if err := json.Unmarshal(manifestBytes, &manifest); err != nil {
-		return fmt.Errorf("invalid manifest JSON: %w", err)
-	}
-	var index projectionSourceIndex
-	if err := json.Unmarshal(indexBytes, &index); err != nil {
-		return fmt.Errorf("invalid source index JSON: %w", err)
-	}
-	var contracts projectionContractsFile
-	if err := json.Unmarshal(contractsBytes, &contracts); err != nil {
-		return fmt.Errorf("invalid consumer contracts JSON: %w", err)
 	}
 
 	repoRoot, err := repoRootFromFile(manifestFile)
@@ -89,17 +68,7 @@ func ValidateProjectionManifest(manifestFile, indexFile, contractsFile string) e
 		return err
 	}
 
-	statuses := stringSet(index.SourceStatuses)
-	surfaces := stringSet(index.ProjectionSurfaces)
-	components := stringSet(index.ComponentConsumers)
-	unitIDs := map[string]bool{}
-	for _, unit := range index.Units {
-		unitIDs[unit.ID] = true
-	}
-	allowedSurfacesByOwner := map[string]map[string]bool{}
-	for _, contract := range contracts.Contracts {
-		allowedSurfacesByOwner[contract.Component] = stringSet(contract.AllowedProjectionSurfaces)
-	}
+	statuses, surfaces, components, unitIDs, allowedSurfacesByOwner := buildProjectionLookups(index, contracts)
 
 	seenIDs := map[string]bool{}
 	for _, proj := range manifest.Projections {
@@ -111,6 +80,58 @@ func ValidateProjectionManifest(manifestFile, indexFile, contractsFile string) e
 
 	fmt.Printf("semantic-projection validation passed: %s (%d projections)\n", manifestFile, len(manifest.Projections))
 	return nil
+}
+
+// loadProjectionInputs reads and parses the projection manifest, its parent
+// source index, and the consumer contracts file.
+func loadProjectionInputs(manifestFile, indexFile, contractsFile string) (projectionManifest, projectionSourceIndex, projectionContractsFile, error) {
+	manifestBytes, err := os.ReadFile(manifestFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
+	if err != nil {
+		return projectionManifest{}, projectionSourceIndex{}, projectionContractsFile{}, err
+	}
+	indexBytes, err := os.ReadFile(indexFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
+	if err != nil {
+		return projectionManifest{}, projectionSourceIndex{}, projectionContractsFile{}, err
+	}
+	contractsBytes, err := os.ReadFile(contractsFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
+	if err != nil {
+		return projectionManifest{}, projectionSourceIndex{}, projectionContractsFile{}, err
+	}
+
+	var manifest projectionManifest
+	if err := json.Unmarshal(manifestBytes, &manifest); err != nil {
+		return projectionManifest{}, projectionSourceIndex{}, projectionContractsFile{}, fmt.Errorf("invalid manifest JSON: %w", err)
+	}
+	var index projectionSourceIndex
+	if err := json.Unmarshal(indexBytes, &index); err != nil {
+		return projectionManifest{}, projectionSourceIndex{}, projectionContractsFile{}, fmt.Errorf("invalid source index JSON: %w", err)
+	}
+	var contracts projectionContractsFile
+	if err := json.Unmarshal(contractsBytes, &contracts); err != nil {
+		return projectionManifest{}, projectionSourceIndex{}, projectionContractsFile{}, fmt.Errorf("invalid consumer contracts JSON: %w", err)
+	}
+	return manifest, index, contracts, nil
+}
+
+// buildProjectionLookups builds the allowed-value sets and ID-keyed lookup
+// maps used to validate every projection entry.
+func buildProjectionLookups(index projectionSourceIndex, contracts projectionContractsFile) (
+	statuses, surfaces, components map[string]bool,
+	unitIDs map[string]bool,
+	allowedSurfacesByOwner map[string]map[string]bool,
+) {
+	statuses = stringSet(index.SourceStatuses)
+	surfaces = stringSet(index.ProjectionSurfaces)
+	components = stringSet(index.ComponentConsumers)
+	unitIDs = map[string]bool{}
+	for _, unit := range index.Units {
+		unitIDs[unit.ID] = true
+	}
+	allowedSurfacesByOwner = map[string]map[string]bool{}
+	for _, contract := range contracts.Contracts {
+		allowedSurfacesByOwner[contract.Component] = stringSet(contract.AllowedProjectionSurfaces)
+	}
+	return statuses, surfaces, components, unitIDs, allowedSurfacesByOwner
 }
 
 func validateProjectionManifestTopLevel(manifest projectionManifest, repoRoot, indexFile, contractsFile string) error {
@@ -159,6 +180,15 @@ func validateProjectionOwnership(
 	components map[string]bool,
 	allowedSurfacesByOwner map[string]map[string]bool,
 ) error {
+	if err := validateProjectionIdentity(proj, seenIDs, surfaces, components); err != nil {
+		return err
+	}
+	return validateProjectionContractCompliance(proj, statuses, allowedSurfacesByOwner)
+}
+
+// validateProjectionIdentity validates the projection's own ID, uniqueness,
+// surface, and owner fields.
+func validateProjectionIdentity(proj projection, seenIDs map[string]bool, surfaces, components map[string]bool) error {
 	if proj.ID == "" {
 		return errors.New("projection id must be non-empty")
 	}
@@ -171,6 +201,13 @@ func validateProjectionOwnership(
 	if proj.Owner == "" || !components[proj.Owner] {
 		return fmt.Errorf("%s: unknown owner `%s`", proj.ID, proj.Owner)
 	}
+	return nil
+}
+
+// validateProjectionContractCompliance validates that the projection's
+// surface is allowed by its owner's consumer contract, and its status and
+// description are well-formed.
+func validateProjectionContractCompliance(proj projection, statuses map[string]bool, allowedSurfacesByOwner map[string]map[string]bool) error {
 	ownerSurfaces, ok := allowedSurfacesByOwner[proj.Owner]
 	if !ok {
 		return fmt.Errorf("%s: owner `%s` has no consumer contract", proj.ID, proj.Owner)
@@ -231,21 +268,28 @@ func validateProjectionProvenance(repoRoot string, proj projection) error {
 	if !exists {
 		return nil
 	}
+	return validateProjectionDecisionRefs(repoRoot, proj.ID, refsValue)
+}
+
+// validateProjectionDecisionRefs validates the optional
+// provenance.decision_refs list: each entry must be a string and a valid
+// repository-relative path.
+func validateProjectionDecisionRefs(repoRoot, projectionID string, refsValue any) error {
 	refs, ok := refsValue.([]any)
 	if !ok {
-		return fmt.Errorf("%s: provenance.decision_refs must be a string list", proj.ID)
+		return fmt.Errorf("%s: provenance.decision_refs must be a string list", projectionID)
 	}
 	for index, refValue := range refs {
 		ref, ok := refValue.(string)
 		if !ok {
-			return fmt.Errorf("%s: provenance.decision_refs[%d] must be a string", proj.ID, index)
+			return fmt.Errorf("%s: provenance.decision_refs[%d] must be a string", projectionID, index)
 		}
 		if filepath.IsAbs(ref) {
-			return fmt.Errorf("%s: provenance.decision_refs[%d] must be repository-relative", proj.ID, index)
+			return fmt.Errorf("%s: provenance.decision_refs[%d] must be repository-relative", projectionID, index)
 		}
 		fullPath := filepath.Join(repoRoot, filepath.FromSlash(ref))
 		if _, err := os.Stat(fullPath); err != nil {
-			return fmt.Errorf("%s: provenance.decision_refs[%d] does not exist: %s", proj.ID, index, ref)
+			return fmt.Errorf("%s: provenance.decision_refs[%d] does not exist: %s", projectionID, index, ref)
 		}
 	}
 	return nil

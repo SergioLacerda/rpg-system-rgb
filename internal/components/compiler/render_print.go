@@ -64,24 +64,36 @@ func RenderPrintPage(repoRoot, locale string) (string, error) {
 
 	var sections strings.Builder
 	for _, unit := range manifest.Units {
-		relPath, ok := unit.ProjectionPaths[projectionKey]
-		if !ok {
-			return "", fmt.Errorf("%s: unit %s has no %s projection path", manifestPath, unit.ID, projectionKey)
-		}
-		sourcePath := filepath.Join(repoRoot, filepath.FromSlash(relPath))
-		sourceBody, err := os.ReadFile(sourcePath) //nolint:gosec // G304: path is repo-root-joined from the generated manifest, by design
+		section, err := renderPrintUnit(repoRoot, unit, projectionKey)
 		if err != nil {
-			return "", fmt.Errorf("%s: %w", unit.ID, err)
+			return "", fmt.Errorf("%s: %w", manifestPath, err)
 		}
-		sections.WriteString(`<section class="print-unit">` + "\n")
-		for _, block := range Parse(string(sourceBody)) {
-			writeBlockHTML(&sections, block)
-		}
-		sections.WriteString("</section>\n")
+		sections.WriteString(section)
 	}
 
 	title := "RGB Core V2 Rules"
 	return fmt.Sprintf(printPageTemplate, html.EscapeString(localeTag(locale)), html.EscapeString(title), sections.String()), nil
+}
+
+// renderPrintUnit reads and renders a single manifest unit's Markdown source
+// into a print-ready HTML section, per projectionKey.
+func renderPrintUnit(repoRoot string, unit printManifestUnit, projectionKey string) (string, error) {
+	relPath, ok := unit.ProjectionPaths[projectionKey]
+	if !ok {
+		return "", fmt.Errorf("unit %s has no %s projection path", unit.ID, projectionKey)
+	}
+	sourcePath := filepath.Join(repoRoot, filepath.FromSlash(relPath))
+	sourceBody, err := os.ReadFile(sourcePath) //nolint:gosec // G304: path is repo-root-joined from the generated manifest, by design
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", unit.ID, err)
+	}
+	var section strings.Builder
+	section.WriteString(`<section class="print-unit">` + "\n")
+	for _, block := range Parse(string(sourceBody)) {
+		writeBlockHTML(&section, block)
+	}
+	section.WriteString("</section>\n")
+	return section.String(), nil
 }
 
 // RenderPrintTree writes the print-ready page for both locales to

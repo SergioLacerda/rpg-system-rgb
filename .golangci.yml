@@ -24,7 +24,7 @@ linters:
     - depguard
   settings:
     gocyclo:
-      min-complexity: 15
+      min-complexity: 7
     depguard:
       rules:
         # Domain components must stay free of application/orchestration deps.

@@ -33,34 +33,7 @@ func BuildSite(repoRoot string) error {
 
 func buildLocaleNav(repoRoot, locale string) error {
 	htmlDir := filepath.Join(repoRoot, "generated", "library", "html", locale)
-	groups := map[string][]navEntry{}
-	var groupOrder []string
-
-	err := filepath.WalkDir(htmlDir, func(path string, entry fs.DirEntry, walkErr error) error {
-		if walkErr != nil {
-			return walkErr
-		}
-		if entry.IsDir() || filepath.Ext(path) != ".html" {
-			return nil
-		}
-		rel, err := filepath.Rel(htmlDir, path)
-		if err != nil {
-			return err
-		}
-		rel = filepath.ToSlash(rel)
-		if rel == "index.html" {
-			return nil
-		}
-		group := "Overview"
-		if parts := strings.SplitN(rel, "/", 2); len(parts) > 1 {
-			group = titleCase(parts[0])
-		}
-		if _, seen := groups[group]; !seen {
-			groupOrder = append(groupOrder, group)
-		}
-		groups[group] = append(groups[group], navEntry{Title: titleFromFilename(path), Href: rel})
-		return nil
-	})
+	groupOrder, groups, err := collectNavEntries(htmlDir)
 	if err != nil {
 		return err
 	}
@@ -68,6 +41,55 @@ func buildLocaleNav(repoRoot, locale string) error {
 	sortNavGroups(groupOrder, groups)
 	body := renderNavHTML(locale, groupOrder, groups)
 	return os.WriteFile(filepath.Join(htmlDir, "index.html"), []byte(body), 0o644) //nolint:gosec // G306: generated HTML pages are intended to be readable
+}
+
+// collectNavEntries walks htmlDir and groups every rendered page (excluding
+// the nav index itself) by its top-level directory, in first-seen order.
+func collectNavEntries(htmlDir string) (groupOrder []string, groups map[string][]navEntry, err error) {
+	groups = map[string][]navEntry{}
+	err = filepath.WalkDir(htmlDir, func(path string, entry fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		group, item, skip, entryErr := navEntryFor(htmlDir, path, entry)
+		if entryErr != nil {
+			return entryErr
+		}
+		if skip {
+			return nil
+		}
+		if _, seen := groups[group]; !seen {
+			groupOrder = append(groupOrder, group)
+		}
+		groups[group] = append(groups[group], item)
+		return nil
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+	return groupOrder, groups, nil
+}
+
+// navEntryFor derives the nav group and entry for one walked path. skip is
+// true for directories, non-HTML files, and the nav index itself, none of
+// which contribute a nav entry.
+func navEntryFor(htmlDir, path string, entry fs.DirEntry) (group string, item navEntry, skip bool, err error) {
+	if entry.IsDir() || filepath.Ext(path) != ".html" {
+		return "", navEntry{}, true, nil
+	}
+	rel, err := filepath.Rel(htmlDir, path)
+	if err != nil {
+		return "", navEntry{}, false, err
+	}
+	rel = filepath.ToSlash(rel)
+	if rel == "index.html" {
+		return "", navEntry{}, true, nil
+	}
+	group = "Overview"
+	if parts := strings.SplitN(rel, "/", 2); len(parts) > 1 {
+		group = titleCase(parts[0])
+	}
+	return group, navEntry{Title: titleFromFilename(path), Href: rel}, false, nil
 }
 
 // sortNavGroups sorts group names alphabetically, with "Overview" always

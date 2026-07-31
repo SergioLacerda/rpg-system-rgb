@@ -93,7 +93,7 @@
         "core.damage.flow",
         "core.ability.contract"
       ],
-      "output_path": "generated/landing/core-v2-summary.json",
+      "output_path": "web/landing/generated/core-v2-summary.json",
       "provenance": {
         "source_revision": "manual",
         "decision_refs": [
