@@ -1,7 +1,7 @@
 site_name: Regras Core do Sistema RGB
 site_description: Exportacao PDF das regras Core do Sistema RGB.
-docs_dir: docs
-site_dir: web/landing/.pdfbuild/pt-br
+docs_dir: ../docs
+site_dir: ../web/landing/.pdfbuild/pt-br
 use_directory_urls: true
 exclude_docs: |
   adr/*

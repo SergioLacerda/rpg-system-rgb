@@ -15,10 +15,11 @@ LANDING_PORT ?= 4324
 LANDING_BASE ?= /rpg-system-rgb
 PDF_BASENAME ?= rgb-system-core-v2
 PDF_BUILD_DIR ?= $(LANDING_DIR)/.pdfbuild
-PDF_EN_CONFIG ?= mkdocs-pdf-en.yml
+PDF_EN_CONFIG ?= docs-build/mkdocs-pdf-en.yml
 PDF_LOCALE ?= pt-br
 PDF_PUBLIC_DIR ?= $(LANDING_DIR)/public/downloads
-PDF_PT_BR_CONFIG ?= mkdocs-pdf-pt-br.yml
+PDF_PT_BR_CONFIG ?= docs-build/mkdocs-pdf-pt-br.yml
+MKDOCS_CONFIG ?= docs-build/mkdocs.yml
 PDF_SRC ?=
 PDF_VERSION ?= v0.2
 # Coverage floor for cover-check. Deliberately low relative to the current
@@ -80,13 +81,13 @@ compile-full: FORCE
 	$(GOENV) $(GO) run ./cmd/rgb-compiler all
 
 docs-install: FORCE
-	$(PYTHON) -m pip install -r requirements-docs.txt
+	$(PYTHON) -m pip install -r docs-build/requirements-docs.txt
 
 docs-pdf-install: docs-install FORCE
-	$(PYTHON) -m pip install -r requirements-docs-pdf.txt
+	$(PYTHON) -m pip install -r docs-build/requirements-docs-pdf.txt
 
 docs-build: FORCE
-	$(MKDOCS) build --strict
+	$(MKDOCS) build --strict -f $(MKDOCS_CONFIG)
 
 docs-pdf: FORCE
 	$(MKDOCS) build -f $(PDF_EN_CONFIG)
@@ -98,7 +99,7 @@ docs-pdf: FORCE
 	cp "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-latest-pt-br.pdf" "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-$(PDF_VERSION)-pt-br.pdf"
 
 docs-preview: FORCE
-	$(MKDOCS) serve --dev-addr $(MKDOCS_HOST):$(MKDOCS_PORT)
+	$(MKDOCS) serve --dev-addr $(MKDOCS_HOST):$(MKDOCS_PORT) -f $(MKDOCS_CONFIG)
 
 landing-install: FORCE
 	$(NPM) --prefix $(LANDING_DIR) install
