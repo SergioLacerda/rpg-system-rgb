@@ -113,6 +113,19 @@ a:focus {
   border-color: var(--rgb-border);
 }
 
+.rgb-primary-nav {
+  align-items: center;
+  border-right: 1px solid var(--rgb-border);
+  display: flex;
+  gap: 18px;
+  margin-right: 6px;
+  padding-right: 20px;
+}
+
+.rgb-primary-nav .nav-link {
+  padding: 0 !important;
+}
+
 .rgb-library-return {
   align-items: center;
   background: var(--rgb-surface);
@@ -475,6 +488,12 @@ body > footer.col-md-12 {
     align-items: flex-start;
     flex-direction: column;
     gap: 12px;
+  }
+
+  .rgb-primary-nav {
+    border-right: 0;
+    flex-wrap: wrap;
+    padding-right: 0;
   }
 }
 
