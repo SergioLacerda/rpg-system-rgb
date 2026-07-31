@@ -17,9 +17,6 @@
 {% endblock %}
 
 {% block repo %}
-<li class="nav-item">
-  <a class="nav-link rgb-library-return rgb-landing-link" href="{{ landing_href('/pt-br/') }}">Voltar para landing</a>
-</li>
 {% set current_page_url = page.url if page else '' %}
 {% if current_page_url.startswith('core/PT-br/') %}
   {% set ptbr_page_url = current_page_url %}
@@ -34,6 +31,15 @@
   {% set en_page_url = current_page_url %}
   {% set active_lang = 'en' %}
 {% endif %}
+<li class="nav-item rgb-primary-nav">
+  <a class="nav-link" href="{{ landing_href('/' ~ active_lang ~ '/') }}">{% if active_lang == 'pt-br' %}Sobre{% else %}About{% endif %}</a>
+  <a class="nav-link" href="{{ landing_href('/' ~ active_lang ~ '/instalacao') }}">{% if active_lang == 'pt-br' %}Instalação{% else %}Install{% endif %}</a>
+  <a class="nav-link active" href="{{ landing_href('/library/') }}">Library</a>
+  <a class="nav-link" href="{{ landing_href('/' ~ active_lang ~ '/skills/pathfinder') }}">Skills</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link rgb-library-return rgb-landing-link" href="{{ landing_href('/pt-br/') }}">Voltar para landing</a>
+</li>
 <li class="nav-item rgb-lang-switch">
   <a href="{{ ptbr_page_url|url }}" class="nav-link{% if active_lang == 'pt-br' %} active{% endif %}">PT-BR</a>
   <a href="{{ en_page_url|url }}" class="nav-link{% if active_lang == 'en' %} active{% endif %}">EN</a>
