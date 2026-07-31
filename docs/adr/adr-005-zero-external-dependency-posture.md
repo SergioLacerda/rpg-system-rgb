@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted.
+Accepted, with a documentation-PDF exception added on 2026-07-31.
 
 ## Context
 
@@ -77,3 +77,45 @@ It does **not** apply to:
   PDF generation, cognitive-complexity linting, richer diagram styling)
   stay deferred or manual rather than automated, until a future ADR
   explicitly decides the trade-off is worth it for a specific case.
+
+## Addendum 2026-07-31: Documentation PDF Generation Exception
+
+The project accepts a narrow exception for automated PDF generation in the
+documentation publication pipeline.
+
+This exception exists because the landing page and Library now expose stable
+PDF download links, and keeping those links fresh by manual browser export is
+operationally fragile. A generated PDF is a distribution artifact for readers,
+not a source of rules authority.
+
+The exception allows:
+
+- Python documentation-build dependencies required by a MkDocs PDF plugin;
+- operating-system rendering libraries required by that plugin, when documented
+  as setup prerequisites;
+- Makefile targets dedicated to documentation PDF generation, such as
+  `docs-pdf` or `pdf-build`;
+- generated PDF files under the landing static download surface.
+
+The exception does not allow:
+
+- Go module dependencies or any `go.sum` entry;
+- runtime dependencies used by game/system code;
+- headless-browser automation unless a later ADR explicitly authorizes that
+  class of dependency;
+- treating generated PDFs as canonical documentation sources;
+- silently making every build depend on PDF rendering before the dependency
+  profile is documented and validated.
+
+Implementation constraints:
+
+- Keep the PDF dependency profile separate from the base documentation profile,
+  for example `requirements-docs-pdf.txt` in addition to
+  `requirements-docs.txt`.
+- Prefer an explicit `docs-pdf` or `pdf-build` target during stabilization.
+  `landing-build` may depend on it only after the PDF dependency profile is
+  reproducible in the supported development environment.
+- Generated PDFs must be traceable to canonical Markdown or semantic source
+  units through the existing projection/manifest model.
+- The landing page should link to stable `latest` aliases while preserving
+  versioned PDF files for release history.
