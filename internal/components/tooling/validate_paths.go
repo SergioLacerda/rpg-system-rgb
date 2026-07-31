@@ -14,6 +14,15 @@ var forbiddenPublicPathMarkers = []string{
 	".strategist/",
 }
 
+// publicPathWalkExclusions lists, per publicRoots entry, immediate
+// subdirectories that are not produced by this repository's own build and
+// must not be scanned for leaked internal-path markers. generated/client/
+// is written by the governance/Strategist tooling's own client-build step —
+// not by anything under cmd/ or internal/.
+var publicPathWalkExclusions = map[string][]string{
+	"generated": {"client"},
+}
+
 // ValidateProjectPaths checks the repository's public-facing directory
 // shape and rejects internal path markers leaking into public surfaces,
 // migrated from scripts/validate_project_paths.go. Unlike the original
@@ -49,7 +58,7 @@ func ValidateProjectPaths(repoRoot string) error {
 		"generated",
 	}
 	for _, root := range publicRoots {
-		if err := rejectRuntimeRefs(filepath.Join(repoRoot, filepath.FromSlash(root))); err != nil {
+		if err := rejectRuntimeRefs(filepath.Join(repoRoot, filepath.FromSlash(root)), publicPathWalkExclusions[root]); err != nil {
 			return err
 		}
 	}
@@ -57,7 +66,7 @@ func ValidateProjectPaths(repoRoot string) error {
 	return nil
 }
 
-func rejectRuntimeRefs(root string) error {
+func rejectRuntimeRefs(root string, excludeDirs []string) error {
 	info, err := os.Stat(root)
 	if err != nil {
 		return err
@@ -70,10 +79,29 @@ func rejectRuntimeRefs(root string) error {
 			return walkErr
 		}
 		if entry.IsDir() {
+			if isExcludedWalkDir(root, path, excludeDirs) {
+				return filepath.SkipDir
+			}
 			return nil
 		}
 		return rejectRuntimeRefsInFile(path)
 	})
+}
+
+// isExcludedWalkDir reports whether path (relative to root) matches one of
+// excludeDirs — an immediate, named subdirectory exclusion, not a glob.
+func isExcludedWalkDir(root, path string, excludeDirs []string) bool {
+	rel, err := filepath.Rel(root, path)
+	if err != nil {
+		return false
+	}
+	rel = filepath.ToSlash(rel)
+	for _, excluded := range excludeDirs {
+		if rel == excluded {
+			return true
+		}
+	}
+	return false
 }
 
 func rejectRuntimeRefsInFile(path string) error {

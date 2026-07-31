@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { dict, locales, type Locale } from '../../i18n/dictionary';
+import { landingPath } from '../../lib/paths';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const t = dict[lang];
+---
+<BaseLayout lang={lang} title={t.hero.title}>
+  <section class="hero">
+    <div class="kicker">{t.hero.kicker}</div>
+    <h1>{t.hero.title}</h1>
+    <p class="sub">{t.hero.sub}</p>
+    <div class="ctas">
+      <a class="primary" href={landingPath('/library/')}>{t.hero.ctaLibrary}</a>
+      <a class="secondary" href={landingPath('/rgb-system-v0.2.pdf')}>{t.hero.ctaPdf}</a>
+    </div>
+    <svg width="220" height="200" viewBox="0 0 180 170" class="glyph">
+      <polygon points="90,20 150,120 30,120" fill="none" stroke="var(--text)" stroke-width="1.5" opacity="0.5"></polygon>
+      <line x1="90" y1="88" x2="140" y2="45" stroke="var(--r)" stroke-width="2"></line>
+      <line x1="90" y1="88" x2="40" y2="45" stroke="var(--b)" stroke-width="2"></line>
+      <line x1="90" y1="88" x2="90" y2="150" stroke="var(--g)" stroke-width="2"></line>
+      <circle cx="90" cy="88" r="4" fill="var(--text)"></circle>
+    </svg>
+  </section>
+
+</BaseLayout>
+
+<style>
+  .hero { text-align: center; padding: 100px 40px 80px; background: radial-gradient(circle at 50% 20%, var(--surface) 0%, var(--bg) 60%); }
+  .kicker { font-size: 12px; letter-spacing: 2px; color: var(--text-dim); margin-bottom: 20px; }
+  h1 { font-family: var(--font-serif); font-size: 56px; color: var(--text); margin: 0 0 20px; line-height: 1.15; }
+  .sub { font-size: 17px; color: var(--text-dim); max-width: 560px; margin: 0 auto 36px; line-height: 1.6; }
+  .ctas { display: flex; gap: 14px; justify-content: center; margin-bottom: 60px; }
+  .primary { background: var(--text); color: var(--bg); padding: 13px 26px; border-radius: 6px; font-size: 14px; font-weight: 600; }
+  .secondary { border: 1px solid #2a3350; color: var(--text); padding: 13px 26px; border-radius: 6px; font-size: 14px; }
+  .glyph { display: block; margin: 0 auto; }
+  @media (max-width: 760px) {
+    .hero { padding: 64px 22px 56px; }
+    h1 { font-size: 38px; }
+    .ctas { align-items: stretch; flex-direction: column; margin-bottom: 40px; }
+  }
+</style>

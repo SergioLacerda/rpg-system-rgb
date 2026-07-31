@@ -1,0 +1,43 @@
+---
+description: SDD CLI commands — invoked when user asks to run tests, lint, governance, etc.
+globs: ['**/*']
+alwaysApply: false
+---
+
+# SDD CLI Commands
+
+When the user asks to run tests, lint, check governance, or diagnose the workspace, use the following SDD CLI commands in the terminal:
+
+| Task | Command |
+|------|---------|
+| Run tests | `sdd test run` |
+| Lint | `sdd lint run` |
+| Validate governance | `sdd governance validate` |
+| Compile governance | `sdd governance compile` |
+| Runtime status | `sdd runtime status` |
+| Query context | `sdd ask --full "<question>"` |
+| Organize large context | `sdd organize "<context>"` |
+| Diagnostics | `sdd doctor run --mode real` |
+| Generate agent seeds | `sdd governance generate` |
+
+Exit codes for `sdd runtime status`: 0=HEALTHY, 1=NOT_INITIALIZED, 2=MISCONFIGURED, 3=NOT_CONNECTED.
+
+Hard-mode governance fields:
+- Preserve and report `execution_gate`, `gate_reason`, `intake_index_mode`,
+  `intake_chunks`, and `governance_mode` when command output includes them.
+- Preserve delegation/provider-binding signals such as `delegation_status`,
+  `delegation_executed`, and `provider_bound` when present.
+- If `execution_gate: blocked`, stop and report `gate_reason`.
+- If `execution_gate: allowed`, continue only within the command or skill contract.
+- `intake_index_mode: none` is independent from `execution_gate`; surface it
+  by name and value, and do not describe it as a blocked gate unless
+  `execution_gate: blocked` is also present.
+
+SDD GOVERNANCE CHECK
+- Always end responses with this compact footer:
+  `SDD GOVERNANCE: drift=${status} | governance=${status} | profile=${profile}`
+
+Audit JSON policy:
+- `.sdd/compiled/audit/*.json` is human/audit oriented.
+- Agents should prefer `.sdd/source/*` for human-readable governance context and
+  runtime checks (`sdd runtime status`, `sdd ask --full`) for operational state.

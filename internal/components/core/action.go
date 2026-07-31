@@ -23,6 +23,13 @@ type Action struct {
 // classification contract: actor, target, vectors, intent, state change,
 // procedure, and consequence must all be well-formed.
 func (action Action) Validate() error {
+	if err := action.validateParticipants(); err != nil {
+		return err
+	}
+	return action.validateNarrative()
+}
+
+func (action Action) validateParticipants() error {
 	if action.Round < 0 {
 		return fmt.Errorf("action round must be non-negative")
 	}
@@ -40,6 +47,10 @@ func (action Action) Validate() error {
 			return fmt.Errorf("secondary vector invalid: %w", err)
 		}
 	}
+	return nil
+}
+
+func (action Action) validateNarrative() error {
 	if action.Intent == "" {
 		return fmt.Errorf("action intent must be non-empty")
 	}

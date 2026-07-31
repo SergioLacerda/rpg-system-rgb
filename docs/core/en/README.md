@@ -86,10 +86,7 @@ Supporting material and gameplay examples.
 
 ## Architecture Decisions
 
-Project-wide ADRs are maintained separately from the system rules.
-
-- [ADR-001: AI-First Documentation Authority](../../adr/adr-001-ai-first-documentation-authority.md)
-- [ADR-002: RGB Core V2 Design Control](../../adr/adr-002-rgb-core-v2-design-control.md)
+Project-wide ADRs are maintained separately from the public rules Library.
 
 ## Documentation Structure
 

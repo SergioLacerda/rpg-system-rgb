@@ -35,16 +35,48 @@ type l10nDocument struct {
 // ValidateDocsL10nManifest validates docs/core/semantic/l10n-manifest.v0.1.json,
 // migrated from scripts/validate_docs_l10n_manifest.go.
 func ValidateDocsL10nManifest(manifestFile string) error {
-	bytes, err := os.ReadFile(manifestFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
+	manifest, err := loadL10nManifest(manifestFile)
+	if err != nil {
+		return err
+	}
+	if err := validateL10nManifestTopLevel(manifest); err != nil {
+		return err
+	}
+
+	repoRoot, err := resolveL10nRepoRoot(manifestFile, manifest.AuthorityDecision)
 	if err != nil {
 		return err
 	}
 
-	var manifest l10nManifest
-	if err := json.Unmarshal(bytes, &manifest); err != nil {
-		return fmt.Errorf("invalid JSON: %w", err)
+	authorityTypes, statuses, err := buildL10nLookupSets(manifest)
+	if err != nil {
+		return err
 	}
 
+	if err := validateL10nDocuments(repoRoot, manifest.Documents, authorityTypes, statuses); err != nil {
+		return err
+	}
+
+	fmt.Printf("docs-l10n validation passed: %s (%d documents)\n", manifestFile, len(manifest.Documents))
+	return nil
+}
+
+// loadL10nManifest reads and parses the l10n manifest file.
+func loadL10nManifest(manifestFile string) (l10nManifest, error) {
+	bytes, err := os.ReadFile(manifestFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
+	if err != nil {
+		return l10nManifest{}, err
+	}
+	var manifest l10nManifest
+	if err := json.Unmarshal(bytes, &manifest); err != nil {
+		return l10nManifest{}, fmt.Errorf("invalid JSON: %w", err)
+	}
+	return manifest, nil
+}
+
+// validateL10nManifestTopLevel validates the manifest's own schema/locale/
+// description fields, independent of any individual document entry.
+func validateL10nManifestTopLevel(manifest l10nManifest) error {
 	if manifest.Schema != expectedL10nSchema {
 		return fmt.Errorf("schema must be `%s`", expectedL10nSchema)
 	}
@@ -57,40 +89,50 @@ func ValidateDocsL10nManifest(manifestFile string) error {
 	if manifest.Description == "" {
 		return errors.New("description must be non-empty")
 	}
+	return nil
+}
 
+// resolveL10nRepoRoot resolves the repository root from the manifest file
+// path and validates the manifest's authority decision reference.
+func resolveL10nRepoRoot(manifestFile, authorityDecision string) (string, error) {
 	repoRoot, err := repoRootFromFile(manifestFile)
 	if err != nil {
-		return err
+		return "", err
 	}
-	if err := validateAcceptedDecision(repoRoot, manifest.AuthorityDecision); err != nil {
-		return err
+	if err := validateAcceptedDecision(repoRoot, authorityDecision); err != nil {
+		return "", err
 	}
+	return repoRoot, nil
+}
 
-	authorityTypes := stringSet(manifest.AuthorityTypes)
-	statuses := stringSet(manifest.TranslationStatuses)
+// buildL10nLookupSets builds the authority-type and translation-status
+// allowed-value sets used to validate every document.
+func buildL10nLookupSets(manifest l10nManifest) (authorityTypes, statuses map[string]bool, err error) {
+	authorityTypes = stringSet(manifest.AuthorityTypes)
 	if len(authorityTypes) == 0 {
-		return errors.New("authority_types must be non-empty")
+		return nil, nil, errors.New("authority_types must be non-empty")
 	}
+	statuses = stringSet(manifest.TranslationStatuses)
 	if len(statuses) == 0 {
-		return errors.New("translation_statuses must be non-empty")
+		return nil, nil, errors.New("translation_statuses must be non-empty")
 	}
-	if len(manifest.Documents) == 0 {
+	return authorityTypes, statuses, nil
+}
+
+// validateL10nDocuments validates every document entry, then checks that
+// every source Markdown file under docs/core/en has a manifest entry.
+func validateL10nDocuments(repoRoot string, documents []l10nDocument, authorityTypes, statuses map[string]bool) error {
+	if len(documents) == 0 {
 		return errors.New("documents must be non-empty")
 	}
-
 	sources := map[string]bool{}
-	for _, document := range manifest.Documents {
+	for _, document := range documents {
 		if err := validateL10nDocument(repoRoot, document, authorityTypes, statuses, sources); err != nil {
 			return err
 		}
 		sources[document.Source] = true
 	}
-	if err := validateL10nSourceCoverage(repoRoot, sources); err != nil {
-		return err
-	}
-
-	fmt.Printf("docs-l10n validation passed: %s (%d documents)\n", manifestFile, len(manifest.Documents))
-	return nil
+	return validateL10nSourceCoverage(repoRoot, sources)
 }
 
 func validateL10nDocument(repoRoot string, document l10nDocument, authorityTypes, statuses map[string]bool, sources map[string]bool) error {
@@ -101,6 +143,15 @@ func validateL10nDocument(repoRoot string, document l10nDocument, authorityTypes
 }
 
 func validateL10nDocumentSource(repoRoot string, document l10nDocument, authorityTypes, statuses map[string]bool, sources map[string]bool) error {
+	if err := validateL10nSourcePath(repoRoot, document, sources); err != nil {
+		return err
+	}
+	return validateL10nSourceMetadata(document, authorityTypes, statuses)
+}
+
+// validateL10nSourcePath validates the document's source field: presence,
+// uniqueness, Markdown-under-docs/core/en shape, and on-disk existence.
+func validateL10nSourcePath(repoRoot string, document l10nDocument, sources map[string]bool) error {
 	if document.Source == "" {
 		return errors.New("documents[].source must be non-empty")
 	}
@@ -110,9 +161,12 @@ func validateL10nDocumentSource(repoRoot string, document l10nDocument, authorit
 	if !hasSlashPrefix(document.Source, "docs/core/en/") || filepath.Ext(document.Source) != ".md" {
 		return fmt.Errorf("%s: source must be a Markdown path under docs/core/en", document.Source)
 	}
-	if err := validateExistingRepoPath(repoRoot, document.Source, document.Source, "source"); err != nil {
-		return err
-	}
+	return validateExistingRepoPath(repoRoot, document.Source, document.Source, "source")
+}
+
+// validateL10nSourceMetadata validates the document's locale, authority
+// type, translation status, and source revision fields.
+func validateL10nSourceMetadata(document l10nDocument, authorityTypes, statuses map[string]bool) error {
 	if document.Locale != "PT-br" {
 		return fmt.Errorf("%s: locale must be `PT-br`", document.Source)
 	}

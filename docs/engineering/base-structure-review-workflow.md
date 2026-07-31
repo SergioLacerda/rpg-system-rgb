@@ -27,12 +27,20 @@ This runs, in order:
 | Unit tests | `make test` | all package tests |
 | Architecture guardrails | `make test-arch` | import boundaries in `tests/architecture/` |
 | Semantic docs | `make validate` | semantic documentation contracts |
+| Coverage floor | `make cover-check` | total statement coverage stays at or above `COVER_THRESHOLD` (see `Makefile`) |
+
+The coverage floor starts deliberately low relative to the current total
+(`make cover` shows the current number) — it is a regression guard, not a
+target. Raise `COVER_THRESHOLD` in the `Makefile` over time as coverage
+improves; never lower it without recording why (mirrors the `gocyclo`
+threshold ratchet in `.golangci.yml`).
 
 Supporting targets:
 
 ```bash
-make cover      # test coverage summary
-make fmt        # normalize formatting
+make cover                  # test coverage summary
+make fmt                    # normalize formatting
+make go-file-size-report    # informational: non-test .go files over 200 lines
 ```
 
 The gate must pass before structural changes are proposed for commit.

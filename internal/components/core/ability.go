@@ -33,6 +33,19 @@ type Ability struct {
 // Validate reports whether the ability satisfies the minimal ability
 // contract required before it can be used by a character or the Specialist.
 func (ability Ability) Validate() error {
+	if err := ability.validateIdentity(); err != nil {
+		return err
+	}
+	if err := ability.validateRequirements(); err != nil {
+		return err
+	}
+	if err := ability.validateTimingAndCost(); err != nil {
+		return err
+	}
+	return ability.validateEffectsAndTags()
+}
+
+func (ability Ability) validateIdentity() error {
 	if ability.ID == "" {
 		return fmt.Errorf("ability ID must be non-empty")
 	}
@@ -45,6 +58,10 @@ func (ability Ability) Validate() error {
 	if ability.Tier < 1 {
 		return fmt.Errorf("ability tier must be at least 1")
 	}
+	return nil
+}
+
+func (ability Ability) validateRequirements() error {
 	for vector, value := range ability.Requirements {
 		if err := vector.Validate(); err != nil {
 			return fmt.Errorf("requirement vector invalid: %w", err)
@@ -53,6 +70,10 @@ func (ability Ability) Validate() error {
 			return fmt.Errorf("requirement for %s must be non-negative", vector)
 		}
 	}
+	return nil
+}
+
+func (ability Ability) validateTimingAndCost() error {
 	switch ability.Timing {
 	case TimingAction, TimingReaction:
 	default:
@@ -67,6 +88,10 @@ func (ability Ability) Validate() error {
 	if ability.Duration == "" {
 		return fmt.Errorf("ability duration must be non-empty")
 	}
+	return nil
+}
+
+func (ability Ability) validateEffectsAndTags() error {
 	if len(ability.Effects) == 0 {
 		return fmt.Errorf("ability effects must be non-empty")
 	}

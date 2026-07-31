@@ -17,6 +17,8 @@ var (
 // census): headings, paragraphs, code fences, flat lists, GFM pipe tables,
 // horizontal rules, and inline bold/italic/code/links. It is a
 // line-oriented scanner, not a general CommonMark parser.
+//
+//nolint:gocyclo // line-type dispatch switch: the branch count is the inherent shape of a line classifier, splitting it moves complexity rather than removing it.
 func Parse(source string) []Block {
 	lines := strings.Split(source, "\n")
 	var blocks []Block
@@ -168,6 +170,64 @@ func isBlockStart(trimmed string, lines []string, i int) bool {
 		isTableStart(lines, i)
 }
 
+// inlineMatcher tries to match one inline construct starting at runes[i]. It
+// returns the parsed span, the index just past the match, and whether it
+// matched at all.
+type inlineMatcher func(runes []rune, i int) (InlineSpan, int, bool)
+
+var inlineMatchers = []inlineMatcher{tryBold, tryCode, tryItalic, tryLink}
+
+func tryBold(runes []rune, i int) (InlineSpan, int, bool) {
+	if !matchAt(runes, i, "**") {
+		return InlineSpan{}, i, false
+	}
+	end := indexOf(runes, i+2, "**")
+	if end == -1 {
+		return InlineSpan{}, i, false
+	}
+	return InlineSpan{Text: string(runes[i+2 : end]), Bold: true}, end + 2, true
+}
+
+func tryCode(runes []rune, i int) (InlineSpan, int, bool) {
+	if runes[i] != '`' {
+		return InlineSpan{}, i, false
+	}
+	end := indexOf(runes, i+1, "`")
+	if end == -1 {
+		return InlineSpan{}, i, false
+	}
+	return InlineSpan{Text: string(runes[i+1 : end]), Code: true}, end + 1, true
+}
+
+func tryItalic(runes []rune, i int) (InlineSpan, int, bool) {
+	if runes[i] != '*' {
+		return InlineSpan{}, i, false
+	}
+	end := indexOf(runes, i+1, "*")
+	if end == -1 {
+		return InlineSpan{}, i, false
+	}
+	return InlineSpan{Text: string(runes[i+1 : end]), Italic: true}, end + 1, true
+}
+
+func tryLink(runes []rune, i int) (InlineSpan, int, bool) {
+	if runes[i] != '[' {
+		return InlineSpan{}, i, false
+	}
+	closeBracket := indexOf(runes, i+1, "]")
+	if closeBracket == -1 || closeBracket+1 >= len(runes) || runes[closeBracket+1] != '(' {
+		return InlineSpan{}, i, false
+	}
+	closeParen := indexOf(runes, closeBracket+2, ")")
+	if closeParen == -1 {
+		return InlineSpan{}, i, false
+	}
+	return InlineSpan{
+		Text:    string(runes[i+1 : closeBracket]),
+		LinkURL: string(runes[closeBracket+2 : closeParen]),
+	}, closeParen + 1, true
+}
+
 // parseInline scans a line of text into a sequence of InlineSpans, per the
 // construct set found in docs/core/en/**: **bold**, *italic*, `code`, and
 // [text](url). Spans do not nest.
@@ -184,60 +244,27 @@ func parseInline(text string) []InlineSpan {
 	runes := []rune(text)
 	i := 0
 	for i < len(runes) {
-		switch {
-		case matchAt(runes, i, "**"):
-			end := indexOf(runes, i+2, "**")
-			if end == -1 {
-				plain.WriteRune(runes[i])
-				i++
-				continue
-			}
-			flushPlain()
-			spans = append(spans, InlineSpan{Text: string(runes[i+2 : end]), Bold: true})
-			i = end + 2
-		case runes[i] == '`':
-			end := indexOf(runes, i+1, "`")
-			if end == -1 {
-				plain.WriteRune(runes[i])
-				i++
-				continue
-			}
-			flushPlain()
-			spans = append(spans, InlineSpan{Text: string(runes[i+1 : end]), Code: true})
-			i = end + 1
-		case runes[i] == '*':
-			end := indexOf(runes, i+1, "*")
-			if end == -1 {
-				plain.WriteRune(runes[i])
-				i++
-				continue
-			}
-			flushPlain()
-			spans = append(spans, InlineSpan{Text: string(runes[i+1 : end]), Italic: true})
-			i = end + 1
-		case runes[i] == '[':
-			closeBracket := indexOf(runes, i+1, "]")
-			if closeBracket != -1 && closeBracket+1 < len(runes) && runes[closeBracket+1] == '(' {
-				closeParen := indexOf(runes, closeBracket+2, ")")
-				if closeParen != -1 {
-					flushPlain()
-					spans = append(spans, InlineSpan{
-						Text:    string(runes[i+1 : closeBracket]),
-						LinkURL: string(runes[closeBracket+2 : closeParen]),
-					})
-					i = closeParen + 1
-					continue
-				}
-			}
+		span, next, ok := matchInline(runes, i)
+		if !ok {
 			plain.WriteRune(runes[i])
 			i++
-		default:
-			plain.WriteRune(runes[i])
-			i++
+			continue
 		}
+		flushPlain()
+		spans = append(spans, span)
+		i = next
 	}
 	flushPlain()
 	return spans
+}
+
+func matchInline(runes []rune, i int) (InlineSpan, int, bool) {
+	for _, matcher := range inlineMatchers {
+		if span, next, ok := matcher(runes, i); ok {
+			return span, next, true
+		}
+	}
+	return InlineSpan{}, i, false
 }
 
 func matchAt(runes []rune, i int, s string) bool {
