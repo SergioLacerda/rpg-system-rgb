@@ -60,36 +60,15 @@ var relationshipFieldsWithUnitIDs = []string{
 // ValidateSemanticIndex validates docs/core/semantic/core-v2.index.json,
 // migrated from scripts/validate_semantic_index.go.
 func ValidateSemanticIndex(indexFile string) error {
-	bytes, err := os.ReadFile(indexFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
+	index, err := loadSemanticIndex(indexFile)
 	if err != nil {
 		return err
-	}
-
-	var index SemanticIndex
-	if err := json.Unmarshal(bytes, &index); err != nil {
-		return fmt.Errorf("invalid JSON: %w", err)
 	}
 	if err := validateIndexTopLevelFields(index); err != nil {
 		return err
 	}
 
-	authorityTypes, err := requiredSet("authority_types", index.AuthorityTypes)
-	if err != nil {
-		return err
-	}
-	sourceStatuses, err := requiredSet("source_statuses", index.SourceStatuses)
-	if err != nil {
-		return err
-	}
-	kinds, err := requiredSet("kinds", index.Kinds)
-	if err != nil {
-		return err
-	}
-	projectionSurfaces, err := requiredSet("projection_surfaces", index.ProjectionSurfaces)
-	if err != nil {
-		return err
-	}
-	componentConsumers, err := requiredSet("component_consumers", index.ComponentConsumers)
+	authorityTypes, sourceStatuses, kinds, projectionSurfaces, componentConsumers, err := buildIndexLookupSets(index)
 	if err != nil {
 		return err
 	}
@@ -99,21 +78,72 @@ func ValidateSemanticIndex(indexFile string) error {
 		return err
 	}
 
+	if err := validateIndexUnits(repoRoot, index.Units, authorityTypes, sourceStatuses, kinds, projectionSurfaces, componentConsumers); err != nil {
+		return err
+	}
+
+	fmt.Printf("semantic-index validation passed: %s (%d units)\n", indexFile, len(index.Units))
+	return nil
+}
+
+// loadSemanticIndex reads and parses the semantic index file.
+func loadSemanticIndex(indexFile string) (SemanticIndex, error) {
+	bytes, err := os.ReadFile(indexFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
+	if err != nil {
+		return SemanticIndex{}, err
+	}
+	var index SemanticIndex
+	if err := json.Unmarshal(bytes, &index); err != nil {
+		return SemanticIndex{}, fmt.Errorf("invalid JSON: %w", err)
+	}
+	return index, nil
+}
+
+// buildIndexLookupSets builds the five top-level allowed-value sets used to
+// validate every unit, returning the first error encountered.
+func buildIndexLookupSets(index SemanticIndex) (authorityTypes, sourceStatuses, kinds, projectionSurfaces, componentConsumers map[string]bool, err error) {
+	authorityTypes, err = requiredSet("authority_types", index.AuthorityTypes)
+	if err != nil {
+		return nil, nil, nil, nil, nil, err
+	}
+	sourceStatuses, err = requiredSet("source_statuses", index.SourceStatuses)
+	if err != nil {
+		return nil, nil, nil, nil, nil, err
+	}
+	kinds, err = requiredSet("kinds", index.Kinds)
+	if err != nil {
+		return nil, nil, nil, nil, nil, err
+	}
+	projectionSurfaces, err = requiredSet("projection_surfaces", index.ProjectionSurfaces)
+	if err != nil {
+		return nil, nil, nil, nil, nil, err
+	}
+	componentConsumers, err = requiredSet("component_consumers", index.ComponentConsumers)
+	if err != nil {
+		return nil, nil, nil, nil, nil, err
+	}
+	return authorityTypes, sourceStatuses, kinds, projectionSurfaces, componentConsumers, nil
+}
+
+// validateIndexUnits validates every unit's own contract, then (in a second
+// pass, once every unit ID is known) every unit's cross-unit relationships.
+func validateIndexUnits(
+	repoRoot string,
+	units []SemanticIndexUnit,
+	authorityTypes, sourceStatuses, kinds, projectionSurfaces, componentConsumers map[string]bool,
+) error {
 	unitIDs := make(map[string]bool)
-	for _, unit := range index.Units {
+	for _, unit := range units {
 		if err := validateIndexUnit(repoRoot, unit, authorityTypes, sourceStatuses, kinds, projectionSurfaces, componentConsumers, unitIDs); err != nil {
 			return err
 		}
 		unitIDs[unit.ID] = true
 	}
-
-	for _, unit := range index.Units {
+	for _, unit := range units {
 		if err := validateIndexRelationships(unit, unitIDs); err != nil {
 			return err
 		}
 	}
-
-	fmt.Printf("semantic-index validation passed: %s (%d units)\n", indexFile, len(index.Units))
 	return nil
 }
 
@@ -169,6 +199,15 @@ func validateIndexUnitIdentity(
 	kinds map[string]bool,
 	seenIDs map[string]bool,
 ) error {
+	if err := validateIndexUnitIdentityCore(unit, kinds, seenIDs); err != nil {
+		return err
+	}
+	return validateIndexUnitClassification(repoRoot, unit, authorityTypes, sourceStatuses)
+}
+
+// validateIndexUnitIdentityCore validates the unit's own identity fields:
+// ID, uniqueness, kind, and locale.
+func validateIndexUnitIdentityCore(unit SemanticIndexUnit, kinds map[string]bool, seenIDs map[string]bool) error {
 	if unit.ID == "" {
 		return errors.New("unit id must be a non-empty string")
 	}
@@ -181,6 +220,12 @@ func validateIndexUnitIdentity(
 	if unit.Locale == "" {
 		return fmt.Errorf("%s: locale must be non-empty", unit.ID)
 	}
+	return nil
+}
+
+// validateIndexUnitClassification validates the unit's authority/status/
+// title classification and its source_path.
+func validateIndexUnitClassification(repoRoot string, unit SemanticIndexUnit, authorityTypes, sourceStatuses map[string]bool) error {
 	if unit.AuthorityType == "" || !authorityTypes[unit.AuthorityType] {
 		return fmt.Errorf("%s: unknown authority_type `%s`", unit.ID, unit.AuthorityType)
 	}
@@ -221,10 +266,8 @@ func validateIndexUnitRetrieval(repoRoot string, unit SemanticIndexUnit, compone
 	if len(unit.Index.Track) == 0 {
 		return fmt.Errorf("%s: index.track must be non-empty", unit.ID)
 	}
-	for _, consumer := range unit.Index.Track {
-		if !componentConsumers[consumer] {
-			return fmt.Errorf("%s: unknown index track consumer `%s`", unit.ID, consumer)
-		}
+	if err := validateIndexTrackConsumers(unit, componentConsumers); err != nil {
+		return err
 	}
 	if len(unit.Index.Tags) == 0 {
 		return fmt.Errorf("%s: index.tags must be non-empty", unit.ID)
@@ -233,6 +276,17 @@ func validateIndexUnitRetrieval(repoRoot string, unit SemanticIndexUnit, compone
 		return fmt.Errorf("%s: provenance must be non-empty", unit.ID)
 	}
 	return validateIndexProvenance(repoRoot, unit)
+}
+
+// validateIndexTrackConsumers validates that every index.track consumer is
+// a known component consumer.
+func validateIndexTrackConsumers(unit SemanticIndexUnit, componentConsumers map[string]bool) error {
+	for _, consumer := range unit.Index.Track {
+		if !componentConsumers[consumer] {
+			return fmt.Errorf("%s: unknown index track consumer `%s`", unit.ID, consumer)
+		}
+	}
+	return nil
 }
 
 func validateIndexUnitConsumersAndContract(unit SemanticIndexUnit, sourceStatuses map[string]bool, componentConsumers map[string]bool) error {
@@ -257,16 +311,22 @@ func validateIndexProvenance(repoRoot string, unit SemanticIndexUnit) error {
 	if !exists {
 		return nil
 	}
+	return validateIndexDecisionRefs(repoRoot, unit.ID, refsValue)
+}
+
+// validateIndexDecisionRefs validates the optional provenance.decision_refs
+// list: each entry must be a string and a valid repository-relative path.
+func validateIndexDecisionRefs(repoRoot, unitID string, refsValue any) error {
 	refs, ok := refsValue.([]any)
 	if !ok {
-		return fmt.Errorf("%s: provenance.decision_refs must be a string list", unit.ID)
+		return fmt.Errorf("%s: provenance.decision_refs must be a string list", unitID)
 	}
 	for index, refValue := range refs {
 		ref, ok := refValue.(string)
 		if !ok {
-			return fmt.Errorf("%s: provenance.decision_refs[%d] must be a string", unit.ID, index)
+			return fmt.Errorf("%s: provenance.decision_refs[%d] must be a string", unitID, index)
 		}
-		if err := validateIndexPath(repoRoot, ref, unit.ID, fmt.Sprintf("provenance.decision_refs[%d]", index)); err != nil {
+		if err := validateIndexPath(repoRoot, ref, unitID, fmt.Sprintf("provenance.decision_refs[%d]", index)); err != nil {
 			return err
 		}
 	}

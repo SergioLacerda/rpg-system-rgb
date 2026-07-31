@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SkillCard from '../../../components/SkillCard.astro';
+import { dict, locales, type Locale } from '../../../i18n/dictionary';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const t = dict[lang].skills;
+---
+<BaseLayout lang={lang} title={t.title}>
+  <main class="skills">
+    <section class="intro">
+      <div class="kicker">{t.kicker}</div>
+      <h1>{t.title}</h1>
+      <p>{t.desc}</p>
+    </section>
+
+    <section class="grid" aria-label="RGB skills">
+      <SkillCard
+        name={t.pathfinder.name}
+        status={t.pathfinder.status}
+        installed={true}
+        desc={t.pathfinder.desc}
+        tags={[...t.pathfinder.tags]}
+      />
+      <SkillCard
+        name={t.maker.name}
+        status={t.maker.status}
+        installed={false}
+        desc={t.maker.desc}
+        tags={[...t.maker.tags]}
+      />
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .skills { padding: 56px 48px 80px; }
+  .intro { max-width: 720px; margin-bottom: 34px; }
+  .kicker { font-size: 11px; letter-spacing: 2px; color: var(--g); margin-bottom: 10px; }
+  h1 { font-family: var(--font-serif); font-size: 36px; color: var(--text); margin: 0 0 16px; line-height: 1.2; }
+  .intro p { color: var(--text-dim); font-size: 16px; line-height: 1.7; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  @media (max-width: 760px) {
+    .skills { padding: 42px 22px 64px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,17 @@
+---
+import { dict, type Locale } from '../i18n/dictionary';
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const t = dict[lang].footer;
+---
+<footer class="footer">
+  <span>RGB System · {t.tag} · <span class="r">R</span><span class="g">G</span><span class="b">B</span></span>
+  <span>GitHub · Discord · Changelog</span>
+</footer>
+<style>
+  .footer { padding: 36px 48px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-mute); }
+  .r { color: var(--r); } .g { color: var(--g); } .b { color: var(--b); }
+  @media (max-width: 760px) {
+    .footer { align-items: flex-start; flex-direction: column; gap: 12px; padding: 28px 22px; }
+  }
+</style>

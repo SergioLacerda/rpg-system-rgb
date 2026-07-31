@@ -65,19 +65,8 @@ type EncounterResult struct {
 // succeed through its objective without defeating every opposing
 // character.
 func RunEncounter(characters map[string]*Character, encounter Encounter) (EncounterResult, error) {
-	if encounter.ID == "" {
-		return EncounterResult{}, fmt.Errorf("encounter ID must be non-empty")
-	}
-	if encounter.Name == "" {
-		return EncounterResult{}, fmt.Errorf("encounter name must be non-empty")
-	}
-	if len(encounter.Actions) == 0 {
-		return EncounterResult{}, fmt.Errorf("encounter actions must be non-empty")
-	}
-	if encounter.Objective != nil {
-		if err := encounter.Objective.Validate(); err != nil {
-			return EncounterResult{}, fmt.Errorf("encounter objective invalid: %w", err)
-		}
+	if err := validateEncounterShape(encounter); err != nil {
+		return EncounterResult{}, err
 	}
 
 	result := EncounterResult{}
@@ -98,6 +87,27 @@ func RunEncounter(characters map[string]*Character, encounter Encounter) (Encoun
 	return result, nil
 }
 
+// validateEncounterShape reports whether the encounter's own fields
+// (independent of any specific character map) are well-formed: ID, name,
+// a non-empty action list, and the objective when one is declared.
+func validateEncounterShape(encounter Encounter) error {
+	if encounter.ID == "" {
+		return fmt.Errorf("encounter ID must be non-empty")
+	}
+	if encounter.Name == "" {
+		return fmt.Errorf("encounter name must be non-empty")
+	}
+	if len(encounter.Actions) == 0 {
+		return fmt.Errorf("encounter actions must be non-empty")
+	}
+	if encounter.Objective != nil {
+		if err := encounter.Objective.Validate(); err != nil {
+			return fmt.Errorf("encounter objective invalid: %w", err)
+		}
+	}
+	return nil
+}
+
 // resolveAction validates and resolves a single action against characters,
 // appending its Resolution to result and applying its target state change
 // on success. It returns the action's effective round, or an error
@@ -111,30 +121,42 @@ func resolveAction(characters map[string]*Character, action Action, result *Enco
 		round = 1
 	}
 
-	actor := characters[action.Actor]
-	if actor == nil {
-		return round, fmt.Errorf("missing actor %s", action.Actor)
-	}
-	target := characters[action.Target]
-	if target == nil {
-		return round, fmt.Errorf("missing target %s", action.Target)
-	}
-
-	actingValue, err := actor.Vectors.Value(action.PrimaryVector)
-	if err != nil {
-		return round, err
-	}
-	opposingValue, err := DefenseValue(*target, action.Procedure)
+	actingValue, opposingValue, err := resolveActionValues(characters, action)
 	if err != nil {
 		return round, err
 	}
 
 	resolution := Resolve(actingValue, 0, opposingValue)
 	result.ActionResults = append(result.ActionResults, resolution)
+	target := characters[action.Target]
 	if resolution.Outcome.Successful() && action.TargetStateChange != "" {
 		_ = target.AddState(action.TargetStateChange)
 	}
 	return round, nil
+}
+
+// resolveActionValues looks up the action's actor and target and computes
+// the acting/opposing vector values used to resolve the action, without
+// mutating any character state.
+func resolveActionValues(characters map[string]*Character, action Action) (actingValue, opposingValue int, err error) {
+	actor := characters[action.Actor]
+	if actor == nil {
+		return 0, 0, fmt.Errorf("missing actor %s", action.Actor)
+	}
+	target := characters[action.Target]
+	if target == nil {
+		return 0, 0, fmt.Errorf("missing target %s", action.Target)
+	}
+
+	actingValue, err = actor.Vectors.Value(action.PrimaryVector)
+	if err != nil {
+		return 0, 0, err
+	}
+	opposingValue, err = DefenseValue(*target, action.Procedure)
+	if err != nil {
+		return 0, 0, err
+	}
+	return actingValue, opposingValue, nil
 }
 
 // evaluateObjective checks whether the objective's target holds the

@@ -1,6 +1,7 @@
 #Runtime
 .strategist/.compiled/
 .strategist
+generated/
 .analysis
 .sdd
 
@@ -13,6 +14,3 @@
 AGENTS.md
 CLAUDE.md
 GEMINI.md
-
-#Compile
-generated/

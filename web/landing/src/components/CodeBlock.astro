@@ -1,0 +1,29 @@
+---
+interface Props { label: string; code: string; copyLabel?: string }
+const { label, code, copyLabel = 'COPY' } = Astro.props;
+---
+<div class="block">
+  <div class="head">{label}</div>
+  <div class="row">
+    <code>{code}</code>
+    <button class="copy" data-code={code}>{copyLabel}</button>
+  </div>
+</div>
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(btn.dataset.code ?? '');
+      const original = btn.textContent;
+      btn.textContent = '✓';
+      setTimeout(() => (btn.textContent = original), 1200);
+    });
+  });
+</script>
+<style>
+  .block { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+  .head { padding: 10px 18px; font-size: 11px; letter-spacing: 1px; color: var(--text-dim); border-bottom: 1px solid var(--border); }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; gap: 16px; }
+  code { color: #c9d1e8; font-size: 13px; word-break: break-all; }
+  .copy { background: none; border: 1px solid #2a3350; color: var(--text-dim); padding: 5px 12px; border-radius: 5px; font-size: 11px; cursor: pointer; flex: none; }
+  .copy:hover { border-color: var(--b); color: var(--text); }
+</style>

@@ -45,10 +45,8 @@ Explica o fluxo típico de uma sessão RGB.
 
 Documentos de controle do modelo Core V2.
 
-→ [Resumo do Modelo Core V2](../design/rgb-core-v2-model-brief.md)
-→ [Matriz de Decisão Core V2](../design/rgb-core-v2-decision-matrix.md)
-→ [Registro de Contradições Core V2](../design/rgb-core-v2-contradiction-register.md)
-→ [Registro de Side Quests Core V2](../design/rgb-core-v2-side-quest-register.md)
+Os registros de design Core V2 foram consolidados no pacote de análise inicial
+e ainda não possuem páginas publicadas nesta árvore de documentação.
 
 ---
 
