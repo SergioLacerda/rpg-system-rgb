@@ -181,6 +181,7 @@ make generate    # regenerate the semantic projection JSON artifacts
 
 ```bash
 make compile     # render docs/core/**/*.md into a static HTML site and print-ready pages
+make docs-pdf    # generate latest PDF downloads from MkDocs (requires docs-pdf-install)
 ```
 
 `make compile` writes:
@@ -188,6 +189,28 @@ make compile     # render docs/core/**/*.md into a static HTML site and print-re
 - `generated/library/html/{en,PT-br}/**` — static HTML site (1:1 mirror of `docs/core/**/*.md`), with per-locale navigation index pages
 - `generated/library/print/core-v2-rules-{en,PT-br}.html` — print-ready pages, ordered per `docs/core/semantic/projection-manifest.v0.1.json`
 - `generated/library/PDF_EXPORT.md` — instructions for exporting the print-ready pages to PDF (print-to-PDF from a browser; PDF export is a documented manual step by design, not an automated build step)
+
+After exporting a PDF, publish it to the landing static assets with:
+
+```bash
+make pdf-publish PDF_SRC=RGB-Core-V2-Rules-PT-br.pdf PDF_LOCALE=pt-br PDF_VERSION=v0.2
+make pdf-publish PDF_SRC=RGB-Core-V2-Rules-en.pdf PDF_LOCALE=en PDF_VERSION=v0.2
+```
+
+The command creates a versioned PDF and updates the locale-specific `latest`
+alias consumed by the landing page.
+
+Automated PDF generation is available through a separate dependency profile:
+
+```bash
+make docs-pdf-install
+make docs-pdf
+```
+
+`make docs-pdf` uses MkDocs PDF configuration files and writes latest aliases
+under `web/landing/public/downloads/`. This path is intentionally separate from
+the base `make docs-build` flow because the PDF plugin depends on additional
+rendering libraries documented by the plugin/WeasyPrint stack.
 
 ### Full gate
 
