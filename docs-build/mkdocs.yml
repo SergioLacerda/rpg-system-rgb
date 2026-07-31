@@ -1,7 +1,7 @@
-site_name: RGB System Core Rules
-site_description: PDF export for RGB System Core rules.
-docs_dir: docs
-site_dir: web/landing/.pdfbuild/en
+site_name: RGB System Library
+site_description: Compiled documentation library for RGB System.
+docs_dir: ../docs
+site_dir: ../web/landing/public/library
 use_directory_urls: true
 exclude_docs: |
   adr/*
@@ -10,26 +10,14 @@ exclude_docs: |
   plans/*
   overrides/*
   core/README.md
-  core/PT-br/*
   core/semantic/*
 theme:
   name: mkdocs
+  custom_dir: ../docs/overrides
   color_mode: dark
   nav_style: dark
 extra_css:
   - styles/rgb-library.css
-plugins:
-  - search
-  - to-pdf:
-      author: RGB System
-      copyright: RGB System
-      cover: true
-      cover_title: RGB System Core Rules
-      cover_subtitle: English
-      toc_title: Table of Contents
-      toc_level: 3
-      ordered_chapter_level: 3
-      output_path: rgb-system-core-v2-latest-en.pdf
 
 nav:
   - Core Overview: core/en/README.md
