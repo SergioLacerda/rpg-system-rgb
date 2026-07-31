@@ -9,6 +9,7 @@ export function getStaticPaths() {
 
 const { lang } = Astro.params as { lang: Locale };
 const t = dict[lang];
+const pdfHref = landingPath(`/downloads/rgb-system-core-v2-latest-${lang}.pdf`);
 ---
 <BaseLayout lang={lang} title={t.hero.title}>
   <section class="hero">
@@ -17,7 +18,7 @@ const t = dict[lang];
     <p class="sub">{t.hero.sub}</p>
     <div class="ctas">
       <a class="primary" href={landingPath('/library/')}>{t.hero.ctaLibrary}</a>
-      <a class="secondary" href={landingPath('/rgb-system-v0.2.pdf')}>{t.hero.ctaPdf}</a>
+      <a class="secondary" href={pdfHref}>{t.hero.ctaPdf}</a>
     </div>
     <svg width="220" height="200" viewBox="0 0 180 170" class="glyph">
       <polygon points="90,20 150,120 30,120" fill="none" stroke="var(--text)" stroke-width="1.5" opacity="0.5"></polygon>

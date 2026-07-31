@@ -1,0 +1,27 @@
+{
+  "schema": "rgb-system-pdf-downloads/0.1",
+  "latest": {
+    "pt-br": {
+      "version": "v0.2",
+      "path": "/downloads/rgb-system-core-v2-latest-pt-br.pdf",
+      "versioned_path": "/downloads/rgb-system-core-v2-v0.2-pt-br.pdf"
+    },
+    "en": {
+      "version": "v0.2",
+      "path": "/downloads/rgb-system-core-v2-latest-en.pdf",
+      "versioned_path": "/downloads/rgb-system-core-v2-v0.2-en.pdf"
+    }
+  },
+  "source": {
+    "print_ready_html": {
+      "pt-br": "generated/library/print/core-v2-rules-PT-br.html",
+      "en": "generated/library/print/core-v2-rules-en.html"
+    },
+    "projection_manifest": "generated/pdf/core-v2-rules.manifest.json"
+  },
+  "disclosures": [
+    "derived_projection",
+    "manual_pdf_export",
+    "latest_alias"
+  ]
+}

@@ -9,7 +9,7 @@ export const dict = {
       title: 'Todo conflito se resolve em três vetores.',
       sub: 'Pressão, Relação e Preservação substituem dezenas de subsistemas — regras enxutas, decisões com peso real.',
       ctaLibrary: 'Ler o material — Library',
-      ctaPdf: 'Baixar PDF (v0.2)'
+      ctaPdf: 'Baixar PDF'
     },
     vectors: [
       { code: 'R', label: 'VETOR R · PRESSÃO', title: 'Ação sob risco', desc: 'Regras de conflito, dano e consequência imediata — o quanto o mundo empurra de volta.' },
@@ -60,7 +60,7 @@ export const dict = {
       title: 'Every conflict resolves along three vectors.',
       sub: 'Pressure, Relation and Preservation replace dozens of subsystems — lean rules, decisions that matter.',
       ctaLibrary: 'Read the rules — Library',
-      ctaPdf: 'Download PDF (v0.2)'
+      ctaPdf: 'Download PDF'
     },
     vectors: [
       { code: 'R', label: 'VECTOR R · PRESSURE', title: 'Action under risk', desc: 'Conflict, damage and immediate consequence rules — how hard the world pushes back.' },
