@@ -74,6 +74,9 @@ validate: FORCE
 generate: FORCE
 	$(GOENV) $(GO) run ./cmd/rgb-tooling generate
 
+bundle: FORCE
+	$(GOENV) $(GO) run ./cmd/rgb-tooling bundle
+
 compile: FORCE
 	$(GOENV) $(GO) run ./cmd/rgb-compiler no-html
 

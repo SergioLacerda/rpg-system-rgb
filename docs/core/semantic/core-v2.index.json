@@ -1363,6 +1363,298 @@
         "PDF",
         "bundles"
       ]
+    },
+    {
+      "id": "core.progression.advancement",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Character Progression",
+      "source_path": "docs/core/en/core/progression.md",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/core/progression.md",
+        "markdown_pt_br": "docs/core/PT-br/core/progression.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.ability.contract"
+        ]
+      },
+      "index": {
+        "track": [
+          "Core",
+          "tooling",
+          "Maker"
+        ],
+        "tags": [
+          "core",
+          "progression",
+          "advancement",
+          "leveling"
+        ],
+        "retrieval_summary": "Characters advance on a fixed +2 vector points per level budget, spendable as raw vector growth or, with the Skills and Abilities module, as one alternative choice (new ability, ability improvement, specialization, new resource, new reaction, new state/maneuver access)."
+      },
+      "provenance": {
+        "source_revision": "manual",
+        "decision_refs": [
+          "docs/core/en/core/progression.md"
+        ]
+      },
+      "component_consumers": [
+        "Core",
+        "tooling",
+        "Maker"
+      ]
+    },
+    {
+      "id": "core.combat.movement",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Movement",
+      "source_path": "docs/core/en/combat/movement.md",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/combat/movement.md",
+        "markdown_pt_br": "docs/core/PT-br/combat/movement.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.vector.g"
+        ],
+        "clarifies": [
+          "core.action.reposition"
+        ]
+      },
+      "index": {
+        "track": [
+          "Core",
+          "tooling"
+        ],
+        "tags": [
+          "combat",
+          "movement",
+          "positioning",
+          "formula"
+        ],
+        "retrieval_summary": "Movement distance is G x 2 meters per turn (same formula for aerial movement); sprint is G x 3 meters with restrictions; terrain and combat turn structure (Movement, Main Action, Partial Action) modify or consume it."
+      },
+      "provenance": {
+        "source_revision": "manual",
+        "decision_refs": [
+          "docs/core/en/combat/movement.md"
+        ]
+      },
+      "component_consumers": [
+        "Core",
+        "tooling"
+      ]
+    },
+    {
+      "id": "core.weapon.ranges",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Weapon Ranges",
+      "source_path": "docs/core/en/weapons/mechanics/weapon_ranges.md",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/weapons/mechanics/weapon_ranges.md",
+        "markdown_pt_br": "docs/core/PT-br/weapons/mechanics/weapon_ranges.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.vector.r"
+        ],
+        "clarifies": [
+          "core.combat.attack-margin"
+        ]
+      },
+      "index": {
+        "track": [
+          "Core",
+          "tooling"
+        ],
+        "tags": [
+          "weapons",
+          "range",
+          "modifier",
+          "formula"
+        ],
+        "retrieval_summary": "Ranged attacks apply a distance modifier to R (0 at short, -1 R at medium, -2 R at long, -4 R at extreme range) based on a per-weapon short/medium/long range table."
+      },
+      "provenance": {
+        "source_revision": "manual",
+        "decision_refs": [
+          "docs/core/en/weapons/mechanics/weapon_ranges.md"
+        ]
+      },
+      "component_consumers": [
+        "Core",
+        "tooling"
+      ]
+    },
+    {
+      "id": "core.weapon.explosives",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Explosives",
+      "source_path": "docs/core/en/weapons/categories/explosives.md",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/weapons/categories/explosives.md",
+        "markdown_pt_br": "docs/core/PT-br/weapons/categories/explosives.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.damage.impact-source"
+        ]
+      },
+      "index": {
+        "track": [
+          "Core",
+          "tooling"
+        ],
+        "tags": [
+          "weapons",
+          "explosives",
+          "area-effect"
+        ],
+        "retrieval_summary": "Explosives are area-effect weapons with a chosen detonation delay (immediate, short delay, delayed) and a per-type effect (e.g. explosive: area damage, electrical: damage plus disruption, sonic: rounds stunned)."
+      },
+      "provenance": {
+        "source_revision": "manual",
+        "decision_refs": [
+          "docs/core/en/weapons/categories/explosives.md"
+        ]
+      },
+      "component_consumers": [
+        "Core",
+        "tooling"
+      ]
+    },
+    {
+      "id": "core.weapon.firearms",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Firearms",
+      "source_path": "docs/core/en/weapons/categories/firearms.md",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/weapons/categories/firearms.md",
+        "markdown_pt_br": "docs/core/PT-br/weapons/categories/firearms.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.damage.impact-source"
+        ]
+      },
+      "index": {
+        "track": [
+          "Core",
+          "tooling"
+        ],
+        "tags": [
+          "weapons",
+          "firearms",
+          "ranged",
+          "damage"
+        ],
+        "retrieval_summary": "Firearms do not add the user's R to damage; damage, magazine capacity, and reload action cost are fixed per weapon in a lookup table, unlike melee weapons."
+      },
+      "provenance": {
+        "source_revision": "manual",
+        "decision_refs": [
+          "docs/core/en/weapons/categories/firearms.md"
+        ]
+      },
+      "component_consumers": [
+        "Core",
+        "tooling"
+      ]
+    },
+    {
+      "id": "core.weapon.melee",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Melee Weapons",
+      "source_path": "docs/core/en/weapons/categories/melee.md",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/weapons/categories/melee.md",
+        "markdown_pt_br": "docs/core/PT-br/weapons/categories/melee.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.vector.r"
+        ],
+        "clarifies": [
+          "core.damage.impact-source"
+        ]
+      },
+      "index": {
+        "track": [
+          "Core",
+          "tooling"
+        ],
+        "tags": [
+          "weapons",
+          "melee",
+          "damage",
+          "formula"
+        ],
+        "retrieval_summary": "Melee weapon damage is R + weapon bonus, unlike firearms which use a fixed per-weapon damage value."
+      },
+      "provenance": {
+        "source_revision": "manual",
+        "decision_refs": [
+          "docs/core/en/weapons/categories/melee.md"
+        ]
+      },
+      "component_consumers": [
+        "Core",
+        "tooling"
+      ]
+    },
+    {
+      "id": "core.equipment.gear",
+      "kind": "concept",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "General Equipment",
+      "source_path": "docs/core/en/equipment/gear.md",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/equipment/gear.md",
+        "markdown_pt_br": "docs/core/PT-br/equipment/gear.md"
+      },
+      "relationships": {},
+      "index": {
+        "track": [
+          "Core",
+          "tooling"
+        ],
+        "tags": [
+          "equipment",
+          "gear",
+          "tools"
+        ],
+        "retrieval_summary": "General equipment (tools, devices, tactical items) usually does not modify core vector values or damage calculations directly; it enables actions and provides situational advantages, distinct from weapons, armor, and shields."
+      },
+      "provenance": {
+        "source_revision": "manual",
+        "decision_refs": [
+          "docs/core/en/equipment/gear.md"
+        ]
+      },
+      "component_consumers": [
+        "Core",
+        "tooling"
+      ]
     }
   ]
 }

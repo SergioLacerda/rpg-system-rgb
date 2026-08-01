@@ -11,7 +11,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fatal("usage: rgb-tooling <validate|generate> [repo-root]")
+		fatal("usage: rgb-tooling <validate|generate|bundle> [repo-root]")
 	}
 
 	repoRoot := "."
@@ -25,6 +25,8 @@ func main() {
 		err = app.ValidateDocs(repoRoot)
 	case "generate":
 		err = app.GenerateProjections(repoRoot)
+	case "bundle":
+		err = app.BuildBundle(repoRoot)
 	default:
 		fatal(fmt.Sprintf("unknown subcommand %q", os.Args[1]))
 	}

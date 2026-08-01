@@ -1,51 +1,37 @@
 package tooling
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/SergioLacerda/rpg-system-rgb/internal/components"
 )
 
 const expectedSemanticIndexSchema = "rgb-docs-semantic-index/0.1"
 
-// SemanticIndex is the decoded shape of docs/core/semantic/core-v2.index.json.
-type SemanticIndex struct {
-	Schema                 string              `json:"schema"`
-	SourceLocale           string              `json:"source_locale"`
-	DefaultLocalizedLocale string              `json:"default_localized_locale"`
-	AuthorityTypes         []string            `json:"authority_types"`
-	SourceStatuses         []string            `json:"source_statuses"`
-	Kinds                  []string            `json:"kinds"`
-	ProjectionSurfaces     []string            `json:"projection_surfaces"`
-	ComponentConsumers     []string            `json:"component_consumers"`
-	Units                  []SemanticIndexUnit `json:"units"`
-}
+// SemanticIndex, SemanticIndexUnit, and SemanticIndexUnitIndex below are
+// aliases for the shared contract types in internal/components, so this
+// file's many existing signatures don't need to change. The types
+// themselves — and LoadSemanticIndex — live in internal/components so
+// sibling components (e.g. bundles) can reuse them without importing
+// tooling directly, which
+// tests/architecture/architecture_test.go's TestComponentsDoNotImportSiblings
+// forbids.
+
+// SemanticIndex is the decoded shape of the semantic index file.
+type SemanticIndex = components.SemanticIndex
 
 // SemanticIndexUnit is one semantic unit entry in the index.
-type SemanticIndexUnit struct {
-	ID                 string                 `json:"id"`
-	Kind               string                 `json:"kind"`
-	Locale             string                 `json:"locale"`
-	AuthorityType      string                 `json:"authority_type"`
-	SourceStatus       string                 `json:"source_status"`
-	Title              string                 `json:"title"`
-	SourcePath         string                 `json:"source_path"`
-	ProjectionPaths    map[string]string      `json:"projection_paths"`
-	Relationships      map[string][]string    `json:"relationships"`
-	Index              SemanticIndexUnitIndex `json:"index"`
-	Provenance         map[string]any         `json:"provenance"`
-	ComponentConsumers []string               `json:"component_consumers"`
-	SourceUnit         string                 `json:"source_unit,omitempty"`
-	TranslationStatus  string                 `json:"translation_status,omitempty"`
-}
+type SemanticIndexUnit = components.SemanticIndexUnit
 
 // SemanticIndexUnitIndex is the retrieval metadata block of a unit.
-type SemanticIndexUnitIndex struct {
-	Track            []string `json:"track"`
-	Tags             []string `json:"tags"`
-	RetrievalSummary string   `json:"retrieval_summary"`
+type SemanticIndexUnitIndex = components.SemanticIndexUnitIndex
+
+// LoadSemanticIndex reads and parses the semantic index file.
+func LoadSemanticIndex(indexFile string) (SemanticIndex, error) {
+	return components.LoadSemanticIndex(indexFile)
 }
 
 var relationshipFieldsWithUnitIDs = []string{
@@ -60,7 +46,7 @@ var relationshipFieldsWithUnitIDs = []string{
 // ValidateSemanticIndex validates docs/core/semantic/core-v2.index.json,
 // migrated from scripts/validate_semantic_index.go.
 func ValidateSemanticIndex(indexFile string) error {
-	index, err := loadSemanticIndex(indexFile)
+	index, err := LoadSemanticIndex(indexFile)
 	if err != nil {
 		return err
 	}
@@ -84,19 +70,6 @@ func ValidateSemanticIndex(indexFile string) error {
 
 	fmt.Printf("semantic-index validation passed: %s (%d units)\n", indexFile, len(index.Units))
 	return nil
-}
-
-// loadSemanticIndex reads and parses the semantic index file.
-func loadSemanticIndex(indexFile string) (SemanticIndex, error) {
-	bytes, err := os.ReadFile(indexFile) //nolint:gosec // G304: path is a caller-supplied validation target, by design
-	if err != nil {
-		return SemanticIndex{}, err
-	}
-	var index SemanticIndex
-	if err := json.Unmarshal(bytes, &index); err != nil {
-		return SemanticIndex{}, fmt.Errorf("invalid JSON: %w", err)
-	}
-	return index, nil
 }
 
 // buildIndexLookupSets builds the five top-level allowed-value sets used to

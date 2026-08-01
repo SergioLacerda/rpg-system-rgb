@@ -329,6 +329,15 @@
       "translation_status": "current",
       "source_revision": "manual",
       "notes": []
+    },
+    {
+      "source": "docs/core/en/glossary.md",
+      "locale": "PT-br",
+      "localized": "docs/core/PT-br/glossary.md",
+      "authority_type": "concept",
+      "translation_status": "current",
+      "source_revision": "manual",
+      "notes": []
     }
   ]
 }
