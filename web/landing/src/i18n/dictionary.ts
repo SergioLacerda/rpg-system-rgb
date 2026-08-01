@@ -16,6 +16,31 @@ export const dict = {
       { code: 'G', label: 'VETOR G · RELAÇÃO', title: 'Vínculos e influência', desc: 'Como personagens afetam o outro — negociação, lealdade, reputação com peso mecânico.' },
       { code: 'B', label: 'VETOR B · PRESERVAÇÃO', title: 'Recursos e desgaste', desc: 'Gestão do que se perde com o tempo: energia, materiais, integridade do personagem.' }
     ],
+    problem: {
+      kicker: 'O PROBLEMA',
+      title: 'Regras demais, jogo de menos.',
+      items: [
+        'Sistemas com dezenas de subsistemas para uma única decisão de combate.',
+        'Notas de campanha espalhadas, sem estrutura ou fonte única.',
+        'Fichas e regras que divergem entre mesas e entre sessões.',
+        'Material de referência difícil de consultar no meio do jogo.'
+      ]
+    },
+    system: {
+      kicker: 'RGB SYSTEM',
+      title: 'Três vetores. Regras leves. Decisões táticas.',
+      desc: 'Toda ação do jogo passa por R, G ou B — sem subsistemas paralelos para aprender.'
+    },
+    forDevelopers: {
+      kicker: 'PARA DESENVOLVEDORES',
+      title: 'O sistema é dados abertos, não só texto.',
+      desc: 'Regras, procedimentos e relações entre eles são publicados como um índice semântico versionado, compilado em um bundle JSON consumível por ferramentas.',
+      items: [
+        { label: 'Bundle JSON', code: 'generated/bundle/rgb.bundle.json' },
+        { label: 'Compilar o bundle', code: 'make bundle' },
+        { label: 'Validar a documentação', code: 'make validate' }
+      ]
+    },
     libraryTeaser: {
       kicker: 'LIBRARY',
       title: 'O material completo, sempre atualizado.',
@@ -67,6 +92,31 @@ export const dict = {
       { code: 'G', label: 'VECTOR G · RELATION', title: 'Bonds and influence', desc: 'How characters affect one another — negotiation, loyalty, reputation with mechanical weight.' },
       { code: 'B', label: 'VECTOR B · PRESERVATION', title: 'Resources and wear', desc: 'Managing what erodes over time: energy, supplies, a character\u2019s integrity.' }
     ],
+    problem: {
+      kicker: 'THE PROBLEM',
+      title: 'Too many rules, not enough game.',
+      items: [
+        'Systems with dozens of subsystems for a single combat decision.',
+        'Campaign notes scattered around, with no single structured source.',
+        'Sheets and rules that drift apart between tables and between sessions.',
+        'Reference material that is hard to look up mid-session.'
+      ]
+    },
+    system: {
+      kicker: 'RGB SYSTEM',
+      title: 'Three vectors. Lean rules. Tactical decisions.',
+      desc: 'Every action in the game routes through R, G, or B — no parallel subsystems to learn.'
+    },
+    forDevelopers: {
+      kicker: 'FOR DEVELOPERS',
+      title: 'The system is open data, not just prose.',
+      desc: 'Rules, procedures, and the relationships between them are published as a versioned semantic index, compiled into a consumable JSON bundle.',
+      items: [
+        { label: 'JSON bundle', code: 'generated/bundle/rgb.bundle.json' },
+        { label: 'Build the bundle', code: 'make bundle' },
+        { label: 'Validate the docs', code: 'make validate' }
+      ]
+    },
     libraryTeaser: {
       kicker: 'LIBRARY',
       title: 'The full material, always up to date.',
