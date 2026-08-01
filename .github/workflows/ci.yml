@@ -23,6 +23,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+          cache: pip
       - run: make docs-install
       - run: make docs-build
 
@@ -33,5 +34,84 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+          cache: pip
       - run: make docs-pdf-install
       - run: make docs-pdf
+      - uses: actions/upload-artifact@v4
+        with:
+          name: landing-pdfs
+          path: web/landing/public/downloads/*.pdf
+          retention-days: 7
+
+  lint-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: web/landing/package-lock.json
+      - run: make landing-check
+
+  lint-yaml:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check workflow files
+        uses: docker://rhysd/actionlint:latest
+        with:
+          args: -color
+
+  lint-shell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: shellcheck scripts/ci/*.sh
+
+  deploy:
+    needs: [lint, docs, docs-pdf, lint-web, lint-yaml, lint-shell]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: web/landing/package-lock.json
+      - run: make docs-install
+      - run: make landing-install
+      - uses: actions/download-artifact@v4
+        with:
+          name: landing-pdfs
+          path: web/landing/public/downloads
+      - run: make landing-build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/landing/dist
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  smoke-test-pdf:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/ci/check-pdf-links.sh "${{ needs.deploy.outputs.page_url }}"
