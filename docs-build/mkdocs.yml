@@ -52,6 +52,7 @@ nav:
           - Penetration: core/en/weapons/mechanics/penetration.md
           - Weapon Ranges: core/en/weapons/mechanics/weapon_ranges.md
   - Reference:
+      - Glossary: core/en/glossary.md
       - Overview: core/en/reference/README.md
       - Character Sheet: core/en/reference/character_sheet.md
       - Combat Example: core/en/reference/combat_example.md
