@@ -1,5 +1,3 @@
-.PHONY: FORCE
-
 GO ?= go
 GOCACHE ?= /tmp/go-cache
 GOENV := GOCACHE=$(GOCACHE)
@@ -28,38 +26,49 @@ PDF_VERSION ?= v0.2
 # lower it without recording why in an ADR (mirrors the gocyclo ratchet).
 COVER_THRESHOLD ?= 30
 
+.PHONY: help install fmt test test-arch cover cover-check vet lint validate \
+        generate bundle compile compile-full docs-install docs-pdf-install \
+        docs-build docs-pdf docs-preview landing-install landing-check \
+        landing-build landing-preview preview pdf-publish review-structure \
+        go-file-size-report lint-web lint-yaml lint-shell FORCE
+
+.DEFAULT_GOAL := help
+
 FORCE:
 
-fmt: FORCE
+help: FORCE ## List available targets
+	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | sort | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
+
+fmt: FORCE ## Format Go code
 	$(GOENV) $(GO) fmt ./...
 
-hello: FORCE
-	$(GOENV) $(GO) run ./cmd/rgb
+install: docs-install landing-install FORCE ## Install local development dependencies
 
-test: FORCE
+test: FORCE ## Run all Go tests
 	$(GOENV) $(GO) test ./...
 
-test-arch: FORCE
+test-arch: FORCE ## Run architecture tests
 	$(GOENV) $(GO) test ./tests/architecture/ -v
 
-cover: FORCE
+cover: FORCE ## Generate and print Go coverage summary
 	$(GOENV) $(GO) test ./... -coverprofile=/tmp/rgb-coverage.out
 	$(GOENV) $(GO) tool cover -func=/tmp/rgb-coverage.out | tail -5
 
 # cover-check fails the build if total statement coverage drops below
 # COVER_THRESHOLD. The threshold starts low by design (see the variable's
 # comment above) — it is a floor against regression, not a target.
-cover-check: FORCE
+cover-check: FORCE ## Enforce the Go coverage floor
 	$(GOENV) $(GO) test ./... -coverprofile=/tmp/rgb-coverage.out
 	@pct=$$($(GOENV) $(GO) tool cover -func=/tmp/rgb-coverage.out | tail -1 | grep -oE '[0-9]+\.[0-9]+'); \
 	echo "total coverage: $$pct% (floor: $(COVER_THRESHOLD)%)"; \
 	awk -v pct="$$pct" -v floor="$(COVER_THRESHOLD)" 'BEGIN { exit !(pct + 0 >= floor + 0) }' \
 		|| { echo "coverage $$pct% is below the $(COVER_THRESHOLD)% floor"; exit 1; }
 
-vet: FORCE
+vet: FORCE ## Run go vet
 	$(GOENV) $(GO) vet ./...
 
-lint: FORCE
+lint: FORCE ## Run golangci-lint, falling back to go vet when unavailable
 	@if [ -x "$(GOLANGCI)" ]; then \
 		$(GOENV) "$(GOLANGCI)" run ./...; \
 	else \
@@ -68,31 +77,31 @@ lint: FORCE
 		$(GOENV) $(GO) vet ./...; \
 	fi
 
-validate: FORCE
+validate: FORCE ## Validate generated RGB content
 	$(GOENV) $(GO) run ./cmd/rgb-tooling validate
 
-generate: FORCE
+generate: FORCE ## Generate RGB content artifacts
 	$(GOENV) $(GO) run ./cmd/rgb-tooling generate
 
-bundle: FORCE
+bundle: FORCE ## Bundle RGB content artifacts
 	$(GOENV) $(GO) run ./cmd/rgb-tooling bundle
 
-compile: FORCE
+compile: FORCE ## Compile RGB content without HTML output
 	$(GOENV) $(GO) run ./cmd/rgb-compiler no-html
 
-compile-full: FORCE
+compile-full: FORCE ## Compile all RGB content outputs
 	$(GOENV) $(GO) run ./cmd/rgb-compiler all
 
-docs-install: FORCE
+docs-install: FORCE ## Install MkDocs dependencies
 	$(PYTHON) -m pip install -r docs-build/requirements-docs.txt
 
-docs-pdf-install: docs-install FORCE
+docs-pdf-install: docs-install FORCE ## Install MkDocs PDF dependencies
 	$(PYTHON) -m pip install -r docs-build/requirements-docs-pdf.txt
 
-docs-build: FORCE
+docs-build: FORCE ## Build documentation with MkDocs strict mode
 	$(MKDOCS) build --strict -f $(MKDOCS_CONFIG)
 
-docs-pdf: FORCE
+docs-pdf: FORCE ## Build and publish latest PDF downloads locally
 	$(MKDOCS) build -f $(PDF_EN_CONFIG)
 	$(MKDOCS) build -f $(PDF_PT_BR_CONFIG)
 	mkdir -p "$(PDF_PUBLIC_DIR)"
@@ -101,21 +110,24 @@ docs-pdf: FORCE
 	cp "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-latest-en.pdf" "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-$(PDF_VERSION)-en.pdf"
 	cp "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-latest-pt-br.pdf" "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-$(PDF_VERSION)-pt-br.pdf"
 
-docs-preview: FORCE
+docs-preview: FORCE ## Serve documentation locally
 	$(MKDOCS) serve --dev-addr $(MKDOCS_HOST):$(MKDOCS_PORT) -f $(MKDOCS_CONFIG)
 
-landing-install: FORCE
+landing-install: FORCE ## Install landing page npm dependencies
 	$(NPM) --prefix $(LANDING_DIR) install
 
-landing-build: docs-build FORCE
+landing-check: landing-install FORCE ## Run Astro TypeScript checks for the landing page
+	$(NPM) --prefix $(LANDING_DIR) run check
+
+landing-build: docs-build FORCE ## Build the landing page
 	ASTRO_BASE="$(LANDING_BASE)" $(NPM) --prefix $(LANDING_DIR) run build
 
-landing-preview: landing-build FORCE
+landing-preview: landing-build FORCE ## Preview the landing page locally
 	ASTRO_BASE="$(LANDING_BASE)" $(NPM) --prefix $(LANDING_DIR) run preview -- --host $(LANDING_HOST) --port $(LANDING_PORT)
 
-preview: landing-preview FORCE
+preview: landing-preview FORCE ## Preview the full published site locally
 
-pdf-publish: FORCE
+pdf-publish: FORCE ## Publish a provided PDF into landing downloads
 	@test -n "$(PDF_SRC)" || { echo "PDF_SRC is required"; exit 1; }
 	@test -f "$(PDF_SRC)" || { echo "PDF_SRC not found: $(PDF_SRC)"; exit 1; }
 	@test "$(PDF_LOCALE)" = "pt-br" -o "$(PDF_LOCALE)" = "en" || { echo "PDF_LOCALE must be pt-br or en"; exit 1; }
@@ -127,15 +139,33 @@ pdf-publish: FORCE
 
 # Full base-structure review gate. See:
 # docs/engineering/base-structure-review-workflow.md
-review-structure: vet lint test test-arch validate cover-check FORCE
+review-structure: vet lint test test-arch validate cover-check FORCE ## Run the full base-structure review gate
 	@echo "review-structure: all gates passed"
 
 # go-file-size-report lists non-test .go files under cmd/ and internal/
 # over 200 lines. Informational only — does not fail the build.
-go-file-size-report: FORCE
+go-file-size-report: FORCE ## Report large non-test Go source files
 	@files=$$(find cmd internal -type f -name '*.go' ! -name '*_test.go' | sort); \
 	results=$$(for f in $$files; do \
 		lines=$$(wc -l < "$$f" | tr -d ' '); \
 		if [ "$$lines" -gt 200 ]; then printf "%s %s\n" "$$f" "$$lines"; fi; \
 	done | sort -k2,2nr -k1,1); \
 	if [ -n "$$results" ]; then printf "%s\n" "$$results"; else echo "none"; fi
+
+lint-web: landing-check FORCE ## Run landing page lint/type checks
+
+lint-yaml: FORCE ## Lint GitHub Actions workflows with actionlint
+	@if command -v actionlint >/dev/null 2>&1; then \
+		actionlint; \
+	else \
+		echo "actionlint not found; install: https://github.com/rhysd/actionlint"; \
+		exit 1; \
+	fi
+
+lint-shell: FORCE ## Lint CI shell scripts with shellcheck
+	@if command -v shellcheck >/dev/null 2>&1; then \
+		shellcheck scripts/ci/*.sh; \
+	else \
+		echo "shellcheck not found; install: https://www.shellcheck.net"; \
+		exit 1; \
+	fi
