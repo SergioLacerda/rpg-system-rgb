@@ -1,28 +1,82 @@
 ---
-interface Props { name: string; status: string; installed: boolean; desc: string; tags: string[] }
+interface Props {
+  name: string;
+  status: string;
+  installed: boolean;
+  desc: string;
+  tags: string[];
+}
 const { name, status, installed, desc, tags } = Astro.props;
-const color = installed ? 'var(--g)' : 'var(--r)';
-const bgColor = installed ? 'var(--g-bg)' : 'var(--r-bg)';
+const color = installed ? "var(--g)" : "var(--r)";
+const bgColor = installed ? "var(--g-bg)" : "var(--r-bg)";
+const statusMark = installed ? "●" : "○";
 ---
+
 <div class="card">
   <div class="head">
-    <svg width="26" height="26" viewBox="0 0 180 170"><polygon points="90,20 150,120 30,120" fill="none" stroke={color} stroke-width="6"></polygon></svg>
+    <svg width="26" height="26" viewBox="0 0 180 170"
+      ><polygon
+        points="90,20 150,120 30,120"
+        fill="none"
+        stroke={color}
+        stroke-width="6"></polygon></svg
+    >
     <div>
       <div class="name">Skill: {name}</div>
-      <div class="status" style={`color:${installed ? 'var(--g)' : 'var(--text-mute)'}`}>{installed ? '●' : '○'} {status}</div>
+      <div
+        class="status"
+        style={`color:${installed ? "var(--g)" : "var(--text-mute)"}`}
+      >
+        {`${statusMark} ${status}`}
+      </div>
     </div>
   </div>
   <div class="desc">{desc}</div>
   <div class="tags">
-    {tags.map((tag) => <span class="tag" style={`background:${bgColor};color:${color}`}>{tag}</span>)}
+    {
+      tags.map((tag) => (
+        <span class="tag" style={`background:${bgColor};color:${color}`}>
+          {tag}
+        </span>
+      ))
+    }
   </div>
 </div>
 <style>
-  .card { background: var(--surface); border-radius: 10px; padding: 28px; border: 1px solid var(--border); }
-  .head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-  .name { font-family: var(--font-serif); font-size: 18px; color: var(--text); }
-  .status { font-size: 11px; }
-  .desc { font-size: 13px; color: var(--text-mute); line-height: 1.6; margin-bottom: 16px; }
-  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
-  .tag { font-size: 11px; padding: 4px 10px; border-radius: 20px; }
+  .card {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 28px;
+    border: 1px solid var(--border);
+  }
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .name {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    color: var(--text);
+  }
+  .status {
+    font-size: 11px;
+  }
+  .desc {
+    font-size: 13px;
+    color: var(--text-mute);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tag {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
 </style>
