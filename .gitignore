@@ -2,6 +2,7 @@
 .strategist/.compiled/
 .strategist
 generated/
+web/landing/coverage/
 .analysis
 .sdd
 

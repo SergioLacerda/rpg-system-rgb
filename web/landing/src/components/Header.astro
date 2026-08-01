@@ -1,22 +1,28 @@
 ---
-import Logo from './Logo.astro';
-import { dict, type Locale } from '../i18n/dictionary';
-import { landingPath, pathWithoutLandingBase } from '../lib/paths';
-interface Props { lang: Locale }
+import Logo from "./Logo.astro";
+import { dict, type Locale } from "../i18n/dictionary";
+import {
+  landingPath,
+  localizedLandingPath,
+  localizedRestPath,
+} from "../lib/paths";
+interface Props {
+  lang: Locale;
+}
 const { lang } = Astro.props;
 const t = dict[lang].nav;
-const other: Locale = lang === 'pt-br' ? 'en' : 'pt-br';
-const currentPath = pathWithoutLandingBase(Astro.url.pathname);
-const rest = currentPath.split('/').slice(2).join('/');
-const currentHref = landingPath(`/${lang}/${rest}`);
-const switchHref = landingPath(`/${other}/${rest}`);
+const other: Locale = lang === "pt-br" ? "en" : "pt-br";
+const rest = localizedRestPath(Astro.url.pathname);
+const currentHref = localizedLandingPath(lang, rest);
+const switchHref = localizedLandingPath(other, rest);
 ---
+
 <header class="header">
   <Logo lang={lang} size={42} />
   <nav class="nav">
-    <a href={landingPath(`/${lang}/`)}>{t.about}</a>
+    <a href={localizedLandingPath(lang)}>{t.about}</a>
     <a href={landingPath(`/${lang}/instalacao`)}>{t.install}</a>
-    <a href={landingPath('/library/')}>{t.library}</a>
+    <a href={landingPath("/library/")}>{t.library}</a>
     <a href={landingPath(`/${lang}/skills/pathfinder`)}>{t.skills}</a>
   </nav>
   <div class="actions">
@@ -24,9 +30,19 @@ const switchHref = landingPath(`/${other}/${rest}`);
       <a href={currentHref} class="active">{lang.toUpperCase()}</a>
       <a href={switchHref}>{other.toUpperCase()}</a>
     </div>
-    <a class="gh" href="https://github.com/SergioLacerda/rpg-system-rgb" target="_blank" rel="noreferrer" aria-label="GitHub" title="GitHub">
+    <a
+      class="gh"
+      href="https://github.com/SergioLacerda/rpg-system-rgb"
+      target="_blank"
+      rel="noreferrer"
+      aria-label="GitHub"
+      title="GitHub"
+    >
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path fill="currentColor" d="M12 .5C5.65.5.5 5.65.5 12c0 5.09 3.29 9.4 7.86 10.93.58.11.79-.25.79-.56v-2.14c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.75 2.69 1.24 3.34.95.1-.74.4-1.24.73-1.53-2.55-.29-5.23-1.27-5.23-5.67 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.18A10.9 10.9 0 0 1 12 6.08c.98 0 1.96.13 2.88.39 2.19-1.49 3.15-1.18 3.15-1.18.63 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12v3.17c0 .31.21.68.8.56A11.52 11.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"></path>
+        <path
+          fill="currentColor"
+          d="M12 .5C5.65.5.5 5.65.5 12c0 5.09 3.29 9.4 7.86 10.93.58.11.79-.25.79-.56v-2.14c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.75 2.69 1.24 3.34.95.1-.74.4-1.24.73-1.53-2.55-.29-5.23-1.27-5.23-5.67 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.18A10.9 10.9 0 0 1 12 6.08c.98 0 1.96.13 2.88.39 2.19-1.49 3.15-1.18 3.15-1.18.63 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12v3.17c0 .31.21.68.8.56A11.52 11.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"
+        ></path>
       </svg>
     </a>
   </div>
@@ -55,17 +71,71 @@ const switchHref = landingPath(`/${other}/${rest}`);
     justify-content: flex-start;
     padding-right: 28px;
   }
-  .nav a:hover { color: var(--text); }
-  .actions { align-items: center; display: flex; flex: 0 0 auto; gap: 10px; margin-left: auto; }
-  .lang-switch { display: flex; background: var(--surface); border-radius: 20px; padding: 3px; border: 1px solid var(--border); }
-  .lang-switch a { font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 16px; color: var(--text-mute); }
-  .lang-switch a.active { background: #1d2a4a; color: var(--text); }
-  .gh { display: inline-flex; width: 34px; height: 34px; align-items: center; justify-content: center; color: var(--text); border: 1px solid var(--border); border-radius: 50%; background: var(--surface); }
-  .gh:hover, .gh:focus-visible { color: var(--bg); background: var(--text); outline: none; }
-  .gh svg { width: 18px; height: 18px; }
+  .nav a:hover {
+    color: var(--text);
+  }
+  .actions {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: 10px;
+    margin-left: auto;
+  }
+  .lang-switch {
+    display: flex;
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 3px;
+    border: 1px solid var(--border);
+  }
+  .lang-switch a {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 16px;
+    color: var(--text-mute);
+  }
+  .lang-switch a.active {
+    background: #1d2a4a;
+    color: var(--text);
+  }
+  .gh {
+    display: inline-flex;
+    width: 34px;
+    height: 34px;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--surface);
+  }
+  .gh:hover,
+  .gh:focus-visible {
+    color: var(--bg);
+    background: var(--text);
+    outline: none;
+  }
+  .gh svg {
+    width: 18px;
+    height: 18px;
+  }
   @media (max-width: 820px) {
-    .header { align-items: flex-start; flex-direction: column; gap: 16px; padding: 18px 22px; }
-    .nav { border-right: 0; justify-content: flex-start; padding-right: 0; width: 100%; }
-    .actions { width: 100%; justify-content: space-between; }
+    .header {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 16px;
+      padding: 18px 22px;
+    }
+    .nav {
+      border-right: 0;
+      justify-content: flex-start;
+      padding-right: 0;
+      width: 100%;
+    }
+    .actions {
+      width: 100%;
+      justify-content: space-between;
+    }
   }
 </style>
