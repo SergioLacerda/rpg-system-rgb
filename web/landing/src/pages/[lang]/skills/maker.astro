@@ -1,7 +1,7 @@
 ---
-import BaseLayout from '../../../layouts/BaseLayout.astro';
-import SkillCard from '../../../components/SkillCard.astro';
-import { dict, locales, type Locale } from '../../../i18n/dictionary';
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import SkillCard from "../../../components/SkillCard.astro";
+import { dict, locales, type Locale } from "../../../i18n/dictionary";
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
@@ -10,15 +10,27 @@ export function getStaticPaths() {
 const { lang } = Astro.params as { lang: Locale };
 const s = dict[lang].skills.maker;
 ---
+
 <BaseLayout lang={lang} title={`Skill: ${s.name}`}>
   <section class="wrap">
-    <SkillCard name={s.name} status={s.status} installed={false} desc={s.desc} tags={[...s.tags]} />
+    <SkillCard
+      name={s.name}
+      status={s.status}
+      installed={false}
+      desc={s.desc}
+      tags={[...s.tags]}
+    />
   </section>
 </BaseLayout>
 
 <style>
-  .wrap { padding: 56px 48px 80px; max-width: 560px; }
+  .wrap {
+    padding: 56px 48px 80px;
+    max-width: 560px;
+  }
   @media (max-width: 760px) {
-    .wrap { padding: 42px 22px 64px; }
+    .wrap {
+      padding: 42px 22px 64px;
+    }
   }
 </style>

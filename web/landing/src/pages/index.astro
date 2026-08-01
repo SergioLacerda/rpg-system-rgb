@@ -1,5 +1,12 @@
 ---
-import { landingPath } from '../lib/paths';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import HomePage from "../components/HomePage.astro";
+import { dict } from "../i18n/dictionary";
 
-return Astro.redirect(landingPath('/pt-br/'));
+const lang = "pt-br";
+const t = dict[lang];
 ---
+
+<BaseLayout lang={lang} title={t.hero.title}>
+  <HomePage lang={lang} />
+</BaseLayout>

@@ -30,7 +30,7 @@ COVER_THRESHOLD ?= 30
         generate bundle compile compile-full docs-install docs-pdf-install \
         docs-build docs-pdf docs-preview landing-install landing-check \
         landing-build landing-preview preview pdf-publish review-structure \
-        go-file-size-report lint-web lint-yaml lint-shell FORCE
+        go-file-size-report lint-web lint-web-fix test-web lint-yaml lint-shell FORCE
 
 .DEFAULT_GOAL := help
 
@@ -152,7 +152,14 @@ go-file-size-report: FORCE ## Report large non-test Go source files
 	done | sort -k2,2nr -k1,1); \
 	if [ -n "$$results" ]; then printf "%s\n" "$$results"; else echo "none"; fi
 
-lint-web: landing-check FORCE ## Run landing page lint/type checks
+lint-web: landing-install FORCE ## Run landing page lint/type checks
+	$(NPM) --prefix $(LANDING_DIR) run lint
+
+lint-web-fix: landing-install FORCE ## Format landing page files and rerun lint/type checks
+	$(NPM) --prefix $(LANDING_DIR) run lint:fix
+
+test-web: landing-install FORCE ## Run landing page unit tests with coverage
+	$(NPM) --prefix $(LANDING_DIR) run test
 
 lint-yaml: FORCE ## Lint GitHub Actions workflows with actionlint
 	@if command -v actionlint >/dev/null 2>&1; then \

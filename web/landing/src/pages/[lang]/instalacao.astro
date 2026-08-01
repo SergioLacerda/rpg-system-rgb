@@ -1,7 +1,7 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import CodeBlock from '../../components/CodeBlock.astro';
-import { dict, locales, type Locale } from '../../i18n/dictionary';
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { dict, locales, type Locale } from "../../i18n/dictionary";
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
@@ -10,20 +10,40 @@ export function getStaticPaths() {
 const { lang } = Astro.params as { lang: Locale };
 const t = dict[lang].install;
 ---
+
 <BaseLayout lang={lang} title={t.title}>
   <section class="install">
     <div class="kicker">{t.kicker}</div>
     <h2>{t.title}</h2>
-    <CodeBlock label={t.cloneLabel} code="git clone https://github.com/SergioLacerda/rpg-system-rgb && cd rpg-system-rgb/web/landing && npm install" copyLabel={t.copy} />
+    <CodeBlock
+      label={t.cloneLabel}
+      code="git clone https://github.com/SergioLacerda/rpg-system-rgb && cd rpg-system-rgb/web/landing && npm install"
+      copyLabel={t.copy}
+    />
     <CodeBlock label={t.devLabel} code="npm run dev" copyLabel={t.copy} />
   </section>
 </BaseLayout>
 
 <style>
-  .install { padding: 56px 48px 80px; max-width: 760px; }
-  .kicker { font-size: 11px; letter-spacing: 2px; color: var(--b); margin-bottom: 10px; }
-  h2 { font-family: var(--font-serif); font-size: 28px; color: var(--text); margin: 0 0 22px; }
+  .install {
+    padding: 56px 48px 80px;
+    max-width: 760px;
+  }
+  .kicker {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--b);
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    color: var(--text);
+    margin: 0 0 22px;
+  }
   @media (max-width: 760px) {
-    .install { padding: 42px 22px 64px; }
+    .install {
+      padding: 42px 22px 64px;
+    }
   }
 </style>

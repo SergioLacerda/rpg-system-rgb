@@ -1,16 +1,41 @@
 ---
-interface Props { code: 'R' | 'G' | 'B'; label: string; title: string; desc: string }
+interface Props {
+  code: "R" | "G" | "B";
+  label: string;
+  title: string;
+  desc: string;
+}
 const { code, label, title, desc } = Astro.props;
-const colorVar = code === 'R' ? 'var(--r)' : code === 'G' ? 'var(--g)' : 'var(--b)';
+const colorVar =
+  code === "R" ? "var(--r)" : code === "G" ? "var(--g)" : "var(--b)";
 ---
+
 <div class="card" style={`border-top-color:${colorVar}`}>
   <div class="label" style={`color:${colorVar}`}>{label}</div>
   <div class="title">{title}</div>
   <div class="desc">{desc}</div>
 </div>
 <style>
-  .card { background: var(--surface); border-radius: 10px; padding: 32px; border-top: 3px solid; }
-  .label { font-size: 12px; letter-spacing: 1.5px; margin-bottom: 10px; }
-  .title { font-family: var(--font-serif); font-size: 20px; color: var(--text); margin-bottom: 10px; }
-  .desc { font-size: 14px; color: var(--text-mute); line-height: 1.6; }
+  .card {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 32px;
+    border-top: 3px solid;
+  }
+  .label {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+  }
+  .title {
+    font-family: var(--font-serif);
+    font-size: 20px;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .desc {
+    font-size: 14px;
+    color: var(--text-mute);
+    line-height: 1.6;
+  }
 </style>
