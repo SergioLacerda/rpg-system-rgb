@@ -32,4 +32,16 @@ describe("landing dictionary", () => {
       expect(dict[locale].vectors).toHaveLength(3);
     }
   });
+
+  it("does not present contract-only skills as installed runtime products", () => {
+    for (const locale of locales) {
+      const skills = dict[locale].skills;
+
+      expect(skills.specialist.name).toBe("Specialist");
+      expect(skills.specialist.status).not.toMatch(/installed|instalada/i);
+      expect(skills.maker.status).not.toMatch(/installed|instalada/i);
+      expect(skills.specialist.desc).toMatch(/runtime/i);
+      expect(skills.maker.desc).toMatch(/runtime/i);
+    }
+  });
 });

@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import SkillCard from "./SkillCard.astro";
 
 describe("SkillCard", () => {
-  it("renders installed skills with the enabled state", async () => {
+  it("renders implemented skills with the enabled state", async () => {
     const container = await AstroContainer.create();
     const html = await container.renderToString(SkillCard, {
       props: {
-        name: "Pathfinder",
+        name: "Library",
         status: "installed",
         installed: true,
         desc: "Answers rules questions.",
@@ -15,28 +15,28 @@ describe("SkillCard", () => {
       },
     });
 
-    expect(html).toContain("Skill: Pathfinder");
+    expect(html).toContain("Skill: Library");
     expect(html).toContain("● installed");
     expect(html).toContain("Answers rules questions.");
     expect(html).toContain("Library");
     expect(html).toContain("background:var(--g-bg);color:var(--g)");
   });
 
-  it("renders unavailable skills with the disabled state", async () => {
+  it("renders contract-defined skills with the disabled state", async () => {
     const container = await AstroContainer.create();
     const html = await container.renderToString(SkillCard, {
       props: {
-        name: "Maker",
-        status: "not installed",
+        name: "Specialist",
+        status: "contract defined",
         installed: false,
-        desc: "Drafts structured documents.",
+        desc: "Runtime behavior is not implemented.",
         tags: ["draft"],
       },
     });
 
-    expect(html).toContain("Skill: Maker");
-    expect(html).toContain("○ not installed");
-    expect(html).toContain("Drafts structured documents.");
+    expect(html).toContain("Skill: Specialist");
+    expect(html).toContain("○ contract defined");
+    expect(html).toContain("Runtime behavior is not implemented.");
     expect(html).toContain("background:var(--r-bg);color:var(--r)");
   });
 });

@@ -1,0 +1,12 @@
+# Structural-separation fixture for the Maker entity-package schema
+# (skills/maker/schemas/entity-package.schema.yaml), mirroring its own
+# stated invariant: "a field never appears in more than one of
+# explicit_facts, inferred_suggestions, unresolved_fields for the same
+# package." Sourced from the worked example in
+# skills/maker/examples/harbor-quartermaster.md's npc.harbor-quartermaster
+# package. Checked by ../maker_entity_package_test.go.
+packages:
+  - id: npc.harbor-quartermaster
+    explicit_fact_fields: [role, missing_fingers]
+    inferred_suggestion_fields: [attitude_toward_party]
+    unresolved_fields: [name]
