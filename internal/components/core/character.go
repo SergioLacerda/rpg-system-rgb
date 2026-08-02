@@ -3,14 +3,19 @@ package core
 import "fmt"
 
 // Character is a playable or non-playable RGB Core V2 entity: vectors,
-// derived resources, active states, and declared abilities.
+// derived resources, active states, declared abilities, and advancement
+// progress.
 type Character struct {
-	ID        string
-	Name      string
-	Vectors   Vectors
-	Resources Resources
-	States    map[State]bool
-	Abilities []Ability
+	ID                 string
+	Name               string
+	Vectors            Vectors
+	Resources          Resources
+	States             map[State]bool
+	Abilities          []Ability
+	Level              int
+	Specializations    map[Vector]bool
+	CustomResources    map[string]int
+	AdvancementHistory []AdvancementRecord
 }
 
 // StartingPointBudget is the canonical number of points a starting player
@@ -47,6 +52,7 @@ func NewCharacter(id, name string, vectors Vectors, abilities []Ability) (Charac
 			StateHealthy: true,
 		},
 		Abilities: abilities,
+		Level:     1,
 	}
 	if character.Resources.CurrentShield > 0 {
 		character.States[StateShielded] = true
