@@ -161,10 +161,10 @@ pdf-publish: FORCE ## Publish a provided PDF into landing downloads
 review-structure: vet lint test test-arch validate cover-check FORCE ## Run the full base-structure review gate
 	@echo "review-structure: all gates passed"
 
-check-fast: fmt-check vet lint test test-arch validate cover-check mutation-core FORCE ## Run the fast local and PR gate
+check-fast: fmt-check vet lint test test-arch validate check-generated-drift cover-check mutation-core FORCE ## Run the fast local and PR gate
 	@echo "check-fast: all gates passed"
 
-check: check-fast lint-web test-web landing-build lint-yaml lint-shell check-generated-drift check-publication-runtime check-governance-files FORCE ## Run the full development and main gate
+check: check-fast lint-web test-web landing-build lint-yaml lint-shell check-publication-runtime check-governance-files FORCE ## Run the full development and main gate
 	@echo "check: all gates passed"
 
 check-generated-drift: FORCE ## Regenerate versioned artifacts and fail on drift
