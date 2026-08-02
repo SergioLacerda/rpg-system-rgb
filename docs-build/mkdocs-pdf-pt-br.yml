@@ -14,15 +14,16 @@ exclude_docs: |
   core/semantic/*
 theme:
   name: mkdocs
-  color_mode: dark
-  nav_style: dark
+  color_mode: light
+  nav_style: primary
 extra_css:
-  - styles/rgb-library.css
+  - styles/rgb-pdf.css
 plugins:
   - search
   - to-pdf:
       author: RGB System
       copyright: RGB System
+      enabled_if_env: ENABLE_PDF_EXPORT
       cover: true
       cover_title: Regras Core do Sistema RGB
       cover_subtitle: Portugues do Brasil

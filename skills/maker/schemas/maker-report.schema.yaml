@@ -1,0 +1,44 @@
+# Schema: Maker Report
+#
+# Session-level summary of everything Maker extracted from one input batch.
+# Human-readable form: ../templates/maker-report.md
+schema: rgb-maker-report/0.1
+
+fields:
+  id:
+    type: string
+    required: true
+    description: Maker-local slug, e.g. "report.2026-08-01-harbor-session".
+  status:
+    type: string
+    required: true
+    enum: [draft, needs_review, stale]
+  input_batch:
+    type: list<string>
+    required: true
+    description: The note(s)/image(s) processed in this batch.
+  entity_packages:
+    type: list<string>
+    required: true
+    description: IDs of entity-package outputs produced from this batch.
+      May be empty only if the batch produced no extractable entities —
+      report that explicitly, do not omit the field.
+  conflict_reports:
+    type: list<string>
+    required: false
+    description: IDs of conflict-report outputs produced from this batch.
+  visual_observations:
+    type: list<string>
+    required: false
+    description: IDs of visual-observation outputs, if any input was an
+      image.
+  open_questions:
+    type: list<string>
+    required: false
+    description: Cross-cutting questions for the GM that don't belong to
+      any single entity package (e.g. "two locations in these notes seem
+      to be the same place under different names — confirm?").
+
+invariants:
+  - every id listed in entity_packages/conflict_reports/visual_observations
+    must correspond to a package actually emitted alongside this report

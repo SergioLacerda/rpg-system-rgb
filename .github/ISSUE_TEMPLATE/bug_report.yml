@@ -1,0 +1,36 @@
+name: Bug report
+description: Report incorrect implemented behavior or a broken published surface.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - RGB Core V2
+        - Semantic tooling
+        - Library HTML
+        - PDF downloads
+        - Landing
+        - CI/release
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Checks run
+      description: Include commands such as make check-fast, make check, or make release-check when relevant.

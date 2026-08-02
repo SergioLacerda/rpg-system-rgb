@@ -12,22 +12,20 @@ C4Component
         Component(contract, "internal/components (root)", "Go package", "Shared contract types; stdlib-only leaf")
         Component(core, "core", "Go package", "RGB rule engine: characters, actions, combat, states")
         Component(tooling_c, "tooling", "Go package", "Semantic-docs validators + projection generator")
-        Component(compiler_c, "compiler", "Go package", "Markdown parser + HTML/print renderer")
-        Component(library_c, "library", "Go package", "Site assembly + PDF export instructions")
-        Component(maker_c, "maker", "Go package", "Campaign/content structuring (stub)")
-        Component(specialist_c, "specialist", "Go package", "Rule consultation and validation (stub)")
-        Component(bundles_c, "bundles", "Go package", "Consolidated bundle format (stub)")
+        Component(maker_c, "maker", "Go package", "Campaign/content structuring (stub: boundary only, no behavior)")
+        Component(specialist_c, "specialist", "Go package", "Rule consultation and validation (stub: boundary only, no behavior)")
+        Component(bundles_c, "bundles", "Go package", "Semantic index projection to generated/bundle/rgb.bundle.json (implemented, minimal — see ADR-007)")
     }
 
     Rel(app_c, core, "imports")
     Rel(app_c, tooling_c, "imports")
-    Rel(app_c, compiler_c, "imports")
-    Rel(app_c, library_c, "imports")
     Rel(core, contract, "imports")
     Rel(tooling_c, contract, "imports")
-    Rel(compiler_c, contract, "imports")
-    Rel(library_c, contract, "imports")
 ```
+
+`compiler` and `library` are no longer part of this boundary. They represented
+a parallel Go-based HTML/print/PDF pipeline, while the actual public
+publication path is MkDocs + Astro.
 
 This diagram matches, not just illustrates, what
 `tests/architecture/architecture_test.go` mechanically enforces
@@ -44,5 +42,10 @@ This diagram matches, not just illustrates, what
   any sibling component.
 - `cmd/*` binaries may only import `internal/app` — never
   `internal/components/*` directly.
+
+These import boundaries are non-negotiable: they predate and are
+independent of any CLI topology or bundle-scope decision (ADR-006,
+ADR-007). No future integration work may shortcut them with a
+sibling-to-sibling import, even temporarily.
 
 ← [Back to Architecture Index](README.md)

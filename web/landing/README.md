@@ -1,6 +1,17 @@
 # RGB System Web
 
-Astro/Node landing page for RGB System, with pt-BR/en UI copy, a MkDocs-backed Library surface, and Skills presentation routes. The current page is based on the approved scaffold in `.analysis/pending/astro-project`.
+Astro/Node landing page for RGB System, with pt-BR/en UI copy, a MkDocs-backed
+Library surface, stable PDF download links, and Skills presentation routes.
+
+## Status
+
+| Surface | Status | Notes |
+| --- | --- | --- |
+| Root route | Implemented | `/` resolves to the Portuguese landing experience; `/pt-br/` and `/en/` are localized. |
+| Library | Implemented | The root Makefile builds MkDocs output into `public/library/` before Astro packaging. |
+| PDF links | Implemented | Home CTAs point to `/downloads/rgb-system-core-v2-latest-{locale}.pdf`. |
+| Skills pages | Implemented as presentation | Pathfinder/Maker pages describe ecosystem roles; skill execution stays outside the landing app. |
+| Maker and Specialist products | Planned | The landing may describe them, but it must not present them as available runtime products. |
 
 ## Run
 
@@ -38,6 +49,5 @@ the compiled Library at `/library/` under the configured Astro base path.
 
 ## Known Follow-Ups
 
-- The hero PDF button still points to a placeholder path.
 - Skills pages are static presentation surfaces; install/execution logic stays outside this scaffold.
 - `site` and `base` in `astro.config.mjs` assume GitHub Pages under the `rpg-system-rgb` repository.

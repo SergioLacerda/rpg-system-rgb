@@ -1,0 +1,63 @@
+# Schema: Entity Package
+#
+# One extracted entity (NPC, location, item, faction) from Maker input.
+# Human-readable form: ../templates/entity-package.md
+schema: rgb-maker-entity-package/0.1
+
+fields:
+  id:
+    type: string
+    required: true
+    description: Maker-local slug, e.g. "npc.harbor-quartermaster". Not a
+      semantic ID — Maker entities are not canonical RGB System units.
+  entity_type:
+    type: string
+    required: true
+    enum: [npc, location, item, faction, other]
+  status:
+    type: string
+    required: true
+    enum: [draft, needs_review, stale]
+    description: Required disclosure per consumer.maker.v0_1.
+  source_refs:
+    type: list<string>
+    required: true
+    description: Which input note(s)/image(s) this package was extracted
+      from. Never empty — every package traces back to an input.
+  explicit_facts:
+    type: list<object>
+    required: true
+    description: Facts stated directly in the source text. Each item has
+      `field`, `value`, `source_ref`.
+  inferred_suggestions:
+    type: list<object>
+    required: false
+    description: Plausible facts Maker inferred but the source did not
+      state directly. Each item has `field`, `value`, `confidence`
+      (low|medium|high), `rationale`.
+  unresolved_fields:
+    type: list<object>
+    required: false
+    description: Fields the package's `entity_type` normally has, but the
+      source did not provide and Maker did not infer. Each item has
+      `field`, `reason`.
+  conflicts:
+    type: list<string>
+    required: false
+    description: IDs of conflict-report packages touching this entity, if
+      any (see conflict-report.schema.yaml). Empty if none.
+  canonical_dependencies:
+    type: list<string>
+    required: false
+    description: Semantic IDs from docs/core/semantic/core-v2.index.json
+      this entity's mechanics depend on (e.g. an NPC ability referencing
+      core.ability.contract). Read-only reference — Maker does not modify
+      these units.
+
+invariants:
+  - explicit_facts is never empty (a package with zero explicit facts is
+    pure invention and must not be emitted)
+  - a field never appears in more than one of explicit_facts,
+    inferred_suggestions, unresolved_fields for the same package
+  - status is never "canonical" or absent — Maker output is never
+    canonical rule authority (see SKILL.md § Maker Must Not)

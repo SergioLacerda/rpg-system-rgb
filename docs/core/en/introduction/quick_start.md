@@ -54,24 +54,25 @@ Shield = 6
 
 ## 4. Basic Turn Structure
 
-During combat a character can typically perform:
+During combat a character typically gets:
 
 ```text
-1 main action
+Movement (G × 2 meters, free)
 +
-1 minor adjustment (optional)
+1 Action
++
+1 Minor Action (optional)
 ```
 
 Examples:
 
-Main actions:
+Actions:
 
 - attack
-- move
 - defend
 - use ability
 
-Minor adjustments:
+Minor Actions:
 
 - reload weapon
 - change position slightly

@@ -1,0 +1,66 @@
+# Offline golden Q/A dataset for RGB Specialist, per
+# .analysis/refined/20260801-specialist-first-skill-roadmap.
+#
+# Every entry outside category "ambiguous" must have a non-empty
+# semantic_ids list, and every listed ID must exist in
+# docs/core/semantic/core-v2.index.json — enforced by
+# tests/fixtures/specialist_golden_qa_test.go. This is the dataset-level
+# form of "no normative answer without a source id" (design.md's
+# must_not: answer_normatively_without_source), checked structurally today
+# ahead of any runtime Specialist implementation to check it behaviorally.
+#
+# category values: rule_lookup | action_classification | ambiguous |
+#                   example_validation | en_pt_br_parity
+entries:
+  - id: qa-001-rule-lookup-attack-margin
+    category: rule_lookup
+    locale: en
+    question: "How do I know if an attack hits?"
+    semantic_ids: [core.combat.attack-margin]
+  - id: qa-002-rule-lookup-damage-order
+    category: rule_lookup
+    locale: en
+    question: "What order does damage get mitigated in — armor or shield first?"
+    semantic_ids: [core.damage.flow, core.damage.armor-reduction, core.damage.shield-absorption]
+  - id: qa-003-action-classification-charge
+    category: action_classification
+    locale: en
+    question: "The fighter charges in and swings a greatsword — what kind of action is that?"
+    semantic_ids: [core.action.press]
+  - id: qa-004-action-classification-cover
+    category: action_classification
+    locale: en
+    question: "The scout ducks behind cover and repositions — what kind of action is that?"
+    semantic_ids: [core.action.reposition]
+  - id: qa-005-ambiguous-sprint-reaction
+    category: ambiguous
+    locale: en
+    question: "Can a character Sprint and still use a reaction ability the same turn?"
+    semantic_ids: []
+    ambiguity_note: "Sprint's restriction text (docs/core/en/combat/movement.md) does not use the action/reaction vocabulary from core.ability.contract's action_type field; see skills/specialist/examples/identify-ambiguity-sprint-reaction.md."
+  - id: qa-006-ambiguous-extra-minor-action
+    category: ambiguous
+    locale: en
+    question: "Can a character spend their Action to take an additional Minor Action instead?"
+    semantic_ids: []
+    ambiguity_note: "Not addressed in docs/core/en/combat/movement.md or docs/core/en/introduction/rgb_one_page_rules.md's turn structure sections; no semantic unit covers action-to-minor-action conversion."
+  - id: qa-007-example-validation-combat-turn-second-attack
+    category: example_validation
+    locale: en
+    question: "Is the combat example's second attack math correct (does shield absorb before health)?"
+    semantic_ids: [core.example.combat-turn, core.damage.flow, core.damage.shield-absorption]
+  - id: qa-008-example-validation-one-page-rules-damage
+    category: example_validation
+    locale: en
+    question: "In the one-page rules' Example Damage (Weapon Damage 7, Penetration 2, Armor 4), is Effective Armor = 2 and Final Damage = 5 correct?"
+    semantic_ids: [core.damage.armor-reduction, core.damage.flow]
+  - id: qa-009-en-pt-br-parity-health
+    category: en_pt_br_parity
+    locale: pt-br
+    question: "What is 'Vida' in English?"
+    semantic_ids: [core.term.health, core.translation.pt-br.health]
+  - id: qa-010-en-pt-br-parity-shield-absorption
+    category: en_pt_br_parity
+    locale: pt-br
+    question: "What is 'Absorcao por Escudo' in English?"
+    semantic_ids: [core.term.shield-absorption, core.translation.pt-br.shield-absorption]

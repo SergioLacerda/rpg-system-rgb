@@ -8,9 +8,7 @@ import (
 
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components"
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/bundles"
-	"github.com/SergioLacerda/rpg-system-rgb/internal/components/compiler"
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/core"
-	"github.com/SergioLacerda/rpg-system-rgb/internal/components/library"
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/maker"
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/specialist"
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/tooling"
@@ -23,8 +21,6 @@ func Components() []components.Component {
 		maker.Descriptor(),
 		specialist.Descriptor(),
 		tooling.Descriptor(),
-		library.Descriptor(),
-		compiler.Descriptor(),
 		bundles.Descriptor(),
 	}
 }

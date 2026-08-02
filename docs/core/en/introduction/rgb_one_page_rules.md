@@ -32,12 +32,14 @@ Shield represents energy or special protection.
 
 ## Turn Structure
 
-Each turn a character may perform:
+Each turn a character gets:
 
 ```text
+Movement (G × 2 meters, free)
++
 1 Action
 +
-1 Minor Adjustment
+1 Minor Action
 ```
 
 Examples:
@@ -45,11 +47,10 @@ Examples:
 Actions:
 
 - attack
-- move
 - defend
 - use ability
 
-Minor adjustments:
+Minor Actions:
 
 - reload
 - small reposition

@@ -1,0 +1,30 @@
+# Executable fixture for docs/core/en/reference/combat_example.md (and its
+# docs/core/PT-br/reference/combat_example.md mirror). Every field here is
+# asserted against core.ApplyDamage by ../combat_example_test.go, and the
+# expected_* fields are cross-checked against the rendered Markdown numbers
+# by ../combat_example_doc_parity_test.go. If either check fails, the doc
+# and the engine have drifted apart — do not hand-edit the Markdown numbers
+# without updating this fixture (and vice versa).
+attacks:
+  - id: attack-1-a-fires-rifle-at-b
+    defender_health: 8
+    defender_shield: 6
+    defender_armor: 2
+    weapon_damage: 6
+    penetration: 2
+    expected_effective_armor: 0
+    expected_remaining_damage: 6
+    expected_remaining_shield: 0
+    expected_health_damage: 0
+    expected_remaining_health: 8
+  - id: attack-2-b-fires-smg-at-a
+    defender_health: 8
+    defender_shield: 3
+    defender_armor: 4
+    weapon_damage: 4
+    penetration: 1
+    expected_effective_armor: 3
+    expected_remaining_damage: 1
+    expected_remaining_shield: 2
+    expected_health_damage: 0
+    expected_remaining_health: 8

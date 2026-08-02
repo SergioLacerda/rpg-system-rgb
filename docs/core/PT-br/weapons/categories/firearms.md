@@ -23,13 +23,13 @@ Tipo        → categoria da arma
 ```text
 Tipo                Impacto   Capacidade   Recarga
 ------------------  --------  -----------  -------------
-Pistola Compacta    4         12           ação parcial
-Pistola             4         15           ação parcial
-Revólver            5         6            ação principal
-SMG                 5         30           ação principal
-Rifle de Assalto    7         30           ação principal
-Rifle Pesado / DMR  8         20           ação principal
-Rifle de Precisão   9         10           ação principal
+Pistola Compacta    4         12           ação menor
+Pistola             4         15           ação menor
+Revólver            5         6            ação
+SMG                 5         30           ação
+Rifle de Assalto    7         30           ação
+Rifle Pesado / DMR  8         20           ação
+Rifle de Precisão   9         10           ação
 Metralhadora        7         100          2 ações
 ```
 

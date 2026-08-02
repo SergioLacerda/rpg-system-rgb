@@ -16,9 +16,8 @@ import (
 // package must produce identical output to the retired
 // scripts/generate_semantic_projections.go. It only compares the
 // projection manifest's own declared outputs, not everything under
-// generated/ — that directory also holds output from
-// internal/components/compiler and internal/components/library, which
-// GenerateDefault does not own.
+// generated/ — that directory also holds output from internal/components/bundles
+// (generated/bundle/rgb.bundle.json), which GenerateDefault does not own.
 func TestGenerateDefaultMatchesCommittedOutput(t *testing.T) {
 	root := repoRoot(t)
 	scratch := t.TempDir()
