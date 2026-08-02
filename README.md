@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/SergioLacerda/rpg-system-rgb/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SergioLacerda/rpg-system-rgb/actions/workflows/ci.yml)
 [![Pages Deploy](https://img.shields.io/github/actions/workflow/status/SergioLacerda/rpg-system-rgb/ci.yml?branch=main&label=pages%20deploy)](https://sergiolacerda.github.io/rpg-system-rgb/)
-[![License](https://img.shields.io/github/license/SergioLacerda/rpg-system-rgb)](LICENSES.md)
+[![License](https://img.shields.io/github/license/SergioLacerda/rpg-system-rgb)](LICENSE)
 [![Release](https://img.shields.io/github/v/tag/SergioLacerda/rpg-system-rgb?label=release)](https://github.com/SergioLacerda/rpg-system-rgb/tags)
 [![Last Commit](https://img.shields.io/github/last-commit/SergioLacerda/rpg-system-rgb/main)](https://github.com/SergioLacerda/rpg-system-rgb/commits/main)
 [![Commit Activity](https://img.shields.io/github/commit-activity/m/SergioLacerda/rpg-system-rgb)](https://github.com/SergioLacerda/rpg-system-rgb/pulse)
@@ -33,7 +33,7 @@ rules, tactical combat, modular design, and adaptable worlds.
 | Detailed README | [docs/README-details.md](docs/README-details.md) |
 | English rules | [docs/core/en/](docs/core/en/) |
 | Portuguese rules | [docs/core/PT-br/](docs/core/PT-br/) |
-| License map | [LICENSES.md](LICENSES.md) |
+| License | [LICENSE](LICENSE) |
 
 ## Status
 

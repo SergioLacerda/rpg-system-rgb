@@ -37,6 +37,7 @@ TOOLING_COVER_THRESHOLD ?= 90
 PUBLICATION_COVER_THRESHOLD ?= 90
 APP_COVER_THRESHOLD ?= 90
 CLI_COVER_THRESHOLD ?= 90
+TOOLING_CLI_COVER_THRESHOLD ?= 90
 
 .PHONY: help install fmt fmt-check test test-arch cover cover-check vet lint validate \
         generate bundle \
@@ -104,6 +105,7 @@ cover-check: FORCE ## Enforce per-package Go coverage floors
 	PUBLICATION_COVER_THRESHOLD="$(PUBLICATION_COVER_THRESHOLD)" \
 	APP_COVER_THRESHOLD="$(APP_COVER_THRESHOLD)" \
 	CLI_COVER_THRESHOLD="$(CLI_COVER_THRESHOLD)" \
+	TOOLING_CLI_COVER_THRESHOLD="$(TOOLING_CLI_COVER_THRESHOLD)" \
 	GO="$(GO)" GOCACHE="$(GOCACHE)" scripts/ci/check-go-coverage.sh
 
 mutation-core: FORCE ## Run mutation smoke checks for internal/components/core
