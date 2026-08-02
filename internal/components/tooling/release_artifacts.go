@@ -163,7 +163,7 @@ func validateReleaseArtifactMetadata(paths ReleaseArtifactPaths) error {
 
 func validateRequiredPDFTools() error {
 	for _, tool := range []string{"pdfinfo", "pdftotext", "pdftohtml", "pdftoppm"} {
-		if _, err := exec.LookPath(tool); err != nil {
+		if _, err := lookPath(tool); err != nil {
 			return fmt.Errorf("::error::%s is required for PDF editorial checks", tool)
 		}
 	}
@@ -554,6 +554,10 @@ func parsePDFPages(output []byte) (int, error) {
 }
 
 func runCommand(name string, args ...string) ([]byte, error) {
+	return runExternalCommand(name, args...)
+}
+
+var runExternalCommand = func(name string, args ...string) ([]byte, error) {
 	cmd := exec.Command(name, args...) //nolint:gosec // G204: command names are fixed by caller; args are file paths from Make targets.
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -561,3 +565,5 @@ func runCommand(name string, args ...string) ([]byte, error) {
 	}
 	return output, nil
 }
+
+var lookPath = exec.LookPath

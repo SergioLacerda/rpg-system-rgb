@@ -21,6 +21,18 @@ func TestRunRejectsUnknownSubcommand(t *testing.T) {
 	}
 }
 
+func TestRunDispatchesRepoRootCommandsAndSurfacesErrors(t *testing.T) {
+	root := t.TempDir()
+	for _, command := range []string{"validate", "generate", "bundle"} {
+		t.Run(command, func(t *testing.T) {
+			err := run([]string{command, root})
+			if err == nil {
+				t.Fatalf("expected %s to fail against incomplete repo root", command)
+			}
+		})
+	}
+}
+
 func TestRunRejectsRetiredCompileSubcommand(t *testing.T) {
 	err := run([]string{"compile", "all"})
 	if err == nil {
@@ -41,6 +53,75 @@ func TestRunRejectsUnknownDocsSubcommand(t *testing.T) {
 	}
 }
 
+func TestRunRejectsMissingDocsSubcommand(t *testing.T) {
+	err := run([]string{"docs"})
+	if err == nil || !strings.Contains(err.Error(), "missing docs subcommand") {
+		t.Fatalf("expected missing docs subcommand error, got %v", err)
+	}
+}
+
+func TestRunDocsSubcommandsSurfaceComponentErrors(t *testing.T) {
+	root := t.TempDir()
+	cases := [][]string{
+		{"docs", "library", "--source", root, "--out", root + "/out"},
+		{"docs", "pdf", "--public-dir", root + "/downloads", "--basename", "rgb", "--version", "v1"},
+		{"docs", "check", "--library", root + "/library", "--public-dir", root + "/downloads", "--basename", "rgb", "--version", "v1"},
+	}
+	for _, args := range cases {
+		if err := run(args); err == nil {
+			t.Fatalf("expected %v to fail against incomplete fixtures", args)
+		}
+	}
+}
+
+func TestParseDocsFlags(t *testing.T) {
+	library, err := parseLibraryFlags([]string{"--source", "src", "--out", "out"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if library.SourceDir != "src" || library.OutDir != "out" {
+		t.Fatalf("unexpected library options: %+v", library)
+	}
+	pdf, err := parsePDFFlags([]string{
+		"--public-dir", "public",
+		"--basename", "rgb",
+		"--version", "v1",
+		"--source-en", "en.pdf",
+		"--source-pt-br", "pt.pdf",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if pdf.PublicDir != "public" || pdf.Basename != "rgb" || pdf.Version != "v1" || pdf.SourceEN != "en.pdf" || pdf.SourcePT != "pt.pdf" {
+		t.Fatalf("unexpected pdf options: %+v", pdf)
+	}
+	check, err := parseDocsCheckFlags([]string{"--library", "library", "--public-dir", "public", "--basename", "rgb", "--version", "v1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if check.LibraryDir != "library" || check.PublicDir != "public" || check.Basename != "rgb" || check.Version != "v1" {
+		t.Fatalf("unexpected check options: %+v", check)
+	}
+}
+
+func TestParseDocsFlagsRejectInvalidAndPositionalArgs(t *testing.T) {
+	if _, err := parseLibraryFlags([]string{"--bad"}); err == nil {
+		t.Fatal("expected invalid library flag to fail")
+	}
+	if _, err := parsePDFFlags([]string{"--bad"}); err == nil {
+		t.Fatal("expected invalid pdf flag to fail")
+	}
+	if _, err := parsePDFFlags([]string{"extra"}); err == nil {
+		t.Fatal("expected positional pdf arg to fail")
+	}
+	if _, err := parseDocsCheckFlags([]string{"--bad"}); err == nil {
+		t.Fatal("expected invalid docs check flag to fail")
+	}
+	if _, err := parseDocsCheckFlags([]string{"extra"}); err == nil {
+		t.Fatal("expected positional docs check arg to fail")
+	}
+}
+
 func TestParseLibraryFlagsRejectsPositionalArgs(t *testing.T) {
 	_, err := parseLibraryFlags([]string{"extra"})
 	if err == nil {
@@ -55,6 +136,45 @@ func TestRunRejectsUnknownReleaseSubcommand(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "bogus") {
 		t.Fatalf("error should mention the unknown release subcommand, got: %v", err)
+	}
+}
+
+func TestRunRejectsMissingReleaseSubcommand(t *testing.T) {
+	err := run([]string{"release"})
+	if err == nil || !strings.Contains(err.Error(), "missing release subcommand") {
+		t.Fatalf("expected missing release subcommand error, got %v", err)
+	}
+}
+
+func TestRunReleaseSubcommandsSurfaceComponentErrors(t *testing.T) {
+	root := t.TempDir()
+	cases := [][]string{
+		{"release", "manifest", "--public-dir", root + "/downloads", "--basename", "rgb", "--version", "v1"},
+		{"release", "check", "--public-dir", root + "/downloads", "--basename", "rgb", "--version", "v1"},
+	}
+	for _, args := range cases {
+		if err := run(args); err == nil {
+			t.Fatalf("expected %v to fail against incomplete fixtures", args)
+		}
+	}
+}
+
+func TestParseReleaseFlagsAcceptsAllFieldsAndRejectsInvalidFlags(t *testing.T) {
+	paths, err := parseReleaseFlags("release manifest", []string{
+		"--public-dir", "public",
+		"--basename", "rgb",
+		"--version", "v1",
+		"--manifest", "manifest.json",
+		"--checksums", "SHA256SUMS",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if paths.PublicDir != "public" || paths.Basename != "rgb" || paths.Version != "v1" || paths.Manifest != "manifest.json" || paths.Checksums != "SHA256SUMS" {
+		t.Fatalf("unexpected release paths: %+v", paths)
+	}
+	if _, err := parseReleaseFlags("release manifest", []string{"--bad"}); err == nil {
+		t.Fatal("expected invalid release flag to fail")
 	}
 }
 

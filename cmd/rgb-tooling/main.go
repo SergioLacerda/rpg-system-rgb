@@ -15,28 +15,30 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		fatal("usage: rgb-tooling <validate|generate|bundle> [repo-root]")
+	if err := run(os.Args[1:]); err != nil {
+		fatal(err.Error())
+	}
+}
+
+func run(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: rgb-tooling <validate|generate|bundle> [repo-root]")
 	}
 
 	repoRoot := "."
-	if len(os.Args) >= 3 {
-		repoRoot = os.Args[2]
+	if len(args) >= 2 {
+		repoRoot = args[1]
 	}
 
-	var err error
-	switch os.Args[1] {
+	switch args[0] {
 	case "validate":
-		err = app.ValidateDocs(repoRoot)
+		return app.ValidateDocs(repoRoot)
 	case "generate":
-		err = app.GenerateProjections(repoRoot)
+		return app.GenerateProjections(repoRoot)
 	case "bundle":
-		err = app.BuildBundle(repoRoot)
+		return app.BuildBundle(repoRoot)
 	default:
-		fatal(fmt.Sprintf("unknown subcommand %q", os.Args[1]))
-	}
-	if err != nil {
-		fatal(err.Error())
+		return fmt.Errorf("unknown subcommand %q", args[0])
 	}
 }
 
