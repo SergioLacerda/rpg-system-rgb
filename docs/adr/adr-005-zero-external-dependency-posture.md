@@ -80,6 +80,11 @@ It does **not** apply to:
 
 ## Addendum 2026-07-31: Documentation PDF Generation Exception
 
+Supersession note: this exception was retired for active publication by
+[ADR-010](adr-010-go-owned-publication-without-python.md). The section below is
+kept as historical context for the temporary exception that existed before the
+Go-owned publication path replaced it.
+
 The project accepts a narrow exception for automated PDF generation in the
 documentation publication pipeline.
 

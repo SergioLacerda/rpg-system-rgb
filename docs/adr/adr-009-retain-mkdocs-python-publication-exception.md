@@ -2,7 +2,9 @@
 
 ## Status
 
-Accepted.
+Superseded by [ADR-010](adr-010-go-owned-publication-without-python.md).
+
+Historical status before supersession: Accepted.
 
 ## Context
 

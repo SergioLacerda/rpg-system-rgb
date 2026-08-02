@@ -9,9 +9,9 @@ C4Container
     System_Boundary(rgb, "RGB System V2") {
         Container(docs, "docs/core/**", "Markdown + YAML", "Canonical bilingual rule source (EN bridge, PT-br projection)")
         Container(semantic, "docs/core/semantic/**", "JSON", "Stable IDs, l10n manifest, projection manifest, consumer contracts")
-        Container(rgb_cli, "cmd/rgb", "Go binary", "Unified CLI: status, validate, generate, bundle (see ADR-006)")
+        Container(rgb_cli, "cmd/rgb", "Go binary", "Unified CLI: status, validate, generate, bundle, docs (see ADR-006 and ADR-010)")
         Container(tooling, "cmd/rgb-tooling", "Go binary", "Deprecated compatibility path for validate/generate/bundle (ADR-006)")
-        Container(mkdocs, "MkDocs + Astro", "Python + Node", "HTML Library + PDF publication path")
+        Container(publication, "Go Publication + Astro", "Go + Node", "HTML Library + PDF publication path")
         Container(generated, "generated/**", "JSON", "Derived: bundles, ai-context, landing summary, semantic projections, search")
     }
 
@@ -22,8 +22,8 @@ C4Container
     Rel(rgb_cli, generated, "Generates projections and bundle into")
     Rel(tooling, docs, "Validates (deprecated path)")
     Rel(tooling, semantic, "Reads and writes (deprecated path)")
-    Rel(mkdocs, docs, "Renders")
-    Rel(gm, mkdocs, "Reads published Library / downloads PDF")
+    Rel(publication, docs, "Renders")
+    Rel(gm, publication, "Reads published Library / downloads PDF")
 ```
 
 `cmd/rgb` does not yet consume `docs/core/**` at runtime for rule
@@ -36,9 +36,8 @@ consumption of docs at runtime is still absent.
 
 `cmd/rgb-tooling` is deprecated, not removed — see
 [ADR-006](../adr/adr-006-unified-cli-topology.md) for the compatibility
-decision and M006 removal requirement. The former Go-rendered
-HTML/print/PDF pipeline (`cmd/rgb-compiler`, `internal/components/compiler`,
-`internal/components/library`) is no longer the public publication path.
-MkDocs + Astro owns HTML Library and PDF publication.
+decision and M006 removal requirement. The former Go-rendered HTML/print/PDF
+pipeline is no longer the public publication path. `cmd/rgb docs ...` and
+Astro now own HTML Library and PDF publication.
 
 ← [Back to Architecture Index](README.md)

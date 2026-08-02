@@ -118,7 +118,7 @@ func writeVersionChecksum(publicDir, name, version, line string) error {
 }
 
 // CheckReleaseArtifacts validates the expected public PDF files, manifest,
-// checksums, TOC links, and rasterized pages without depending on Python.
+// checksums, TOC links, and rasterized pages through Go-owned checks.
 func CheckReleaseArtifacts(paths ReleaseArtifactPaths) error {
 	if err := validateReleasePaths(paths); err != nil {
 		return err
