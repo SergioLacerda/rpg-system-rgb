@@ -7,7 +7,6 @@ required_files=(
   "CODE_OF_CONDUCT.md"
   "CONTRIBUTING.md"
   "LICENSE"
-  "LICENSES.md"
   "SECURITY.md"
   ".github/dependabot.yml"
   ".github/pull_request_template.md"
