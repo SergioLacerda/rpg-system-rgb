@@ -250,6 +250,12 @@ func TestCheckReleaseArtifactsWithFakePDFTools(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	originalLookPath := lookPath
+	t.Cleanup(func() { lookPath = originalLookPath })
+	lookPath = func(name string) (string, error) {
+		return "/fake/bin/" + name, nil
+	}
+
 	originalRunner := runExternalCommand
 	t.Cleanup(func() { runExternalCommand = originalRunner })
 	runExternalCommand = func(name string, args ...string) ([]byte, error) {
