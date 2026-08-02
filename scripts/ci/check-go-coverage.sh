@@ -26,8 +26,16 @@ check_package() {
     }
 }
 
-check_package "core formula engine" "./internal/components/core" "${CORE_COVER_THRESHOLD:-48}"
-check_package "semantic tooling" "./internal/components/tooling" "${TOOLING_COVER_THRESHOLD:-60}"
-check_package "publication component" "./internal/components/publication" "${PUBLICATION_COVER_THRESHOLD:-68}"
-check_package "application orchestration" "./internal/app" "${APP_COVER_THRESHOLD:-42}"
-check_package "unified CLI" "./cmd/rgb" "${CLI_COVER_THRESHOLD:-33}"
+check_package "component registry" "./internal/components" "${COMPONENTS_COVER_THRESHOLD:-90}"
+check_package "bundle component" "./internal/components/bundles" "${BUNDLES_COVER_THRESHOLD:-90}"
+check_package "core formula engine" "./internal/components/core" "${CORE_COVER_THRESHOLD:-90}"
+check_package "core fixtures" "./internal/components/core/fixtures" "${FIXTURES_COVER_THRESHOLD:-90}"
+check_package "maker component descriptor" "./internal/components/maker" "${MAKER_COVER_THRESHOLD:-90}"
+check_package "specialist component descriptor" "./internal/components/specialist" "${SPECIALIST_COVER_THRESHOLD:-90}"
+check_package "semantic tooling" "./internal/components/tooling" "${TOOLING_COVER_THRESHOLD:-90}"
+check_package "publication component" "./internal/components/publication" "${PUBLICATION_COVER_THRESHOLD:-90}"
+check_package "application orchestration" "./internal/app" "${APP_COVER_THRESHOLD:-90}"
+check_package "unified CLI" "./cmd/rgb" "${CLI_COVER_THRESHOLD:-90}"
+
+# cmd/rgb-tooling is a legacy compatibility wrapper around the unified CLI and
+# intentionally excluded from the module gate; cmd/rgb is the canonical CLI.
