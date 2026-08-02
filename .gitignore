@@ -11,6 +11,10 @@ web/landing/coverage/
 .gemini
 .codex
 .github/*
+!.github/dependabot.yml
+!.github/ISSUE_TEMPLATE/
+!.github/ISSUE_TEMPLATE/**
+!.github/pull_request_template.md
 !.github/workflows/
 .vscode
 AGENTS.md

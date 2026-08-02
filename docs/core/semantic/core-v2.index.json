@@ -1438,7 +1438,7 @@
           "positioning",
           "formula"
         ],
-        "retrieval_summary": "Movement distance is G x 2 meters per turn (same formula for aerial movement); sprint is G x 3 meters with restrictions; terrain and combat turn structure (Movement, Main Action, Partial Action) modify or consume it."
+        "retrieval_summary": "Movement distance is G x 2 meters per turn (same formula for aerial movement), a free allowance that does not consume the turn's Action or Minor Action; sprint is G x 3 meters with restrictions; terrain modifies base movement."
       },
       "provenance": {
         "source_revision": "manual",

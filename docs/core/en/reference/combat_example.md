@@ -106,6 +106,7 @@ Result:
 ```text
 Remaining Shield = 0
 Health Damage = 0
+Remaining Health = 8
 ```
 
 ## Second Attack
@@ -117,24 +118,36 @@ Weapon Damage = 4
 Penetration = 1
 ```
 
-Character A armor:
+## Step 5 — Armor Interaction
 
 ```text
-Armor = 4
+Target Armor = 4
+Penetration = 1
 Effective Armor = 3
 ```
 
-Damage calculation:
-
 ```text
-Damage = 4 - 3 = 1
+Damage = 4
+Effective Armor = 3
+Remaining Damage = 4 - 3 = 1
 ```
 
-Character A receives:
+## Step 6 — Shield Absorption
+
+Character A still has full shield (3), so the remaining damage hits shield
+before health.
 
 ```text
-Health Damage = 1
-Remaining Health = 9
+Shield = 3
+Remaining Damage = 1
+```
+
+Result:
+
+```text
+Remaining Shield = 3 - 1 = 2
+Health Damage = 0
+Remaining Health = 8
 ```
 
 ## Damage Flow Summary

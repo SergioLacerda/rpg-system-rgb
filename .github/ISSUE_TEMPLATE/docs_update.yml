@@ -1,0 +1,28 @@
+name: Documentation update
+description: Propose a correction to public docs, rules text, examples, or status labels.
+title: "[Docs]: "
+labels: ["documentation"]
+body:
+  - type: dropdown
+    id: status
+    attributes:
+      label: Affected status category
+      options:
+        - Implemented
+        - Experimental
+        - Planned
+        - Deferred
+        - Not status-related
+    validations:
+      required: true
+  - type: input
+    id: path
+    attributes:
+      label: File or page
+      placeholder: docs/core/en/...
+  - type: textarea
+    id: change
+    attributes:
+      label: Requested change
+    validations:
+      required: true

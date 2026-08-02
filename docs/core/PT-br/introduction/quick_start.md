@@ -54,24 +54,25 @@ Escudo = 6
 
 ## 4. Estrutura Básica de Turno
 
-Durante o combate um personagem normalmente pode realizar:
+Durante o combate um personagem normalmente tem:
 
 ```text
-1 ação principal
+Movimento (G × 2 metros, livre)
 +
-1 ajuste menor (opcional)
+1 Ação
++
+1 Ação Menor (opcional)
 ```
 
 Exemplos:
 
-Ações principais:
+Ações:
 
 - atacar
-- mover
 - defender
 - usar habilidade
 
-Ajustes menores:
+Ações menores:
 
 - recarregar arma
 - mudar posição levemente

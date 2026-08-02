@@ -1,5 +1,10 @@
 // Command rgb-tooling validates and generates RGB System documentation
 // artifacts. It replaces the standalone scripts/*.go module.
+//
+// Deprecated: cmd/rgb is now the canonical CLI (see ADR-006). rgb-tooling
+// is kept working for existing callers (tests/semantic_docs,
+// docs/core/semantic/README.md) but new usage should prefer
+// `rgb validate|generate|bundle`.
 package main
 
 import (

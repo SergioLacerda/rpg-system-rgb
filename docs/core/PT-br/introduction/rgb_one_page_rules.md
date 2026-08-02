@@ -34,12 +34,14 @@ Escudo representa energia ou proteção especial.
 
 ## Estrutura de Turno
 
-A cada turno um personagem pode realizar:
+A cada turno um personagem tem:
 
 ```text
+Movimento (G × 2 metros, livre)
++
 1 Ação
 +
-1 Ajuste Menor
+1 Ação Menor
 ```
 
 Exemplos:
@@ -47,11 +49,10 @@ Exemplos:
 Ações:
 
 - atacar
-- mover
 - defender
 - usar habilidade
 
-Ajustes menores:
+Ações menores:
 
 - recarregar
 - pequeno reposicionamento

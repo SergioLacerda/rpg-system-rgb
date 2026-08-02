@@ -22,13 +22,13 @@ Type        → category of weapon
 
 ```text
 Type                Damage   Capacity   Reload
-------------------  -------  ---------  -------------Compact Pistol      4        12         partial action
-Pistol              4        15         partial action
-Revolver            5        6          main action
-SMG                 5        30         main action
-Assault Rifle       7        30         main action
-Heavy Rifle / DMR   8        20         main action
-Sniper Rifle        9        10         main action
+------------------  -------  ---------  -------------Compact Pistol      4        12         minor action
+Pistol              4        15         minor action
+Revolver            5        6          action
+SMG                 5        30         action
+Assault Rifle       7        30         action
+Heavy Rifle / DMR   8        20         action
+Sniper Rifle        9        10         action
 Machine Gun         7        100        2 actions
 ```
 

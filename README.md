@@ -34,6 +34,20 @@ This project documentation is available in multiple languages.
 - RGB Interaction Model → [RGB Interaction Model](docs/core/en/reference/rgb_damage_interaction_model.md)
 - RGB System Engine → [RGB System Engine](docs/core/en/reference/rgb_system_engine.md)
 
+## Public Status
+
+| Surface | Status | Notes |
+| --- | --- | --- |
+| RGB Core V2 | Implemented | Playable rules, examples, Go rule-engine tests, and semantic docs validation exist. |
+| Semantic tooling | Implemented | `make validate` and `make generate` validate and produce indexed projections from `docs/core/semantic/**`. |
+| Bundle output | Experimental | `make bundle` produces a minimal semantic bundle; ADR-007 records the current consumer-contract limits. |
+| Library HTML | Implemented | MkDocs builds the public Library into `web/landing/public/library/`; Astro packages it into the landing build. |
+| PDF downloads | Implemented | `make docs-pdf` publishes latest and versioned PDFs with manifest, checksums, and editorial smoke checks. |
+| Landing | Implemented | Astro routes, bilingual UI, Library links, PDF links, tests, and static builds exist. |
+| Maker | Planned | Reserved skill surface only; no product behavior is available yet. |
+| Specialist | Planned | Reserved skill surface only; no product behavior is available yet. |
+| PDF/UA tagging | Deferred | Full accessibility tagging is outside the first editorial PDF quality gate. |
+
 ## Core Concept
 
 The **RGB System** is based on three fundamental vectors.
@@ -92,20 +106,17 @@ This allows the system to work both for **story‑driven campaigns** and **tacti
 ```text
 rpg-system-rgb/
 cmd/
-   rgb/              core rule engine entrypoint
-   rgb-compiler/     renders docs/core/**/*.md into HTML + print pages
-   rgb-tooling/      validates docs/core/semantic/**, generates projections
+   rgb/              unified CLI: status, validate, generate, bundle (ADR-006)
+   rgb-tooling/      deprecated compatibility path for validate/generate/bundle
 
 internal/
    app/              thin orchestration layer (only import path for cmd/*)
    components/
       core/          RGB rule engine: characters, actions, combat, states
       tooling/       semantic-docs validators + projection generator
-      compiler/      Markdown parser + HTML/print renderer
-      library/       site assembly + PDF export instructions
-      maker/         campaign/content structuring (stub, not yet implemented)
-      specialist/    rule consultation and validation (stub, not yet implemented)
-      bundles/       consolidated bundle format (stub, not yet implemented)
+      maker/         planned campaign/content structuring boundary
+      specialist/    planned rule consultation and validation boundary
+      bundles/       experimental semantic bundle output (ADR-007)
 
 docs/
    core/
@@ -130,18 +141,18 @@ docs/
    engineering/         review workflow and guardrail documentation
 
 skills/
-   maker/            RGB Maker skill (placeholder, not yet implemented)
-   specialist/       RGB Specialist skill (placeholder, not yet implemented)
+   maker/            RGB Maker skill package scaffold (planned)
+   specialist/       RGB Specialist skill package scaffold (planned)
 
 web/
-   landing/          unified landing page (placeholder, not yet implemented)
+   landing/          implemented Astro landing page, Library shell, and PDF download surface
 
 generated/            derived artifacts only, never edited by hand
    ai-context/       AI context packs
    bundles/          consolidated projection bundle
    landing/          landing page summary data
-   library/          compiled HTML site + print-ready pages
-   pdf/              PDF export manifest
+   library/          core-v2-rules.json semantic projection (make generate)
+   pdf/              core-v2-rules.manifest.json PDF export manifest (make generate)
    search/           search index
 
 tests/                repo-wide guardrails (architecture, semantic docs, features)
@@ -179,26 +190,14 @@ make generate    # regenerate the semantic projection JSON artifacts
 
 ### HTML site and PDF
 
+MkDocs + Astro is the current publication path for the HTML Library and PDF
+downloads; there is no separate Go-rendered HTML/print output to generate first.
+
 ```bash
-make compile     # render docs/core/**/*.md into a static HTML site and print-ready pages
+make docs-build  # build the MkDocs Library into web/landing/public/library
+make landing-build # embed the Library into the Astro static site
 make docs-pdf    # generate latest PDF downloads from MkDocs (requires docs-pdf-install)
 ```
-
-`make compile` writes:
-
-- `generated/library/html/{en,PT-br}/**` — static HTML site (1:1 mirror of `docs/core/**/*.md`), with per-locale navigation index pages
-- `generated/library/print/core-v2-rules-{en,PT-br}.html` — print-ready pages, ordered per `docs/core/semantic/projection-manifest.v0.1.json`
-- `generated/library/PDF_EXPORT.md` — instructions for exporting the print-ready pages to PDF (print-to-PDF from a browser; PDF export is a documented manual step by design, not an automated build step)
-
-After exporting a PDF, publish it to the landing static assets with:
-
-```bash
-make pdf-publish PDF_SRC=RGB-Core-V2-Rules-PT-br.pdf PDF_LOCALE=pt-br PDF_VERSION=v0.2
-make pdf-publish PDF_SRC=RGB-Core-V2-Rules-en.pdf PDF_LOCALE=en PDF_VERSION=v0.2
-```
-
-The command creates a versioned PDF and updates the locale-specific `latest`
-alias consumed by the landing page.
 
 Automated PDF generation is available through a separate dependency profile:
 
@@ -208,14 +207,18 @@ make docs-pdf
 ```
 
 `make docs-pdf` uses MkDocs PDF configuration files and writes latest aliases
-under `web/landing/public/downloads/`. This path is intentionally separate from
-the base `make docs-build` flow because the PDF plugin depends on additional
-rendering libraries documented by the plugin/WeasyPrint stack.
+and versioned PDFs under `web/landing/public/downloads/`. It also refreshes
+the release manifest and checksums used by `make pdf-editorial-check`.
+
+`make pdf-publish` remains available for publishing a reviewed external PDF
+source when needed, but the normal release path is automated.
 
 ### Full gate
 
 ```bash
-make review-structure   # vet + lint + test + test-arch + validate
+make check-fast       # fast Go, architecture, semantic, and coverage gate
+make check            # check-fast + web, docs, generated drift, workflow, shell, governance files
+make release-check    # check + PDF build and editorial artifact gate
 ```
 
 ## Contributing
@@ -229,8 +232,10 @@ Examples of useful contributions:
 - translation improvements
 - optional modular systems (magic, technology, powers)
 
-Please open an issue or submit a pull request.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening an issue or pull
+request.
 
 ## License
 
-See the **LICENSE** file for details.
+See [LICENSE](LICENSE) and [LICENSES.md](LICENSES.md) for the current licensing
+model and the deferred split-license decision.

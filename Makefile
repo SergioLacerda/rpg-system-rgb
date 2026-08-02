@@ -1,6 +1,7 @@
 GO ?= go
 GOCACHE ?= /tmp/go-cache
 GOENV := GOCACHE=$(GOCACHE)
+GOLANGCI_VERSION ?= v2.11.4
 GOLANGCI ?= $(shell command -v golangci-lint 2>/dev/null || echo $(HOME)/go/bin/golangci-lint)
 NPM ?= npm
 PYTHON ?= python3
@@ -16,6 +17,8 @@ PDF_BUILD_DIR ?= $(LANDING_DIR)/.pdfbuild
 PDF_EN_CONFIG ?= docs-build/mkdocs-pdf-en.yml
 PDF_LOCALE ?= pt-br
 PDF_PUBLIC_DIR ?= $(LANDING_DIR)/public/downloads
+RELEASE_MANIFEST ?= $(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-release-manifest.json
+RELEASE_CHECKSUMS ?= $(PDF_PUBLIC_DIR)/SHA256SUMS
 PDF_PT_BR_CONFIG ?= docs-build/mkdocs-pdf-pt-br.yml
 MKDOCS_CONFIG ?= docs-build/mkdocs.yml
 PDF_SRC ?=
@@ -26,11 +29,13 @@ PDF_VERSION ?= v0.2
 # lower it without recording why in an ADR (mirrors the gocyclo ratchet).
 COVER_THRESHOLD ?= 30
 
-.PHONY: help install fmt test test-arch cover cover-check vet lint validate \
-        generate bundle compile compile-full docs-install docs-pdf-install \
+.PHONY: help install fmt fmt-check test test-arch cover cover-check vet lint validate \
+        generate bundle docs-install docs-pdf-install \
         docs-build docs-pdf docs-preview landing-install landing-check \
         landing-build landing-preview preview pdf-publish review-structure \
-        go-file-size-report lint-web lint-web-fix test-web lint-yaml lint-shell FORCE
+        go-file-size-report lint-web lint-web-fix test-web lint-yaml lint-shell \
+        check-fast check check-generated-drift release-artifact-manifest \
+        release-artifact-check release-check check-governance-files FORCE
 
 .DEFAULT_GOAL := help
 
@@ -42,6 +47,14 @@ help: FORCE ## List available targets
 
 fmt: FORCE ## Format Go code
 	$(GOENV) $(GO) fmt ./...
+
+fmt-check: FORCE ## Check Go formatting without modifying files
+	@files=$$(git ls-files '*.go' | xargs gofmt -l); \
+	if [ -n "$$files" ]; then \
+		echo "Go files need formatting:"; \
+		printf '%s\n' "$$files"; \
+		exit 1; \
+	fi
 
 install: docs-install landing-install FORCE ## Install local development dependencies
 
@@ -73,24 +86,18 @@ lint: FORCE ## Run golangci-lint, falling back to go vet when unavailable
 		$(GOENV) "$(GOLANGCI)" run ./...; \
 	else \
 		echo "golangci-lint not found; falling back to go vet"; \
-		echo "install: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest"; \
+		echo "install: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_VERSION)"; \
 		$(GOENV) $(GO) vet ./...; \
 	fi
 
 validate: FORCE ## Validate generated RGB content
-	$(GOENV) $(GO) run ./cmd/rgb-tooling validate
+	$(GOENV) $(GO) run ./cmd/rgb validate
 
 generate: FORCE ## Generate RGB content artifacts
-	$(GOENV) $(GO) run ./cmd/rgb-tooling generate
+	$(GOENV) $(GO) run ./cmd/rgb generate
 
 bundle: FORCE ## Bundle RGB content artifacts
-	$(GOENV) $(GO) run ./cmd/rgb-tooling bundle
-
-compile: FORCE ## Compile RGB content without HTML output
-	$(GOENV) $(GO) run ./cmd/rgb-compiler no-html
-
-compile-full: FORCE ## Compile all RGB content outputs
-	$(GOENV) $(GO) run ./cmd/rgb-compiler all
+	$(GOENV) $(GO) run ./cmd/rgb bundle
 
 docs-install: FORCE ## Install MkDocs dependencies
 	$(PYTHON) -m pip install -r docs-build/requirements-docs.txt
@@ -102,13 +109,14 @@ docs-build: FORCE ## Build documentation with MkDocs strict mode
 	$(MKDOCS) build --strict -f $(MKDOCS_CONFIG)
 
 docs-pdf: FORCE ## Build and publish latest PDF downloads locally
-	$(MKDOCS) build -f $(PDF_EN_CONFIG)
-	$(MKDOCS) build -f $(PDF_PT_BR_CONFIG)
+	ENABLE_PDF_EXPORT=1 $(MKDOCS) build -f $(PDF_EN_CONFIG)
+	ENABLE_PDF_EXPORT=1 $(MKDOCS) build -f $(PDF_PT_BR_CONFIG)
 	mkdir -p "$(PDF_PUBLIC_DIR)"
 	cp "$(PDF_BUILD_DIR)/en/$(PDF_BASENAME)-latest-en.pdf" "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-latest-en.pdf"
 	cp "$(PDF_BUILD_DIR)/pt-br/$(PDF_BASENAME)-latest-pt-br.pdf" "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-latest-pt-br.pdf"
 	cp "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-latest-en.pdf" "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-$(PDF_VERSION)-en.pdf"
 	cp "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-latest-pt-br.pdf" "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-$(PDF_VERSION)-pt-br.pdf"
+	$(MAKE) release-artifact-manifest
 
 docs-preview: FORCE ## Serve documentation locally
 	$(MKDOCS) serve --dev-addr $(MKDOCS_HOST):$(MKDOCS_PORT) -f $(MKDOCS_CONFIG)
@@ -141,6 +149,29 @@ pdf-publish: FORCE ## Publish a provided PDF into landing downloads
 # docs/engineering/base-structure-review-workflow.md
 review-structure: vet lint test test-arch validate cover-check FORCE ## Run the full base-structure review gate
 	@echo "review-structure: all gates passed"
+
+check-fast: fmt-check vet lint test test-arch validate cover-check FORCE ## Run the fast local and PR gate
+	@echo "check-fast: all gates passed"
+
+check: check-fast lint-web test-web landing-build lint-yaml lint-shell check-generated-drift check-governance-files FORCE ## Run the full development and main gate
+	@echo "check: all gates passed"
+
+check-generated-drift: FORCE ## Regenerate versioned artifacts and fail on drift
+	scripts/ci/check-generated-drift.sh
+
+release-artifact-manifest: FORCE ## Write release PDF manifest and checksums
+	$(GOENV) $(GO) run ./cmd/rgb release manifest --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)" --manifest "$(RELEASE_MANIFEST)" --checksums "$(RELEASE_CHECKSUMS)"
+
+release-artifact-check: FORCE ## Validate release PDF manifest and checksums
+	$(GOENV) $(GO) run ./cmd/rgb release check --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)" --manifest "$(RELEASE_MANIFEST)" --checksums "$(RELEASE_CHECKSUMS)"
+
+pdf-editorial-check: release-artifact-check FORCE ## Validate PDF editorial smoke and raster checks
+	@echo "pdf-editorial-check: all gates passed"
+
+.PHONY: pdf-editorial-check
+
+release-check: check docs-pdf pdf-editorial-check FORCE ## Run the full release gate
+	@echo "release-check: all gates passed"
 
 # go-file-size-report lists non-test .go files under cmd/ and internal/
 # over 200 lines. Informational only — does not fail the build.
@@ -176,3 +207,6 @@ lint-shell: FORCE ## Lint CI shell scripts with shellcheck
 		echo "shellcheck not found; install: https://www.shellcheck.net"; \
 		exit 1; \
 	fi
+
+check-governance-files: FORCE ## Validate required public OSS governance files exist
+	scripts/ci/check-governance-files.sh

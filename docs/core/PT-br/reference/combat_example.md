@@ -105,6 +105,7 @@ Resultado:
 ```text
 Escudo Restante = 0
 Dano à Vida = 0
+Vida Restante = 8
 ```
 
 ## Segundo Ataque
@@ -116,24 +117,36 @@ Fonte de Impacto = 4
 Penetração = 1
 ```
 
-Armadura do Personagem A:
+## Passo 5 — Interação com Armadura
 
 ```text
-Armadura = 4
+Armadura do Alvo = 4
+Penetração = 1
 Armadura Efetiva = 3
 ```
 
-Cálculo de dano:
-
 ```text
-Dano restante = 4 - 3 = 1
+Dano = 4
+Armadura Efetiva = 3
+Dano Restante = 4 - 3 = 1
 ```
 
-O Personagem A recebe:
+## Passo 6 — Absorção por Escudo
+
+O Personagem A ainda tem o escudo cheio (3), então o dano restante atinge o
+escudo antes da vida.
 
 ```text
-Dano à Vida = 1
-Vida Restante = 9
+Escudo = 3
+Dano Restante = 1
+```
+
+Resultado:
+
+```text
+Escudo Restante = 3 - 1 = 2
+Dano à Vida = 0
+Vida Restante = 8
 ```
 
 ## Resumo do Fluxo de Dano

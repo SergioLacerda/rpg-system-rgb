@@ -12,22 +12,54 @@ a CI pipeline is added later, each gate below maps one-to-one to a CI job.
 
 ## Automated Gates
 
-Run the full gate from the repository root:
+Run the fast gate from the repository root during local development:
 
 ```bash
-make review-structure
+make check-fast
 ```
 
-This runs, in order:
+Run the full development gate before opening or merging PRs:
+
+```bash
+make check
+```
+
+Run the release gate before publishing downloads:
+
+```bash
+make release-check
+```
+
+`check-fast` runs:
 
 | Gate | Command | Verifies |
 | --- | --- | --- |
+| Format | `make fmt-check` | Go formatting is already normalized |
 | Static analysis | `make vet` | suspicious constructs (`go vet`) |
 | Lint baseline | `make lint` | golangci-lint rules in `.golangci.yml` (falls back to `go vet` if not installed) |
 | Unit tests | `make test` | all package tests |
 | Architecture guardrails | `make test-arch` | import boundaries in `tests/architecture/` |
 | Semantic docs | `make validate` | semantic documentation contracts |
 | Coverage floor | `make cover-check` | total statement coverage stays at or above `COVER_THRESHOLD` (see `Makefile`) |
+
+`check` adds:
+
+| Gate | Command | Verifies |
+| --- | --- | --- |
+| Landing lint | `make lint-web` | Astro/TypeScript checks |
+| Landing tests | `make test-web` | landing unit tests and coverage |
+| Landing build | `make landing-build` | MkDocs strict build and Astro static output |
+| Workflow lint | `make lint-yaml` | GitHub Actions workflow syntax via actionlint |
+| Shell lint | `make lint-shell` | CI shell scripts via shellcheck |
+| Generated drift | `make check-generated-drift` | `make generate` leaves tracked generated artifacts clean |
+
+`release-check` adds:
+
+| Gate | Command | Verifies |
+| --- | --- | --- |
+| PDF build | `make docs-pdf` | bilingual latest and versioned PDF downloads |
+| Artifact manifest | `make release-artifact-manifest` | Go-owned release manifest and `SHA256SUMS` for PDF artifacts |
+| Editorial validation | `make pdf-editorial-check` | Go-owned PDF headers, metadata, TOC sanity, raster smoke, manifest contents, and checksums |
 
 The coverage floor starts deliberately low relative to the current total
 (`make cover` shows the current number) — it is a regression guard, not a
@@ -43,7 +75,66 @@ make fmt                    # normalize formatting
 make go-file-size-report    # informational: non-test .go files over 200 lines
 ```
 
-The gate must pass before structural changes are proposed for commit.
+`make review-structure` remains as the legacy base-structure gate and is covered
+by `make check-fast`.
+
+## Required Gate By Context
+
+| Context | Required gate |
+| --- | --- |
+| Local development loop | `make check-fast` before handoff when Go or semantic sources changed |
+| Pull request | `make check`; CI may split the same work across jobs |
+| `main` push | `make check` plus deployment smoke checks |
+| Release candidate | `make release-check` before publishing or announcing downloads |
+
+## Supply Chain Update Policy
+
+External tool versions are intentionally pinned where repository rebuilds would
+otherwise float:
+
+- CI installs `golangci-lint` through `GOLANGCI_LINT_VERSION`.
+- GitHub Actions Python jobs use `PYTHON_VERSION`.
+- The actionlint Docker image uses an explicit version tag.
+- Node uses an explicit major version and npm dependencies are governed by
+  `web/landing/package-lock.json`.
+- PDF editorial checks require Poppler command line tools (`pdfinfo`,
+  `pdftotext`, `pdftohtml`, and `pdftoppm`). CI installs them through
+  `poppler-utils`; manifest/checksum/raster validation is implemented in Go
+  and no longer depends on Python or Pillow.
+
+GitHub Marketplace actions currently use conventional major tags
+(`actions/checkout@v4`, `actions/setup-go@v5`, and related first-party actions).
+Digest or full-SHA pinning is deferred because Dependabot already tracks these
+surfaces and keeps security updates visible in small PRs. Revisit this exception
+if untrusted third-party actions are added.
+
+Dependabot owns update PRs for GitHub Actions, Go modules, the landing npm
+workspace, and Python requirements under `docs-build/` while MkDocs remains
+the documented renderer exception.
+
+The relevant gate must pass before structural changes are proposed for commit.
+
+## PDF Editorial Gate
+
+The release PDF renderer remains `mkdocs-to-pdf` for this first quality gate.
+The PDF configs intentionally use `docs/styles/rgb-pdf.css` instead of the dark
+web Library stylesheet, so printed pages default to white backgrounds, dark
+text, visible tables, wrapping code blocks, and explicit chapter breaks.
+
+`make pdf-editorial-check` rejects common publication defects:
+
+- missing PDF headers or suspiciously small files;
+- missing title, subject, or producer metadata where Poppler exposes it;
+- table-of-contents entries that resolve to page `0`;
+- missing extractable TOC links on critical pages;
+- latest and versioned PDFs that differ for the same locale;
+- missing release manifest, aggregate checksums, or per-version `.sha256` files;
+- rasterized cover, TOC, and first content pages that are blank, dark themed, or
+  have excessive marks at page edges.
+
+Principal bookmark validation, full PDF/UA tagging, and durable visual
+regression baselines remain deferred. Those checks require a renderer or parser
+decision beyond the first editorial smoke gate.
 
 ## Architecture Rules Under Test
 
