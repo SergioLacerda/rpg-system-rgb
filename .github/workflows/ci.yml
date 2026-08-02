@@ -130,4 +130,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: scripts/ci/check-pdf-links.sh "${{ needs.deploy.outputs.page_url }}"
+      - name: Check latest PDF downloads
+        run: scripts/ci/check-pdf-links.sh "${{ needs.deploy.outputs.page_url }}"

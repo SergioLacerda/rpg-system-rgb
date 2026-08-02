@@ -2,6 +2,7 @@
 set -euo pipefail
 
 base="${1:?usage: check-pdf-links.sh <base_url>}"
+base="${base%/}/"
 
 for locale in en pt-br; do
   url="${base}downloads/rgb-system-core-v2-latest-${locale}.pdf"
