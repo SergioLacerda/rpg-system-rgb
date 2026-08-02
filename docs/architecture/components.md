@@ -12,6 +12,7 @@ C4Component
         Component(contract, "internal/components (root)", "Go package", "Shared contract types; stdlib-only leaf")
         Component(core, "core", "Go package", "RGB rule engine: characters, actions, combat, states")
         Component(tooling_c, "tooling", "Go package", "Semantic-docs validators + projection generator")
+        Component(publication_c, "publication", "Go package", "HTML Library + PDF publication")
         Component(maker_c, "maker", "Go package", "Campaign/content structuring (stub: boundary only, no behavior)")
         Component(specialist_c, "specialist", "Go package", "Rule consultation and validation (stub: boundary only, no behavior)")
         Component(bundles_c, "bundles", "Go package", "Semantic index projection to generated/bundle/rgb.bundle.json (implemented, minimal — see ADR-007)")
@@ -19,13 +20,15 @@ C4Component
 
     Rel(app_c, core, "imports")
     Rel(app_c, tooling_c, "imports")
+    Rel(app_c, publication_c, "imports")
     Rel(core, contract, "imports")
     Rel(tooling_c, contract, "imports")
+    Rel(publication_c, contract, "imports")
 ```
 
-`compiler` and `library` are no longer part of this boundary. They represented
-a parallel Go-based HTML/print/PDF pipeline, while the actual public
-publication path is MkDocs + Astro.
+The retired `compiler` and `library` packages are no longer part of this
+boundary. Active public publication now runs through the `publication`
+component and Astro packaging.
 
 This diagram matches, not just illustrates, what
 `tests/architecture/architecture_test.go` mechanically enforces

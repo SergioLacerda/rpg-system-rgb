@@ -10,6 +10,7 @@ import (
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/bundles"
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/core"
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/maker"
+	"github.com/SergioLacerda/rpg-system-rgb/internal/components/publication"
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/specialist"
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/tooling"
 )
@@ -20,6 +21,7 @@ func Components() []components.Component {
 		core.Descriptor(),
 		maker.Descriptor(),
 		specialist.Descriptor(),
+		publication.Descriptor(),
 		tooling.Descriptor(),
 		bundles.Descriptor(),
 	}

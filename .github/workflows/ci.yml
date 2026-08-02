@@ -7,7 +7,6 @@ on:
 
 env:
   GOLANGCI_LINT_VERSION: "v2.11.4"
-  PYTHON_VERSION: "3.10"
 
 jobs:
   lint:
@@ -24,27 +23,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-go@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: pip
-          cache-dependency-path: docs-build/requirements-docs.txt
-      - run: make docs-install
+          go-version-file: go.mod
       - run: make docs-build
 
   docs-pdf:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-go@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: pip
-          cache-dependency-path: |
-            docs-build/requirements-docs.txt
-            docs-build/requirements-docs-pdf.txt
+          go-version-file: go.mod
       - run: sudo apt-get update && sudo apt-get install -y poppler-utils
-      - run: make docs-pdf-install
       - run: make docs-pdf
       - run: make pdf-editorial-check
       - uses: actions/upload-artifact@v4
@@ -91,16 +82,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check workflow files
-        uses: docker://rhysd/actionlint:1.7.9
-        with:
-          args: -color
+      - run: make lint-yaml
 
   lint-shell:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: shellcheck scripts/ci/*.sh
+      - run: make lint-shell
 
   governance-files:
     runs-on: ubuntu-latest
@@ -125,17 +113,14 @@ jobs:
       page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-go@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: pip
-          cache-dependency-path: docs-build/requirements-docs.txt
+          go-version-file: go.mod
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
           cache: npm
           cache-dependency-path: web/landing/package-lock.json
-      - run: make docs-install
       - run: make landing-install
       - uses: actions/download-artifact@v4
         with:

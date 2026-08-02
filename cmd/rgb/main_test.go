@@ -24,10 +24,27 @@ func TestRunRejectsUnknownSubcommand(t *testing.T) {
 func TestRunRejectsRetiredCompileSubcommand(t *testing.T) {
 	err := run([]string{"compile", "all"})
 	if err == nil {
-		t.Fatal("expected error: compile was retired (ADR-008), publication runs through make docs-build")
+		t.Fatal("expected error: compile was retired (ADR-008), publication runs through rgb docs")
 	}
 	if !strings.Contains(err.Error(), "compile") {
 		t.Fatalf("error should mention the retired subcommand, got: %v", err)
+	}
+}
+
+func TestRunRejectsUnknownDocsSubcommand(t *testing.T) {
+	err := run([]string{"docs", "bogus"})
+	if err == nil {
+		t.Fatal("expected error for unknown docs subcommand")
+	}
+	if !strings.Contains(err.Error(), "bogus") {
+		t.Fatalf("error should mention the unknown docs subcommand, got: %v", err)
+	}
+}
+
+func TestParseLibraryFlagsRejectsPositionalArgs(t *testing.T) {
+	_, err := parseLibraryFlags([]string{"extra"})
+	if err == nil {
+		t.Fatal("expected positional docs library argument to be rejected")
 	}
 }
 

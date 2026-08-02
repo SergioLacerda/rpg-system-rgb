@@ -41,7 +41,7 @@ This project documentation is available in multiple languages.
 | RGB Core V2 | Implemented | Playable rules, examples, Go rule-engine tests, and semantic docs validation exist. |
 | Semantic tooling | Implemented | `make validate` and `make generate` validate and produce indexed projections from `docs/core/semantic/**`. |
 | Bundle output | Experimental | `make bundle` produces a minimal semantic bundle; ADR-007 records the current consumer-contract limits. |
-| Library HTML | Implemented | MkDocs builds the public Library into `web/landing/public/library/`; Astro packages it into the landing build. |
+| Library HTML | Implemented | `cmd/rgb docs library` builds the public Library into `web/landing/public/library/`; Astro packages it into the landing build. |
 | PDF downloads | Implemented | `make docs-pdf` publishes latest and versioned PDFs with manifest, checksums, and editorial smoke checks. |
 | Landing | Implemented | Astro routes, bilingual UI, Library links, PDF links, tests, and static builds exist. |
 | Maker | Contract defined | Contract, schemas, templates, prompts, and examples exist; runtime behavior is not implemented. |
@@ -190,25 +190,18 @@ make generate    # regenerate the semantic projection JSON artifacts
 
 ### HTML site and PDF
 
-MkDocs + Astro is the current publication path for the HTML Library and PDF
-downloads; there is no separate Go-rendered HTML/print output to generate first.
+Go + Astro is the current publication path for the HTML Library and PDF
+downloads.
 
 ```bash
-make docs-build  # build the MkDocs Library into web/landing/public/library
+make docs-build  # build the Go-rendered Library into web/landing/public/library
 make landing-build # embed the Library into the Astro static site
-make docs-pdf    # generate latest PDF downloads from MkDocs (requires docs-pdf-install)
+make docs-pdf    # publish latest and versioned PDF downloads through Go
 ```
 
-Automated PDF generation is available through a separate dependency profile:
-
-```bash
-make docs-pdf-install
-make docs-pdf
-```
-
-`make docs-pdf` uses MkDocs PDF configuration files and writes latest aliases
-and versioned PDFs under `web/landing/public/downloads/`. It also refreshes
-the release manifest and checksums used by `make pdf-editorial-check`.
+`make docs-pdf` writes latest aliases and versioned PDFs under
+`web/landing/public/downloads/`. It also refreshes the release manifest and
+checksums used by `make pdf-editorial-check`.
 
 `make pdf-publish` remains available for publishing a reviewed external PDF
 source when needed, but the normal release path is automated.

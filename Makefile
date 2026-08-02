@@ -3,25 +3,27 @@ GOCACHE ?= /tmp/go-cache
 GOENV := GOCACHE=$(GOCACHE)
 GOLANGCI_VERSION ?= v2.11.4
 GOLANGCI ?= $(shell command -v golangci-lint 2>/dev/null || echo $(HOME)/go/bin/golangci-lint)
+ACTIONLINT_VERSION ?= 1.7.9
+SHELLCHECK_VERSION ?= 0.10.0
+TOOLS_DIR ?= /tmp/rgb-system-tools
+TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
+ACTIONLINT ?= $(TOOLS_BIN_DIR)/actionlint
+SHELLCHECK ?= $(TOOLS_BIN_DIR)/shellcheck
 NPM ?= npm
-PYTHON ?= python3
-MKDOCS ?= $(PYTHON) -m mkdocs
-MKDOCS_HOST ?= 127.0.0.1
-MKDOCS_PORT ?= 8000
 LANDING_DIR ?= web/landing
 LANDING_HOST ?= 127.0.0.1
 LANDING_PORT ?= 4324
 LANDING_BASE ?= /rpg-system-rgb
+DOCS_SOURCE ?= docs
+LIBRARY_DIR ?= $(LANDING_DIR)/public/library
 PDF_BASENAME ?= rgb-system-core-v2
-PDF_BUILD_DIR ?= $(LANDING_DIR)/.pdfbuild
-PDF_EN_CONFIG ?= docs-build/mkdocs-pdf-en.yml
 PDF_LOCALE ?= pt-br
 PDF_PUBLIC_DIR ?= $(LANDING_DIR)/public/downloads
 RELEASE_MANIFEST ?= $(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-release-manifest.json
 RELEASE_CHECKSUMS ?= $(PDF_PUBLIC_DIR)/SHA256SUMS
-PDF_PT_BR_CONFIG ?= docs-build/mkdocs-pdf-pt-br.yml
-MKDOCS_CONFIG ?= docs-build/mkdocs.yml
 PDF_SRC ?=
+PDF_SRC_EN ?=
+PDF_SRC_PT_BR ?=
 PDF_VERSION ?= v0.2
 # Coverage floor for cover-check. Deliberately low relative to the current
 # total (see `make cover`) so it fails only on a real regression, not on
@@ -30,11 +32,12 @@ PDF_VERSION ?= v0.2
 COVER_THRESHOLD ?= 30
 
 .PHONY: help install fmt fmt-check test test-arch cover cover-check vet lint validate \
-        generate bundle docs-install docs-pdf-install \
+        generate bundle \
+        tools-install actionlint-install shellcheck-install \
         docs-build docs-pdf docs-preview landing-install landing-check \
         landing-build landing-preview preview pdf-publish review-structure \
         go-file-size-report lint-web lint-web-fix test-web lint-yaml lint-shell \
-        check-fast check check-generated-drift release-artifact-manifest \
+        check-fast check check-generated-drift check-publication-runtime release-artifact-manifest \
         release-artifact-check release-check check-governance-files FORCE
 
 .DEFAULT_GOAL := help
@@ -56,7 +59,21 @@ fmt-check: FORCE ## Check Go formatting without modifying files
 		exit 1; \
 	fi
 
-install: docs-install landing-install FORCE ## Install local development dependencies
+install: landing-install FORCE ## Install local development dependencies
+
+tools-install: actionlint-install shellcheck-install FORCE ## Install pinned local validation tools
+
+actionlint-install: FORCE ## Install pinned actionlint into TOOLS_DIR
+	@if [ ! -x "$(ACTIONLINT)" ]; then \
+		scripts/ci/install-actionlint.sh "$(ACTIONLINT_VERSION)" "$(TOOLS_BIN_DIR)"; \
+	fi
+	@"$(ACTIONLINT)" -version
+
+shellcheck-install: FORCE ## Install pinned shellcheck into TOOLS_DIR
+	@if [ ! -x "$(SHELLCHECK)" ]; then \
+		scripts/ci/install-shellcheck.sh "$(SHELLCHECK_VERSION)" "$(TOOLS_BIN_DIR)"; \
+	fi
+	@"$(SHELLCHECK)" --version
 
 test: FORCE ## Run all Go tests
 	$(GOENV) $(GO) test ./...
@@ -99,27 +116,16 @@ generate: FORCE ## Generate RGB content artifacts
 bundle: FORCE ## Bundle RGB content artifacts
 	$(GOENV) $(GO) run ./cmd/rgb bundle
 
-docs-install: FORCE ## Install MkDocs dependencies
-	$(PYTHON) -m pip install -r docs-build/requirements-docs.txt
-
-docs-pdf-install: docs-install FORCE ## Install MkDocs PDF dependencies
-	$(PYTHON) -m pip install -r docs-build/requirements-docs-pdf.txt
-
-docs-build: FORCE ## Build documentation with MkDocs strict mode
-	$(MKDOCS) build --strict -f $(MKDOCS_CONFIG)
+docs-build: FORCE ## Build documentation Library with Go
+	$(GOENV) $(GO) run ./cmd/rgb docs library --source "$(DOCS_SOURCE)" --out "$(LIBRARY_DIR)"
 
 docs-pdf: FORCE ## Build and publish latest PDF downloads locally
-	ENABLE_PDF_EXPORT=1 $(MKDOCS) build -f $(PDF_EN_CONFIG)
-	ENABLE_PDF_EXPORT=1 $(MKDOCS) build -f $(PDF_PT_BR_CONFIG)
-	mkdir -p "$(PDF_PUBLIC_DIR)"
-	cp "$(PDF_BUILD_DIR)/en/$(PDF_BASENAME)-latest-en.pdf" "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-latest-en.pdf"
-	cp "$(PDF_BUILD_DIR)/pt-br/$(PDF_BASENAME)-latest-pt-br.pdf" "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-latest-pt-br.pdf"
-	cp "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-latest-en.pdf" "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-$(PDF_VERSION)-en.pdf"
-	cp "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-latest-pt-br.pdf" "$(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-$(PDF_VERSION)-pt-br.pdf"
+	$(GOENV) $(GO) run ./cmd/rgb docs pdf --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)" --source-en "$(PDF_SRC_EN)" --source-pt-br "$(PDF_SRC_PT_BR)"
 	$(MAKE) release-artifact-manifest
 
 docs-preview: FORCE ## Serve documentation locally
-	$(MKDOCS) serve --dev-addr $(MKDOCS_HOST):$(MKDOCS_PORT) -f $(MKDOCS_CONFIG)
+	$(MAKE) docs-build
+	@printf '%s\n' "Library built at $(LIBRARY_DIR)/index.html"
 
 landing-install: FORCE ## Install landing page npm dependencies
 	$(NPM) --prefix $(LANDING_DIR) install
@@ -153,11 +159,25 @@ review-structure: vet lint test test-arch validate cover-check FORCE ## Run the 
 check-fast: fmt-check vet lint test test-arch validate cover-check FORCE ## Run the fast local and PR gate
 	@echo "check-fast: all gates passed"
 
-check: check-fast lint-web test-web landing-build lint-yaml lint-shell check-generated-drift check-governance-files FORCE ## Run the full development and main gate
+check: check-fast lint-web test-web landing-build lint-yaml lint-shell check-generated-drift check-publication-runtime check-governance-files FORCE ## Run the full development and main gate
 	@echo "check: all gates passed"
 
 check-generated-drift: FORCE ## Regenerate versioned artifacts and fail on drift
 	scripts/ci/check-generated-drift.sh
+
+check-publication-runtime: FORCE ## Reject retired publication runtime terms in active surfaces
+	@p1='[Pp]yth'"on"; p2='[Mm]k[Dd]ocs'; p3='setup-py'"thon"; p4='requirements-'"docs"; p5='package-ecosystem: "p'"ip\""; \
+	pattern="$$p1|$$p2|$$p3|$$p4|$$p5"; \
+	if rg -n "$$pattern" . \
+		--glob '!.analysis/**' \
+		--glob '!.sdd/**' \
+		--glob '!.strategist/**' \
+		--glob '!docs/adr/**' \
+		--glob '!docs/plans/**' \
+		--glob '!web/landing/package-lock.json'; then \
+		echo "retired publication runtime reference found"; \
+		exit 1; \
+	fi
 
 release-artifact-manifest: FORCE ## Write release PDF manifest and checksums
 	$(GOENV) $(GO) run ./cmd/rgb release manifest --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)" --manifest "$(RELEASE_MANIFEST)" --checksums "$(RELEASE_CHECKSUMS)"
@@ -192,21 +212,11 @@ lint-web-fix: landing-install FORCE ## Format landing page files and rerun lint/
 test-web: landing-install FORCE ## Run landing page unit tests with coverage
 	$(NPM) --prefix $(LANDING_DIR) run test
 
-lint-yaml: FORCE ## Lint GitHub Actions workflows with actionlint
-	@if command -v actionlint >/dev/null 2>&1; then \
-		actionlint; \
-	else \
-		echo "actionlint not found; install: https://github.com/rhysd/actionlint"; \
-		exit 1; \
-	fi
+lint-yaml: actionlint-install FORCE ## Lint GitHub Actions workflows with actionlint
+	"$(ACTIONLINT)"
 
-lint-shell: FORCE ## Lint CI shell scripts with shellcheck
-	@if command -v shellcheck >/dev/null 2>&1; then \
-		shellcheck scripts/ci/*.sh; \
-	else \
-		echo "shellcheck not found; install: https://www.shellcheck.net"; \
-		exit 1; \
-	fi
+lint-shell: shellcheck-install FORCE ## Lint CI shell scripts with shellcheck
+	"$(SHELLCHECK)" scripts/ci/*.sh
 
 check-governance-files: FORCE ## Validate required public OSS governance files exist
 	scripts/ci/check-governance-files.sh

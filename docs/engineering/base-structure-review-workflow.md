@@ -48,7 +48,7 @@ make release-check
 | --- | --- | --- |
 | Landing lint | `make lint-web` | Astro/TypeScript checks |
 | Landing tests | `make test-web` | landing unit tests and coverage |
-| Landing build | `make landing-build` | MkDocs strict build and Astro static output |
+| Landing build | `make landing-build` | Go Library build and Astro static output |
 | Workflow lint | `make lint-yaml` | GitHub Actions workflow syntax via actionlint |
 | Shell lint | `make lint-shell` | CI shell scripts via shellcheck |
 | Generated drift | `make check-generated-drift` | `make generate` leaves tracked generated artifacts clean |
@@ -93,14 +93,13 @@ External tool versions are intentionally pinned where repository rebuilds would
 otherwise float:
 
 - CI installs `golangci-lint` through `GOLANGCI_LINT_VERSION`.
-- GitHub Actions Python jobs use `PYTHON_VERSION`.
-- The actionlint Docker image uses an explicit version tag.
+- `actionlint` and `shellcheck` are installed through pinned Makefile
+  versions into `TOOLS_DIR` when they are not already present there.
 - Node uses an explicit major version and npm dependencies are governed by
   `web/landing/package-lock.json`.
 - PDF editorial checks require Poppler command line tools (`pdfinfo`,
   `pdftotext`, `pdftohtml`, and `pdftoppm`). CI installs them through
-  `poppler-utils`; manifest/checksum/raster validation is implemented in Go
-  and no longer depends on Python or Pillow.
+  `poppler-utils`; manifest/checksum/raster validation is implemented in Go.
 
 GitHub Marketplace actions currently use conventional major tags
 (`actions/checkout@v4`, `actions/setup-go@v5`, and related first-party actions).
@@ -108,18 +107,34 @@ Digest or full-SHA pinning is deferred because Dependabot already tracks these
 surfaces and keeps security updates visible in small PRs. Revisit this exception
 if untrusted third-party actions are added.
 
-Dependabot owns update PRs for GitHub Actions, Go modules, the landing npm
-workspace, and Python requirements under `docs-build/` while MkDocs remains
-the documented renderer exception.
+Dependabot owns update PRs for GitHub Actions, Go modules, and the landing npm
+workspace.
 
 The relevant gate must pass before structural changes are proposed for commit.
 
+## Managed Validation Tools
+
+`make lint-yaml` and `make lint-shell` are self-contained local gates. They do
+not require manual host installation of `actionlint` or `shellcheck`.
+
+The root `Makefile` pins both versions and installs release binaries into
+`TOOLS_DIR`:
+
+```bash
+make tools-install
+make lint-yaml
+make lint-shell
+```
+
+`TOOLS_DIR` defaults to `/tmp/rgb-system-tools`, keeping downloaded tool
+binaries outside the repository. CI uses the same Make targets so local and
+remote validation do not drift.
+
 ## PDF Editorial Gate
 
-The release PDF renderer remains `mkdocs-to-pdf` for this first quality gate.
-The PDF configs intentionally use `docs/styles/rgb-pdf.css` instead of the dark
-web Library stylesheet, so printed pages default to white backgrounds, dark
-text, visible tables, wrapping code blocks, and explicit chapter breaks.
+PDF publication is Go-owned for this quality gate. Reviewed PDF assets are
+published under stable latest and versioned names, then validated by Go-owned
+release artifact checks.
 
 `make pdf-editorial-check` rejects common publication defects:
 
