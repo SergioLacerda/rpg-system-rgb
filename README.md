@@ -48,6 +48,14 @@ This project documentation is available in multiple languages.
 | Specialist | Contract defined | Contract, procedures, terminology, examples, and benchmark scaffolding exist; runtime behavior is not implemented. |
 | PDF/UA tagging | Deferred | Full accessibility tagging is outside the first editorial PDF quality gate. |
 
+## Compatibility Matrix
+
+| Surface | Runtime | Supported version | Source |
+| --- | --- | --- | --- |
+| Go CLI, components, tests, and release tooling | Go | 1.24.x | `go.mod` |
+| Landing and Library publication shell | Node.js | 24.x | `web/landing/package.json` `engines.node` |
+| Landing package manager | npm | 11.x | `web/landing/package.json` `engines.npm` |
+
 ## Core Concept
 
 The **RGB System** is based on three fundamental vectors.
@@ -200,8 +208,9 @@ make docs-pdf    # publish latest and versioned PDF downloads through Go
 ```
 
 `make docs-pdf` writes latest aliases and versioned PDFs under
-`web/landing/public/downloads/`. It also refreshes the release manifest and
-checksums used by `make pdf-editorial-check`.
+`web/landing/public/downloads/`. It also refreshes the release manifest,
+checksums, SPDX SBOM, and provenance metadata used by `make
+pdf-editorial-check`.
 
 `make pdf-publish` remains available for publishing a reviewed external PDF
 source when needed, but the normal release path is automated.
@@ -230,5 +239,5 @@ request.
 
 ## License
 
-See [LICENSE](LICENSE) and [LICENSES.md](LICENSES.md) for the current licensing
-model and the deferred split-license decision.
+See [LICENSE](LICENSE) and [LICENSES.md](LICENSES.md) for the split licensing
+model.

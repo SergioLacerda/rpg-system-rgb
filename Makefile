@@ -21,15 +21,17 @@ PDF_LOCALE ?= pt-br
 PDF_PUBLIC_DIR ?= $(LANDING_DIR)/public/downloads
 RELEASE_MANIFEST ?= $(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-release-manifest.json
 RELEASE_CHECKSUMS ?= $(PDF_PUBLIC_DIR)/SHA256SUMS
+RELEASE_SBOM ?= $(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-$(PDF_VERSION)-sbom.spdx.json
+RELEASE_PROVENANCE ?= $(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-$(PDF_VERSION)-provenance.json
 PDF_SRC ?=
 PDF_SRC_EN ?=
 PDF_SRC_PT_BR ?=
 PDF_VERSION ?= v0.2
-# Coverage floor for cover-check. Deliberately low relative to the current
-# total (see `make cover`) so it fails only on a real regression, not on
-# day-to-day fluctuation. Raise it over time as coverage improves — never
-# lower it without recording why in an ADR (mirrors the gocyclo ratchet).
-COVER_THRESHOLD ?= 30
+CORE_COVER_THRESHOLD ?= 48
+TOOLING_COVER_THRESHOLD ?= 60
+PUBLICATION_COVER_THRESHOLD ?= 68
+APP_COVER_THRESHOLD ?= 42
+CLI_COVER_THRESHOLD ?= 33
 
 .PHONY: help install fmt fmt-check test test-arch cover cover-check vet lint validate \
         generate bundle \
@@ -37,8 +39,9 @@ COVER_THRESHOLD ?= 30
         docs-build docs-pdf docs-preview landing-install landing-check \
         landing-build landing-preview preview pdf-publish review-structure \
         go-file-size-report lint-web lint-web-fix test-web lint-yaml lint-shell \
-        check-fast check check-generated-drift check-publication-runtime release-artifact-manifest \
-        release-artifact-check release-check check-governance-files FORCE
+        check-fast check check-generated-drift check-publication-runtime mutation-core \
+        release-artifact-manifest release-supply-chain release-artifact-check \
+        release-supply-chain-check release-check check-governance-files FORCE
 
 .DEFAULT_GOAL := help
 
@@ -85,15 +88,16 @@ cover: FORCE ## Generate and print Go coverage summary
 	$(GOENV) $(GO) test ./... -coverprofile=/tmp/rgb-coverage.out
 	$(GOENV) $(GO) tool cover -func=/tmp/rgb-coverage.out | tail -5
 
-# cover-check fails the build if total statement coverage drops below
-# COVER_THRESHOLD. The threshold starts low by design (see the variable's
-# comment above) — it is a floor against regression, not a target.
-cover-check: FORCE ## Enforce the Go coverage floor
-	$(GOENV) $(GO) test ./... -coverprofile=/tmp/rgb-coverage.out
-	@pct=$$($(GOENV) $(GO) tool cover -func=/tmp/rgb-coverage.out | tail -1 | grep -oE '[0-9]+\.[0-9]+'); \
-	echo "total coverage: $$pct% (floor: $(COVER_THRESHOLD)%)"; \
-	awk -v pct="$$pct" -v floor="$(COVER_THRESHOLD)" 'BEGIN { exit !(pct + 0 >= floor + 0) }' \
-		|| { echo "coverage $$pct% is below the $(COVER_THRESHOLD)% floor"; exit 1; }
+cover-check: FORCE ## Enforce per-package Go coverage floors
+	CORE_COVER_THRESHOLD="$(CORE_COVER_THRESHOLD)" \
+	TOOLING_COVER_THRESHOLD="$(TOOLING_COVER_THRESHOLD)" \
+	PUBLICATION_COVER_THRESHOLD="$(PUBLICATION_COVER_THRESHOLD)" \
+	APP_COVER_THRESHOLD="$(APP_COVER_THRESHOLD)" \
+	CLI_COVER_THRESHOLD="$(CLI_COVER_THRESHOLD)" \
+	GO="$(GO)" GOCACHE="$(GOCACHE)" scripts/ci/check-go-coverage.sh
+
+mutation-core: FORCE ## Run mutation smoke checks for internal/components/core
+	GO="$(GO)" GOCACHE="$(GOCACHE)" scripts/ci/mutation-core.sh
 
 vet: FORCE ## Run go vet
 	$(GOENV) $(GO) vet ./...
@@ -122,6 +126,7 @@ docs-build: FORCE ## Build documentation Library with Go
 docs-pdf: FORCE ## Build and publish latest PDF downloads locally
 	$(GOENV) $(GO) run ./cmd/rgb docs pdf --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)" --source-en "$(PDF_SRC_EN)" --source-pt-br "$(PDF_SRC_PT_BR)"
 	$(MAKE) release-artifact-manifest
+	$(MAKE) release-supply-chain
 
 docs-preview: FORCE ## Serve documentation locally
 	$(MAKE) docs-build
@@ -156,7 +161,7 @@ pdf-publish: FORCE ## Publish a provided PDF into landing downloads
 review-structure: vet lint test test-arch validate cover-check FORCE ## Run the full base-structure review gate
 	@echo "review-structure: all gates passed"
 
-check-fast: fmt-check vet lint test test-arch validate cover-check FORCE ## Run the fast local and PR gate
+check-fast: fmt-check vet lint test test-arch validate cover-check mutation-core FORCE ## Run the fast local and PR gate
 	@echo "check-fast: all gates passed"
 
 check: check-fast lint-web test-web landing-build lint-yaml lint-shell check-generated-drift check-publication-runtime check-governance-files FORCE ## Run the full development and main gate
@@ -185,7 +190,13 @@ release-artifact-manifest: FORCE ## Write release PDF manifest and checksums
 release-artifact-check: FORCE ## Validate release PDF manifest and checksums
 	$(GOENV) $(GO) run ./cmd/rgb release check --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)" --manifest "$(RELEASE_MANIFEST)" --checksums "$(RELEASE_CHECKSUMS)"
 
-pdf-editorial-check: release-artifact-check FORCE ## Validate PDF editorial smoke and raster checks
+release-supply-chain: FORCE ## Write release SBOM and provenance metadata
+	scripts/ci/write-release-supply-chain.sh "$(PDF_PUBLIC_DIR)" "$(PDF_BASENAME)" "$(PDF_VERSION)" "$(RELEASE_MANIFEST)" "$(RELEASE_CHECKSUMS)" "$(RELEASE_SBOM)" "$(RELEASE_PROVENANCE)"
+
+release-supply-chain-check: FORCE ## Validate release SBOM and provenance metadata
+	scripts/ci/check-release-supply-chain.sh "$(PDF_PUBLIC_DIR)" "$(PDF_BASENAME)" "$(PDF_VERSION)" "$(RELEASE_MANIFEST)" "$(RELEASE_CHECKSUMS)" "$(RELEASE_SBOM)" "$(RELEASE_PROVENANCE)"
+
+pdf-editorial-check: release-artifact-check release-supply-chain-check FORCE ## Validate PDF editorial smoke, raster, and supply-chain checks
 	@echo "pdf-editorial-check: all gates passed"
 
 .PHONY: pdf-editorial-check
