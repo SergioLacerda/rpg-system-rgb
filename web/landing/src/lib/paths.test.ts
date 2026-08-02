@@ -34,17 +34,17 @@ describe("landing paths", () => {
   });
 
   it("preserves nested page paths when switching locales", () => {
-    expect(localizedRestPath("/rpg-system-rgb/pt-br/skills/pathfinder")).toBe(
-      "skills/pathfinder",
+    expect(localizedRestPath("/rpg-system-rgb/pt-br/skills/specialist")).toBe(
+      "skills/specialist",
     );
-    expect(localizedRestPath("/rpg-system-rgb/en/skills/pathfinder")).toBe(
-      "skills/pathfinder",
+    expect(localizedRestPath("/rpg-system-rgb/en/skills/specialist")).toBe(
+      "skills/specialist",
     );
-    expect(localizedLandingPath("pt-br", "skills/pathfinder")).toBe(
-      "/rpg-system-rgb/pt-br/skills/pathfinder",
+    expect(localizedLandingPath("pt-br", "skills/specialist")).toBe(
+      "/rpg-system-rgb/pt-br/skills/specialist",
     );
-    expect(localizedLandingPath("en", "skills/pathfinder")).toBe(
-      "/rpg-system-rgb/en/skills/pathfinder",
+    expect(localizedLandingPath("en", "skills/specialist")).toBe(
+      "/rpg-system-rgb/en/skills/specialist",
     );
   });
 });
