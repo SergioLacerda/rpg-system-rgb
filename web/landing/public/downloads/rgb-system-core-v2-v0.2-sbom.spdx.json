@@ -5,7 +5,7 @@
   "name": "rgb-system-core-v2-v0.2-release-artifacts",
   "documentNamespace": "https://github.com/SergioLacerda/rpg-system-rgb/releases/v0.2/sbom",
   "creationInfo": {
-    "created": "2026-08-02T19:58:45Z",
+    "created": "2026-08-02T20:34:54Z",
     "creators": ["Tool: scripts/ci/write-release-supply-chain.sh"]
   },
   "files": [
