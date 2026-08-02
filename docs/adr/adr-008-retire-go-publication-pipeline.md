@@ -53,9 +53,10 @@ Retire the Go HTML/print/PDF pipeline outright, not deprecate it:
   architecture diagrams (`docs/architecture/components.md`,
   `docs/architecture/containers.md`).
 
-MkDocs + Astro (`make docs-build`, `make landing-build`, `make docs-pdf`) is
-now the only documented publication path for the HTML Library and PDF
-downloads — it already was, in practice, before this change.
+The documented publication path at the time of this decision was the
+interpreter-backed Library/PDF path plus Astro. ADR-010 later replaced that
+active path with `cmd/rgb docs ...` plus Astro, without reviving the deleted
+packages or the removed `rgb compile` command.
 
 ## Consequences
 
