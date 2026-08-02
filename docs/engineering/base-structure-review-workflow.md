@@ -40,7 +40,8 @@ make release-check
 | Unit tests | `make test` | all package tests |
 | Architecture guardrails | `make test-arch` | import boundaries in `tests/architecture/` |
 | Semantic docs | `make validate` | semantic documentation contracts |
-| Coverage floor | `make cover-check` | total statement coverage stays at or above `COVER_THRESHOLD` (see `Makefile`) |
+| Coverage floors | `make cover-check` | package-specific statement coverage stays at or above the tiered Makefile floors |
+| Core mutation smoke | `make mutation-core` | deterministic mutations in `internal/components/core` are killed by the core/property suites |
 
 `check` adds:
 
@@ -59,18 +60,19 @@ make release-check
 | --- | --- | --- |
 | PDF build | `make docs-pdf` | bilingual latest and versioned PDF downloads |
 | Artifact manifest | `make release-artifact-manifest` | Go-owned release manifest and `SHA256SUMS` for PDF artifacts |
-| Editorial validation | `make pdf-editorial-check` | Go-owned PDF headers, metadata, TOC sanity, raster smoke, manifest contents, and checksums |
+| SBOM and provenance | `make release-supply-chain` | SPDX SBOM and provenance metadata for release artifacts |
+| Editorial validation | `make pdf-editorial-check` | Go-owned PDF headers, metadata, TOC sanity, raster smoke, manifest, checksums, SBOM, and provenance |
 
-The coverage floor starts deliberately low relative to the current total
-(`make cover` shows the current number) — it is a regression guard, not a
-target. Raise `COVER_THRESHOLD` in the `Makefile` over time as coverage
-improves; never lower it without recording why (mirrors the `gocyclo`
-threshold ratchet in `.golangci.yml`).
+Coverage floors are tiered by package criticality and start as regression
+ratchets against the measured baseline. Raise the package-specific thresholds in
+the `Makefile` over time as coverage improves; never lower one without
+recording why.
 
 Supporting targets:
 
 ```bash
 make cover                  # test coverage summary
+make mutation-core          # mutation smoke checks for core formulas
 make fmt                    # normalize formatting
 make go-file-size-report    # informational: non-test .go files over 200 lines
 ```
@@ -97,18 +99,18 @@ otherwise float:
   versions into `TOOLS_DIR` when they are not already present there.
 - Node uses an explicit major version and npm dependencies are governed by
   `web/landing/package-lock.json`.
+- GitHub Marketplace actions are pinned to full commit SHAs in CI. The adjacent
+  comments preserve the major tag used for Dependabot review context.
 - PDF editorial checks require Poppler command line tools (`pdfinfo`,
   `pdftotext`, `pdftohtml`, and `pdftoppm`). CI installs them through
   `poppler-utils`; manifest/checksum/raster validation is implemented in Go.
 
-GitHub Marketplace actions currently use conventional major tags
-(`actions/checkout@v4`, `actions/setup-go@v5`, and related first-party actions).
-Digest or full-SHA pinning is deferred because Dependabot already tracks these
-surfaces and keeps security updates visible in small PRs. Revisit this exception
-if untrusted third-party actions are added.
-
 Dependabot owns update PRs for GitHub Actions, Go modules, and the landing npm
 workspace.
+
+Release candidates must use a git tag matching `PDF_VERSION` (for example
+`v0.2`). The supply-chain provenance records whether that tag exists for the
+current checkout.
 
 The relevant gate must pass before structural changes are proposed for commit.
 
@@ -144,8 +146,17 @@ release artifact checks.
 - missing extractable TOC links on critical pages;
 - latest and versioned PDFs that differ for the same locale;
 - missing release manifest, aggregate checksums, or per-version `.sha256` files;
+- missing SPDX SBOM or release provenance metadata;
 - rasterized cover, TOC, and first content pages that are blank, dark themed, or
   have excessive marks at page edges.
+
+`make docs-pdf` now refreshes all release metadata:
+
+- `rgb-system-core-v2-release-manifest.json`;
+- `SHA256SUMS`;
+- per-version `.sha256` files;
+- `rgb-system-core-v2-<version>-sbom.spdx.json`;
+- `rgb-system-core-v2-<version>-provenance.json`.
 
 Principal bookmark validation, full PDF/UA tagging, and durable visual
 regression baselines remain deferred. Those checks require a renderer or parser
