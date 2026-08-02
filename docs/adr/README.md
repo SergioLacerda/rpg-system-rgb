@@ -10,3 +10,4 @@ This directory contains project-wide architecture decisions for RGB System.
 - [ADR-006: `cmd/rgb` As The Unified CLI](adr-006-unified-cli-topology.md)
 - [ADR-007: Bundle Expansion Requires A Consumer Contract First](adr-007-bundle-consumer-contract-policy.md)
 - [ADR-008: Retire The Go HTML/Print/PDF Publication Pipeline](adr-008-retire-go-publication-pipeline.md)
+- [ADR-009: Retain The MkDocs/Python Publication Exception Until Replacement Parity](adr-009-retain-mkdocs-python-publication-exception.md)

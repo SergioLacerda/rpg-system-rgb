@@ -10,8 +10,8 @@ Library surface, stable PDF download links, and Skills presentation routes.
 | Root route | Implemented | `/` resolves to the Portuguese landing experience; `/pt-br/` and `/en/` are localized. |
 | Library | Implemented | The root Makefile builds MkDocs output into `public/library/` before Astro packaging. |
 | PDF links | Implemented | Home CTAs point to `/downloads/rgb-system-core-v2-latest-{locale}.pdf`. |
-| Skills pages | Implemented as presentation | Pathfinder/Maker pages describe ecosystem roles; skill execution stays outside the landing app. |
-| Maker and Specialist products | Planned | The landing may describe them, but it must not present them as available runtime products. |
+| Skills pages | Implemented as presentation | Specialist/Maker pages describe ecosystem roles; skill execution stays outside the landing app. |
+| Maker and Specialist products | Contract defined | The landing may describe their contracts, but it must not present them as available runtime products. |
 
 ## Run
 
@@ -49,5 +49,5 @@ the compiled Library at `/library/` under the configured Astro base path.
 
 ## Known Follow-Ups
 
-- Skills pages are static presentation surfaces; install/execution logic stays outside this scaffold.
+- Skills pages are static presentation surfaces; install/execution logic stays outside this scaffold, and contract-defined skills must not be marked as available runtime products.
 - `site` and `base` in `astro.config.mjs` assume GitHub Pages under the `rpg-system-rgb` repository.

@@ -44,8 +44,8 @@ This project documentation is available in multiple languages.
 | Library HTML | Implemented | MkDocs builds the public Library into `web/landing/public/library/`; Astro packages it into the landing build. |
 | PDF downloads | Implemented | `make docs-pdf` publishes latest and versioned PDFs with manifest, checksums, and editorial smoke checks. |
 | Landing | Implemented | Astro routes, bilingual UI, Library links, PDF links, tests, and static builds exist. |
-| Maker | Planned | Reserved skill surface only; no product behavior is available yet. |
-| Specialist | Planned | Reserved skill surface only; no product behavior is available yet. |
+| Maker | Contract defined | Contract, schemas, templates, prompts, and examples exist; runtime behavior is not implemented. |
+| Specialist | Contract defined | Contract, procedures, terminology, examples, and benchmark scaffolding exist; runtime behavior is not implemented. |
 | PDF/UA tagging | Deferred | Full accessibility tagging is outside the first editorial PDF quality gate. |
 
 ## Core Concept
@@ -141,8 +141,8 @@ docs/
    engineering/         review workflow and guardrail documentation
 
 skills/
-   maker/            RGB Maker skill package scaffold (planned)
-   specialist/       RGB Specialist skill package scaffold (planned)
+   maker/            RGB Maker skill contract; runtime not implemented
+   specialist/       RGB Specialist skill contract; runtime not implemented
 
 web/
    landing/          implemented Astro landing page, Library shell, and PDF download surface
