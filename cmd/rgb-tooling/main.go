@@ -9,13 +9,14 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/SergioLacerda/rpg-system-rgb/internal/app"
 )
 
 func main() {
-	if err := run(os.Args[1:]); err != nil {
+	if err := run(cliArgs()); err != nil {
 		fatal(err.Error())
 	}
 }
@@ -43,6 +44,12 @@ func run(args []string) error {
 }
 
 func fatal(message string) {
-	fmt.Fprintln(os.Stderr, message)
-	os.Exit(1)
+	_, _ = fmt.Fprintln(stderr, message)
+	exitProcess(1)
 }
+
+var (
+	cliArgs               = func() []string { return os.Args[1:] }
+	stderr      io.Writer = os.Stderr
+	exitProcess           = os.Exit
+)

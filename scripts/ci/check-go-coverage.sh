@@ -36,6 +36,4 @@ check_package "semantic tooling" "./internal/components/tooling" "${TOOLING_COVE
 check_package "publication component" "./internal/components/publication" "${PUBLICATION_COVER_THRESHOLD:-90}"
 check_package "application orchestration" "./internal/app" "${APP_COVER_THRESHOLD:-90}"
 check_package "unified CLI" "./cmd/rgb" "${CLI_COVER_THRESHOLD:-90}"
-
-# cmd/rgb-tooling is a legacy compatibility wrapper around the unified CLI and
-# intentionally excluded from the module gate; cmd/rgb is the canonical CLI.
+check_package "legacy tooling CLI" "./cmd/rgb-tooling" "${TOOLING_CLI_COVER_THRESHOLD:-90}"
