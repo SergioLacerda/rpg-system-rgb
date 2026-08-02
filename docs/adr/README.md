@@ -13,3 +13,4 @@ This directory contains project-wide architecture decisions for RGB System.
 - [ADR-009: Retain The MkDocs/Python Publication Exception Until Replacement Parity](adr-009-retain-mkdocs-python-publication-exception.md)
 - [ADR-010: Go-Owned Publication Without Python](adr-010-go-owned-publication-without-python.md)
 - [ADR-011: Split License Model](adr-011-split-license-model.md)
+- [ADR-012: MIT-Only License](adr-012-mit-only-license.md)

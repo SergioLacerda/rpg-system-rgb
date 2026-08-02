@@ -239,5 +239,4 @@ request.
 
 ## License
 
-See [LICENSE](../LICENSE) and [LICENSES.md](../LICENSES.md) for the split licensing
-model.
+See [LICENSE](../LICENSE) — the project is MIT licensed.
