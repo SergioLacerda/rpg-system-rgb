@@ -2,11 +2,11 @@
   "schema": "rgb-system-release-provenance/0.1",
   "basename": "rgb-system-core-v2",
   "version": "v0.2",
-  "git_commit": "3a4234d3497dbf63e8439256d6bf9694102e8bec",
+  "git_commit": "7298e179278ae172eea8d06383026a2e034ab773",
   "git_tag": "v0.2",
   "git_tag_present": true,
   "worktree_dirty": true,
-  "generated_at": "2026-08-02T20:52:21Z",
+  "generated_at": "2026-08-02T21:14:13Z",
   "sbom": "rgb-system-core-v2-v0.2-sbom.spdx.json",
   "manifest": "rgb-system-core-v2-release-manifest.json",
   "checksums": "SHA256SUMS"
