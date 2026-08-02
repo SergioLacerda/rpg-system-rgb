@@ -31,9 +31,6 @@
   {% set en_page_url = current_page_url %}
   {% set active_lang = 'en' %}
 {% endif %}
-<li class="nav-item rgb-primary-nav">
-  <a class="nav-link" href="{{ landing_href('/' ~ active_lang ~ '/instalacao') }}">{% if active_lang == 'pt-br' %}Instalação{% else %}Install{% endif %}</a>
-</li>
 <li class="nav-item">
   <a class="nav-link rgb-library-return rgb-landing-link" href="{{ landing_href('/pt-br/') }}">Voltar para landing</a>
 </li>
