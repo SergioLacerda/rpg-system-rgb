@@ -1,0 +1,55 @@
+# Schema: Conflict Report
+#
+# Two or more sources disagree on a fact Maker cannot resolve on its own.
+# Human-readable form: ../templates/conflict-report.md
+schema: rgb-maker-conflict-report/0.1
+
+fields:
+  id:
+    type: string
+    required: true
+    description: Maker-local slug, e.g. "conflict.harbor-quartermaster-name".
+  status:
+    type: string
+    required: true
+    enum: [draft, needs_review, stale]
+  field:
+    type: string
+    required: true
+    description: The single fact in dispute (a conflict report covers
+      exactly one field — split multi-field disagreements into separate
+      reports).
+  linked_entity:
+    type: string
+    required: false
+    description: id of the entity-package this conflict concerns, if any.
+  claims:
+    type: list<object>
+    required: true
+    description: Every competing value, each with `value`, `source_ref`,
+      and `source_kind` (text|image). At least two entries — a
+      conflict-report with one claim is not a conflict.
+  resolution:
+    type: string
+    required: true
+    enum: [unresolved, resolved_by_authority_rule, resolved_by_user]
+    description: >
+      unresolved: Maker has not applied any resolution, awaiting the user.
+      resolved_by_authority_rule: text beat image per SKILL.md's authority
+      rule (only valid when the losing claim's source_kind is image and it
+      was about a non-appearance field it was never authoritative over).
+      resolved_by_user: the user explicitly picked a value; record which
+      claim in resolution_note.
+  resolution_note:
+    type: string
+    required: false
+    description: Required when resolution is resolved_by_user or
+      resolved_by_authority_rule — explains why.
+
+invariants:
+  - claims has at least 2 entries
+  - resolution defaults to "unresolved" — Maker never silently picks a
+    winner outside the authority rule
+  - resolved_by_authority_rule is only valid when the rule in SKILL.md
+    actually applies to this field (i.e. the image claim was about
+    something other than appearance)

@@ -28,6 +28,13 @@ func TestCoreV2FixtureFilesExposeReusableIdentities(t *testing.T) {
 				"actor: green-runner",
 			},
 		},
+		{
+			file: "examples/combat-example.yaml",
+			required: []string{
+				"id: attack-1-a-fires-rifle-at-b",
+				"id: attack-2-b-fires-smg-at-a",
+			},
+		},
 	}
 
 	for _, tc := range cases {

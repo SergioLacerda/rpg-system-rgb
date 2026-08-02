@@ -1,0 +1,48 @@
+# Schema: Visual Observation
+#
+# Appearance-only facts read from an image, per SKILL.md's authority rule
+# (image = appearance, text = facts). Human-readable form:
+# ../templates/visual-observation.md
+schema: rgb-maker-visual-observation/0.1
+
+fields:
+  id:
+    type: string
+    required: true
+    description: Maker-local slug, e.g. "observation.harbor-map-01".
+  status:
+    type: string
+    required: true
+    enum: [draft, needs_review, stale]
+  source_ref:
+    type: string
+    required: true
+    description: The image file/reference this observation was read from.
+  appearance_facts:
+    type: list<object>
+    required: true
+    description: What the image shows, visually. Each item has `field`
+      (e.g. "clothing", "terrain", "expression"), `value`,
+      `confidence` (low|medium|high — image reading is inherently
+      uncertain).
+  linked_entity:
+    type: string
+    required: false
+    description: id of the entity-package this observation contributes
+      appearance data to, if any.
+  non_authoritative_note:
+    type: string
+    required: true
+    default: >
+      This observation may describe appearance only. It does not establish
+      or override any fact, name, relationship, or canon status — those
+      come from text sources only, per the authority rule in SKILL.md.
+    description: Always present verbatim (or a close paraphrase) on every
+      visual-observation package, so a downstream reader never mistakes an
+      appearance note for a fact.
+
+invariants:
+  - appearance_facts never contains a `field` that names a non-visual
+    property (e.g. "loyalty", "true identity", "backstory") — those belong
+    in an entity-package's explicit_facts or inferred_suggestions, sourced
+    from text, not here

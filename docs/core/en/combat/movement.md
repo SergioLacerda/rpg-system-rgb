@@ -72,17 +72,18 @@ Examples include:
 
 Each combat turn normally includes:
 
-- **Movement**
-- **Main Action**
-- **Partial Action**
+- **Movement** — a free positional allowance (`G × 2 meters`); it does not
+  consume the Action or Minor Action below.
+- **Action**
+- **Minor Action**
 
-Examples of **Main Actions**:
+Examples of **Actions**:
 
 - attack
 - defend
 - use ability
 
-Examples of **Partial Actions**:
+Examples of **Minor Actions**:
 
 - reload weapon
 - small reposition

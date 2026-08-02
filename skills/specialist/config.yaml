@@ -1,0 +1,52 @@
+# Runtime configuration contract for RGB Specialist.
+#
+# This restates the parts of consumer.specialist.v0_1 that Specialist must
+# check at runtime, for a quick machine-readable reference. If this file
+# and docs/core/semantic/consumer-contracts.v0.1.json ever disagree, the
+# JSON file wins — update this file to match, not the other way around.
+contract_id: consumer.specialist.v0_1
+contract_source: docs/core/semantic/consumer-contracts.v0.1.json
+
+sources:
+  primary_context_pack: generated/ai-context/core-specialist-pack.json
+  semantic_index: docs/core/semantic/core-v2.index.json
+  semantic_source: docs/core/semantic/source/core-v2-rules.v0.1.json
+
+allowed_inputs:
+  - canonical_markdown_bridge
+  - canonical_semantic
+  - translation
+  - projection
+  - design_record
+
+forbidden_authority_types:
+  # A generated_artifact (like primary_context_pack above) may be read as
+  # a compiled index, but must never be an answer's cited root authority.
+  - generated_artifact
+
+required_disclosures:
+  - draft
+  - stale
+  - needs_review
+  - localized
+  - generated
+
+required_unit_fields:
+  - id
+  - kind
+  - locale
+  - authority_type
+  - source_status
+  - source_path
+  - relationships
+  - index
+  - provenance
+
+outputs:
+  - traceable answers
+  - AI context packs
+
+validation_checks:
+  - answers cite source IDs
+  - localized status is disclosed
+  - generated context packs include provenance

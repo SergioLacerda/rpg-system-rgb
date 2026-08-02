@@ -72,17 +72,18 @@ Exemplos incluem:
 
 Cada turno de combate normalmente inclui:
 
-- **Movimento**
-- **Ação Principal**
-- **Ação Parcial**
+- **Movimento** — um deslocamento livre (`G × 2 metros`); não consome a Ação
+  nem a Ação Menor abaixo.
+- **Ação**
+- **Ação Menor**
 
-Exemplos de **Ações Principais**:
+Exemplos de **Ações**:
 
 - atacar
 - defender
 - usar habilidade
 
-Exemplos de **Ações Parciais**:
+Exemplos de **Ações Menores**:
 
 - recarregar arma
 - pequeno reposicionamento

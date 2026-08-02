@@ -119,3 +119,7 @@ Implementation constraints:
   units through the existing projection/manifest model.
 - The landing page should link to stable `latest` aliases while preserving
   versioned PDF files for release history.
+- Release manifest generation, checksum verification, and PDF editorial
+  validation are project-owned tooling and should run through Go. Python remains
+  allowed here only for the MkDocs renderer stack until a later ADR retires or
+  replaces that publication path.

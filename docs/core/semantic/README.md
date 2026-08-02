@@ -30,7 +30,7 @@ Validate the pilot with:
 
 ```bash
 make validate
-# equivalent: go run ./cmd/rgb-tooling validate
+# equivalent: go run ./cmd/rgb validate
 ```
 
 This runs, in order: project paths, semantic index
@@ -44,9 +44,9 @@ Regenerate derived projection artifacts with:
 
 ```bash
 make generate
-# equivalent: go run ./cmd/rgb-tooling generate
+# equivalent: go run ./cmd/rgb generate
 ```
 
-`rgb-tooling` (`internal/components/tooling`) replaced the standalone
-`scripts/*.go` module that previously implemented each of these checks as a
-separate `go run scripts/validate_*.go` invocation.
+`cmd/rgb` is the unified CLI for semantic validation and projection generation.
+The deprecated `cmd/rgb-tooling` binary remains only as a compatibility path
+while older callers migrate.
