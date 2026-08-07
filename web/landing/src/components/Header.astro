@@ -47,6 +47,21 @@ const switchHref = localizedLandingPath(other, rest);
     </a>
   </div>
 </header>
+
+<script>
+  const header = document.querySelector<HTMLElement>(".header");
+  if (header) {
+    const publishHeight = () => {
+      document.documentElement.style.setProperty(
+        "--header-h",
+        `${header.offsetHeight}px`,
+      );
+    };
+    publishHeight();
+    new ResizeObserver(publishHeight).observe(header);
+  }
+</script>
+
 <style>
   .header {
     align-items: center;
