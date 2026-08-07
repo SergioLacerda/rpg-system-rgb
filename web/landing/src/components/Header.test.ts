@@ -13,6 +13,7 @@ describe("Header", () => {
     expect(html).toContain('href="/rpg-system-rgb/en/"');
     expect(html).toContain("PT-BR");
     expect(html).toContain("EN");
+    expect(html).not.toContain("Sobre");
   });
 
   it("renders English language controls without changing the English route", async () => {
@@ -23,7 +24,7 @@ describe("Header", () => {
 
     expect(html).toContain('href="/rpg-system-rgb/en/" class="active"');
     expect(html).toContain('href="/rpg-system-rgb/"');
-    expect(html).toContain("About");
     expect(html).toContain("Install");
+    expect(html).not.toContain("About");
   });
 });
