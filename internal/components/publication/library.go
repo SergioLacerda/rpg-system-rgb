@@ -282,7 +282,7 @@ func slug(text string) string {
 }
 
 func writeLibraryAssets(outDir string) error {
-	css := `:root{color-scheme:dark;--bg:#111418;--panel:#181d23;--text:#f2eee7;--muted:#b5ada2;--accent:#df4f3d;--line:#343b45}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:#7dc7ff}header{border-bottom:1px solid var(--line);background:#0d1014;position:sticky;top:0}nav{max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}.brand{font-weight:700;color:var(--text);text-decoration:none}main{max-width:1180px;margin:0 auto;padding:28px 24px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:28px}aside{border-right:1px solid var(--line);padding-right:20px}aside a{display:block;padding:4px 0;color:var(--muted);text-decoration:none}aside a.active{color:var(--text);font-weight:700}article{min-width:0}h1,h2,h3{line-height:1.2}h1{font-size:34px}h2{margin-top:34px;border-top:1px solid var(--line);padding-top:22px}pre,code{background:#0c0f13;border:1px solid var(--line);border-radius:4px}code{padding:1px 4px}pre{padding:14px;overflow:auto}table{border-collapse:collapse;margin:12px 0;width:100%}td,th{border:1px solid var(--line);padding:6px 8px;vertical-align:top}.lang-switch{margin-left:auto}.index-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.index-card{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:16px;text-decoration:none;color:var(--text)}@media(max-width:820px){main{display:block}aside{border-right:0;border-bottom:1px solid var(--line);padding:0 0 18px;margin-bottom:22px}}`
+	css := `:root{color-scheme:dark;--bg:#111418;--panel:#181d23;--text:#f2eee7;--muted:#b5ada2;--accent:#df4f3d;--line:#343b45}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:#7dc7ff}header{border-bottom:1px solid var(--line);background:#0d1014;position:sticky;top:0}nav{max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}.brand{font-weight:700;color:var(--text);text-decoration:none}main{max-width:1180px;margin:0 auto;padding:28px 24px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:28px}aside{border-right:1px solid var(--line);padding-right:20px}aside a{display:block;padding:4px 0;color:var(--muted);text-decoration:none}aside a.active{color:var(--text);font-weight:700}article{min-width:0}h1,h2,h3{line-height:1.2}h1{font-size:34px}h2{margin-top:34px;border-top:1px solid var(--line);padding-top:22px}pre,code{background:#0c0f13;border:1px solid var(--line);border-radius:4px}code{padding:1px 4px}pre{padding:14px;overflow:auto}table{border-collapse:collapse;margin:12px 0;width:100%}td,th{border:1px solid var(--line);padding:6px 8px;vertical-align:top}.lang-switch{margin-left:auto}@media(max-width:820px){main{display:block}aside{border-right:0;border-bottom:1px solid var(--line);padding:0 0 18px;margin-bottom:22px}}`
 	return os.WriteFile(filepath.Join(outDir, "styles.css"), []byte(css), 0o644) //nolint:gosec // G306: public static asset.
 }
 
@@ -308,6 +308,10 @@ func renderPage(page docPage, pages []docPage) string {
 		fmt.Fprintf(&nav, `<a%s href="%s">%s</a>`, class, relHref(page.URLPath, candidate.URLPath), html.EscapeString(candidate.Title))
 		nav.WriteByte('\n')
 	}
+	brand := relHref(page.URLPath, "/")
+	if brand == "" {
+		brand = "./"
+	}
 	return fmt.Sprintf(`<!doctype html>
 <html lang="%s">
 <head>
@@ -317,49 +321,65 @@ func renderPage(page docPage, pages []docPage) string {
   <link rel="stylesheet" href="%s">
 </head>
 <body>
-  <header><nav><a class="brand" href="%s">RGB System Library</a><a href="%s">English</a><a href="%s">Portuguese</a></nav></header>
+  <header><nav><a class="home" href="%s">Home</a><a class="brand" href="%s">RGB System Library</a><a href="%s">English</a><a href="%s">Portuguese</a></nav></header>
   <main>
     <aside>%s</aside>
     <article>%s</article>
   </main>
 </body>
 </html>
-`, page.Lang, html.EscapeString(page.Title), relHref(page.URLPath, "/styles.css"), relHref(page.URLPath, "/"), relHref(page.URLPath, "/core/en/"), relHref(page.URLPath, "/core/PT-br/"), nav.String(), page.Body)
+`, page.Lang, html.EscapeString(page.Title), relHref(page.URLPath, "/styles.css"), homeHref(page.URLPath), brand, relHref(page.URLPath, "/core/en/"), relHref(page.URLPath, "/core/PT-br/"), nav.String(), page.Body)
 }
 
+// writeLibraryIndex renders the Library root as the pt-BR Core Overview page,
+// so the default entry point is pt-BR content directly, not a language chooser.
+// The English and pt-BR trees remain reachable via the header's language links.
 func writeLibraryIndex(outDir string, pages []docPage) error {
-	var cards strings.Builder
-	for _, lang := range []struct {
-		Path  string
-		Title string
-		Desc  string
-	}{
-		{Path: "/core/en/", Title: "English Library", Desc: "Official RGB System Core reference."},
-		{Path: "/core/PT-br/", Title: "Biblioteca em Portuguese", Desc: "Projecao localizada das regras Core."},
-	} {
-		fmt.Fprintf(&cards, `<a class="index-card" href="%s"><h2>%s</h2><p>%s</p></a>`, strings.TrimPrefix(lang.Path, "/"), lang.Title, lang.Desc)
+	var root *docPage
+	for i := range pages {
+		if pages[i].Lang != "pt-br" {
+			continue
+		}
+		if pages[i].URLPath == "/core/PT-br/" {
+			root = &pages[i]
+			break
+		}
+		if root == nil {
+			root = &pages[i]
+		}
 	}
-	index := fmt.Sprintf(`<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>RGB System Library</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header><nav><a class="brand" href="./">RGB System Library</a></nav></header>
-  <main>
-    <article>
-      <h1>RGB System Library</h1>
-      <div class="index-grid">%s</div>
-    </article>
-  </main>
-</body>
-</html>
-`, cards.String())
-	_ = pages
-	return os.WriteFile(filepath.Join(outDir, "index.html"), []byte(index), 0o644) //nolint:gosec // G306: public static asset.
+	if root == nil {
+		return fmt.Errorf("no pt-br pages found under docs/core/PT-br")
+	}
+	page := *root
+	// page.Body's internal links were rendered relative to the page's original
+	// directory (e.g. "core/PT-br/"); re-anchor them for the new mount point
+	// (the Library root) before switching URLPath, so they keep resolving to
+	// the same physical pages instead of one directory too shallow.
+	page.Body = prefixRelativeHrefs(page.Body, strings.TrimPrefix(root.URLPath, "/"))
+	page.URLPath = "/"
+	return os.WriteFile(filepath.Join(outDir, "index.html"), []byte(renderPage(page, pages)), 0o644) //nolint:gosec // G306: public static asset.
+}
+
+var hrefAttrPattern = regexp.MustCompile(`href="([^"]*)"`)
+
+// prefixRelativeHrefs re-anchors relative hrefs in already-rendered body HTML
+// by prepending prefix, leaving absolute/external/fragment links untouched.
+func prefixRelativeHrefs(bodyHTML, prefix string) string {
+	return hrefAttrPattern.ReplaceAllStringFunc(bodyHTML, func(match string) string {
+		href := hrefAttrPattern.FindStringSubmatch(match)[1]
+		if href == "" || strings.HasPrefix(href, "/") || strings.HasPrefix(href, "#") ||
+			strings.HasPrefix(href, "http://") || strings.HasPrefix(href, "https://") {
+			return match
+		}
+		return fmt.Sprintf(`href="%s%s"`, prefix, href)
+	})
+}
+
+// homeHref points one directory level above the Library root, where the
+// Library is always mounted (see Makefile LIBRARY_DIR / landing public dir).
+func homeHref(urlPath string) string {
+	return relHref(urlPath, "/") + "../"
 }
 
 func relHref(fromURL, toURL string) string {

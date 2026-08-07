@@ -10,10 +10,25 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = dict[lang];
+const a11y = t.a11y;
 const pdfHref = landingPath(`/downloads/rgb-system-core-v2-latest-${lang}.pdf`);
 ---
 
-<section class="hero">
+<nav class="dot-nav" aria-label="Seções da página">
+  <a href="#hero" data-dot="hero" aria-label={a11y.sectionNav.hero}></a>
+  <a href="#problem" data-dot="problem" aria-label={a11y.sectionNav.problem}
+  ></a>
+  <a href="#system" data-dot="system" aria-label={a11y.sectionNav.system}></a>
+  <a href="#library" data-dot="library" aria-label={a11y.sectionNav.library}
+  ></a>
+  <a
+    href="#for-developers"
+    data-dot="for-developers"
+    aria-label={a11y.sectionNav.forDevelopers}></a>
+</nav>
+
+<div class="scroller">
+<section class="hero" id="hero">
   <div class="kicker">{t.hero.kicker}</div>
   <h1>{t.hero.title}</h1>
   <p class="sub">{t.hero.sub}</p>
@@ -36,17 +51,37 @@ const pdfHref = landingPath(`/downloads/rgb-system-core-v2-latest-${lang}.pdf`);
     ></line>
     <circle cx="90" cy="88" r="4" fill="var(--text)"></circle>
   </svg>
+  <a href="#problem" class="scroll-hint" aria-label={a11y.scrollHint}>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+      ><path
+        d="M6 9l6 6 6-6"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path></svg
+    >
+  </a>
 </section>
 
-<section class="problem">
+<section class="problem" id="problem">
   <div class="kicker">{t.problem.kicker}</div>
   <h2>{t.problem.title}</h2>
   <ul>
     {t.problem.items.map((item) => <li>{item}</li>)}
   </ul>
+  <a href="#system" class="scroll-hint" aria-label={a11y.scrollHint}>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+      ><path
+        d="M6 9l6 6 6-6"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path></svg
+    >
+  </a>
 </section>
 
-<section class="system">
+<section class="system" id="system">
   <div class="kicker">{t.system.kicker}</div>
   <h2>{t.system.title}</h2>
   <p class="sub">{t.system.desc}</p>
@@ -62,9 +97,19 @@ const pdfHref = landingPath(`/downloads/rgb-system-core-v2-latest-${lang}.pdf`);
       ))
     }
   </div>
+  <a href="#library" class="scroll-hint" aria-label={a11y.scrollHint}>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+      ><path
+        d="M6 9l6 6 6-6"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path></svg
+    >
+  </a>
 </section>
 
-<section class="library">
+<section class="library" id="library">
   <div class="kicker">{t.libraryTeaser.kicker}</div>
   <h2>{t.libraryTeaser.title}</h2>
   <p class="sub">{t.libraryTeaser.desc}</p>
@@ -80,9 +125,19 @@ const pdfHref = landingPath(`/downloads/rgb-system-core-v2-latest-${lang}.pdf`);
       <a class="secondary" href={pdfHref}>{t.hero.ctaPdf}</a>
     </div>
   </div>
+  <a href="#for-developers" class="scroll-hint" aria-label={a11y.scrollHint}>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+      ><path
+        d="M6 9l6 6 6-6"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path></svg
+    >
+  </a>
 </section>
 
-<section class="for-developers">
+<section class="for-developers" id="for-developers">
   <div class="kicker">{t.forDevelopers.kicker}</div>
   <h2>{t.forDevelopers.title}</h2>
   <p class="sub">{t.forDevelopers.desc}</p>
@@ -94,8 +149,110 @@ const pdfHref = landingPath(`/downloads/rgb-system-core-v2-latest-${lang}.pdf`);
     }
   </div>
 </section>
+</div>
+
+<script>
+  const dots = document.querySelectorAll<HTMLAnchorElement>(".dot-nav a");
+  const sections = document.querySelectorAll<HTMLElement>(".scroller > section");
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          dots.forEach((d) =>
+            d.classList.toggle(
+              "active",
+              d.getAttribute("href") === `#${entry.target.id}`,
+            ),
+          );
+        }
+      });
+    },
+    { threshold: 0.5 },
+  );
+  sections.forEach((s) => observer.observe(s));
+</script>
 
 <style>
+  .scroller {
+    scroll-snap-type: y proximity;
+    overflow-y: auto;
+    height: calc(100vh - var(--header-h, 82px));
+  }
+  .scroller > section {
+    scroll-snap-align: start;
+    min-height: calc(100vh - var(--header-h, 82px));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+  .scroller > section.for-developers {
+    height: auto;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--text-mute);
+    display: flex;
+  }
+  .scroll-hint:hover {
+    color: var(--text);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-hint {
+      animation: bob 1.8s ease-in-out infinite;
+    }
+  }
+  @keyframes bob {
+    0%,
+    100% {
+      transform: translate(-50%, 0);
+    }
+    50% {
+      transform: translate(-50%, 6px);
+    }
+  }
+
+  .dot-nav {
+    position: fixed;
+    right: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    z-index: 20;
+  }
+  .dot-nav a {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 1px solid var(--text-mute);
+    transition:
+      background 0.2s,
+      transform 0.2s;
+  }
+  .dot-nav a.active {
+    background: var(--b);
+    border-color: var(--b);
+    transform: scale(1.3);
+  }
+
+  @media (max-height: 560px) {
+    .scroller {
+      scroll-snap-type: none;
+      height: auto;
+      overflow-y: visible;
+    }
+    .scroller > section {
+      min-height: auto;
+    }
+  }
+
   .hero {
     text-align: center;
     padding: 100px 40px 80px;
@@ -259,6 +416,9 @@ const pdfHref = landingPath(`/downloads/rgb-system-core-v2-latest-${lang}.pdf`);
     }
     .library-grid {
       grid-template-columns: 1fr;
+    }
+    .dot-nav {
+      right: 12px;
     }
   }
 </style>

@@ -9,6 +9,16 @@ export const dict = {
       library: "Library",
       skills: "Skills",
     },
+    a11y: {
+      sectionNav: {
+        hero: "Início",
+        problem: "O PROBLEMA",
+        system: "RGB System",
+        library: "LIBRARY",
+        forDevelopers: "PARA DESENVOLVEDORES",
+      },
+      scrollHint: "Avançar",
+    },
     hero: {
       kicker: "UM SISTEMA DE RPG DE MESA · CÓDIGO ABERTO",
       title: "Todo conflito se resolve em três vetores.",
@@ -135,6 +145,16 @@ export const dict = {
       install: "Install",
       library: "Library",
       skills: "Skills",
+    },
+    a11y: {
+      sectionNav: {
+        hero: "Home",
+        problem: "THE PROBLEM",
+        system: "RGB System",
+        library: "LIBRARY",
+        forDevelopers: "FOR DEVELOPERS",
+      },
+      scrollHint: "Next section",
     },
     hero: {
       kicker: "A TABLETOP RPG SYSTEM · OPEN SOURCE",

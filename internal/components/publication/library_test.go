@@ -13,22 +13,41 @@ func TestBuildLibraryRendersBilingualCoreDocs(t *testing.T) {
 	out := filepath.Join(root, "public", "library")
 	writeTestFile(t, filepath.Join(source, "core", "en", "README.md"), "# Core Overview\n\nSee [Combat](combat/attack.md).\n")
 	writeTestFile(t, filepath.Join(source, "core", "en", "combat", "attack.md"), "# Attack\n\n- Roll R\n")
-	writeTestFile(t, filepath.Join(source, "core", "PT-br", "README.md"), "# Visao Core\n\nTexto.\n")
+	writeTestFile(t, filepath.Join(source, "core", "PT-br", "README.md"), "# Visao Core\n\nVeja [Combate](combat/ataque.md).\n")
+	writeTestFile(t, filepath.Join(source, "core", "PT-br", "combat", "ataque.md"), "# Ataque\n\n- Role R\n")
 
 	if err := BuildLibrary(LibraryOptions{SourceDir: source, OutDir: out}); err != nil {
 		t.Fatalf("BuildLibrary returned error: %v", err)
 	}
 
 	index := readTestFile(t, filepath.Join(out, "index.html"))
-	if !strings.Contains(index, "English Library") || !strings.Contains(index, "Biblioteca em Portuguese") {
-		t.Fatalf("index did not include locale cards:\n%s", index)
+	if !strings.Contains(index, "<h1 id=\"visao-core\">Visao Core</h1>") {
+		t.Fatalf("expected index to render the pt-BR root page by default, got:\n%s", index)
 	}
+	if !strings.Contains(index, `<a class="home" href="../">Home</a>`) {
+		t.Fatalf("expected index to link back to the landing home, got:\n%s", index)
+	}
+	if !strings.Contains(index, `href="core/en/"`) {
+		t.Fatalf("expected index to keep the English tree reachable, got:\n%s", index)
+	}
+	if !strings.Contains(index, `href="core/PT-br/combat/ataque/"`) {
+		t.Fatalf("expected index's aliased body links to be re-anchored under core/PT-br/, got:\n%s", index)
+	}
+
+	ptPage := readTestFile(t, filepath.Join(out, "core", "PT-br", "index.html"))
+	if !strings.Contains(ptPage, "<h1 id=\"visao-core\">Visao Core</h1>") {
+		t.Fatalf("expected the core/PT-br tree to remain unchanged, got:\n%s", ptPage)
+	}
+
 	page := readTestFile(t, filepath.Join(out, "core", "en", "index.html"))
 	if !strings.Contains(page, "<h1 id=\"core-overview\">Core Overview</h1>") {
 		t.Fatalf("expected rendered heading, got:\n%s", page)
 	}
 	if !strings.Contains(page, "href=\"combat/attack/\"") {
 		t.Fatalf("expected rewritten markdown link, got:\n%s", page)
+	}
+	if !strings.Contains(page, `<a class="home" href="../../../">Home</a>`) {
+		t.Fatalf("expected content page to link back to the landing home, got:\n%s", page)
 	}
 }
 
