@@ -64,6 +64,16 @@ const pdfHref = landingPath(`/downloads/rgb-system-core-v2-latest-${lang}.pdf`);
 </section>
 
 <section class="problem" id="problem">
+  <a href="#hero" class="scroll-hint scroll-hint-up" aria-label={a11y.scrollHintPrev}>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+      ><path
+        d="M18 15l-6-6-6 6"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path></svg
+    >
+  </a>
   <div class="kicker">{t.problem.kicker}</div>
   <h2>{t.problem.title}</h2>
   <ul>
@@ -82,6 +92,16 @@ const pdfHref = landingPath(`/downloads/rgb-system-core-v2-latest-${lang}.pdf`);
 </section>
 
 <section class="system" id="system">
+  <a href="#problem" class="scroll-hint scroll-hint-up" aria-label={a11y.scrollHintPrev}>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+      ><path
+        d="M18 15l-6-6-6 6"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path></svg
+    >
+  </a>
   <div class="kicker">{t.system.kicker}</div>
   <h2>{t.system.title}</h2>
   <p class="sub">{t.system.desc}</p>
@@ -110,6 +130,16 @@ const pdfHref = landingPath(`/downloads/rgb-system-core-v2-latest-${lang}.pdf`);
 </section>
 
 <section class="library" id="library">
+  <a href="#system" class="scroll-hint scroll-hint-up" aria-label={a11y.scrollHintPrev}>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+      ><path
+        d="M18 15l-6-6-6 6"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path></svg
+    >
+  </a>
   <div class="kicker">{t.libraryTeaser.kicker}</div>
   <h2>{t.libraryTeaser.title}</h2>
   <p class="sub">{t.libraryTeaser.desc}</p>
@@ -138,6 +168,16 @@ const pdfHref = landingPath(`/downloads/rgb-system-core-v2-latest-${lang}.pdf`);
 </section>
 
 <section class="for-developers" id="for-developers">
+  <a href="#library" class="scroll-hint scroll-hint-up" aria-label={a11y.scrollHintPrev}>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+      ><path
+        d="M18 15l-6-6-6 6"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path></svg
+    >
+  </a>
   <div class="kicker">{t.forDevelopers.kicker}</div>
   <h2>{t.forDevelopers.title}</h2>
   <p class="sub">{t.forDevelopers.desc}</p>
@@ -200,6 +240,10 @@ const pdfHref = landingPath(`/downloads/rgb-system-core-v2-latest-${lang}.pdf`);
   }
   .scroll-hint:hover {
     color: var(--text);
+  }
+  .scroll-hint-up {
+    top: 28px;
+    bottom: auto;
   }
   @media (prefers-reduced-motion: no-preference) {
     .scroll-hint {
