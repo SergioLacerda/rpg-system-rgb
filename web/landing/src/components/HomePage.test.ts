@@ -14,6 +14,17 @@ describe("HomePage", () => {
     expect(html).toContain(
       "/rpg-system-rgb/downloads/rgb-system-core-v2-latest-pt-br.pdf",
     );
+
+    const heroIndex = html.indexOf('id="hero"');
+    const problemIndex = html.indexOf('id="problem"');
+    const heroSection = html.slice(heroIndex, problemIndex);
+    expect(heroSection).not.toContain("scroll-hint-up");
+
+    for (const prevId of ["hero", "problem", "system", "library"]) {
+      expect(html).toContain(
+        `<a href="#${prevId}" class="scroll-hint scroll-hint-up" aria-label="Voltar"`,
+      );
+    }
   });
 
   it("renders the English home copy and PDF link", async () => {
@@ -26,6 +37,9 @@ describe("HomePage", () => {
     expect(html).toContain("Too many rules, not enough game.");
     expect(html).toContain(
       "/rpg-system-rgb/downloads/rgb-system-core-v2-latest-en.pdf",
+    );
+    expect(html).toContain(
+      '<a href="#library" class="scroll-hint scroll-hint-up" aria-label="Previous section"',
     );
   });
 });

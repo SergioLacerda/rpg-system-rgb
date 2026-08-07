@@ -10,7 +10,13 @@ describe("Footer", () => {
     });
 
     expect(html).toContain("RGB System · código aberto");
-    expect(html).toContain("GitHub · Discord · Changelog");
+    expect(html).toContain('href="https://github.com/SergioLacerda"');
+    expect(html).toContain(
+      'href="https://github.com/SergioLacerda/rpg-system-rgb/blob/main/CHANGELOG.md"',
+    );
+    expect(html).toContain(">GitHub</a>");
+    expect(html).toContain(">Changelog</a>");
+    expect(html).not.toContain("Discord");
   });
 
   it("renders English footer copy", async () => {

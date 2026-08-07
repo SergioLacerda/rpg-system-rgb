@@ -18,6 +18,7 @@ export const dict = {
         forDevelopers: "PARA DESENVOLVEDORES",
       },
       scrollHint: "Avançar",
+      scrollHintPrev: "Voltar",
     },
     hero: {
       kicker: "UM SISTEMA DE RPG DE MESA · CÓDIGO ABERTO",
@@ -155,6 +156,7 @@ export const dict = {
         forDevelopers: "FOR DEVELOPERS",
       },
       scrollHint: "Next section",
+      scrollHintPrev: "Previous section",
     },
     hero: {
       kicker: "A TABLETOP RPG SYSTEM · OPEN SOURCE",
