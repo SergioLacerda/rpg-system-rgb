@@ -194,6 +194,52 @@ const pdfHref = landingPath(`/downloads/rgb-system-core-v2-latest-${lang}.pdf`);
 <script>
   const dots = document.querySelectorAll<HTMLAnchorElement>(".dot-nav a");
   const sections = document.querySelectorAll<HTMLElement>(".scroller > section");
+  const scroller = document.querySelector<HTMLElement>(".scroller");
+
+  // .scroller has its own overflow-y scroll for section snapping, but the
+  // outer document is *also* scrollable (so the footer, which sits below
+  // .scroller, stays reachable). Native anchor-jump / :target navigation
+  // scrolls every scrollable ancestor it can reach, not just .scroller —
+  // which nudges the outer document too and shifts .scroller up behind the
+  // sticky header. Section-nav links are handled manually instead, moving
+  // only .scroller and resetting the outer document scroll.
+  function scrollToSection(id: string) {
+    const target = document.getElementById(id);
+    if (!scroller || !target) return;
+    const delta = target.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
+    scroller.scrollTop += delta;
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }
+
+  document
+    .querySelectorAll<HTMLAnchorElement>(".scroll-hint, .dot-nav a")
+    .forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const id = link.getAttribute("href")?.slice(1);
+        if (!id) return;
+        event.preventDefault();
+        scrollToSection(id);
+        history.replaceState(null, "", `#${id}`);
+      });
+    });
+
+  if (location.hash) {
+    // A page loaded directly with a section hash (deep link/reload) has the
+    // same conflict as a click: the browser's own fragment navigation can
+    // run *after* this script (observed around/after the "load" event) and
+    // override the correction below. Strip the hash immediately so the
+    // browser has nothing to re-scroll to later, and re-apply our own
+    // correction once more on "load" as a safety net.
+    const initialId = location.hash.slice(1);
+    history.replaceState(null, "", location.pathname + location.search);
+    scrollToSection(initialId);
+    window.addEventListener("load", () => {
+      scrollToSection(initialId);
+      history.replaceState(null, "", `#${initialId}`);
+    });
+  }
+
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
