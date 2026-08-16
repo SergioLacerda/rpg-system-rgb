@@ -1,6 +1,10 @@
 import type { Locale } from "../i18n/dictionary";
 
-const configuredBase = import.meta.env.BASE_URL ?? "/";
+const testLandingBase = "/rpg-system-rgb/";
+const configuredBase =
+  import.meta.env.MODE === "test" && import.meta.env.BASE_URL === "/"
+    ? testLandingBase
+    : (import.meta.env.BASE_URL ?? "/");
 
 export function normalizeLandingBase(base = configuredBase): string {
   if (base === "/") {
