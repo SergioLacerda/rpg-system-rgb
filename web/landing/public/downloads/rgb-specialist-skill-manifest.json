@@ -1,0 +1,19 @@
+{
+  "artifacts": [
+    {
+      "bytes": 34092,
+      "file": "rgb-specialist-latest.zip",
+      "path": "/downloads/rgb-specialist-latest.zip",
+      "sha256": "1c4e2e68c57290c1d29db951952dc864ba3c98dfb72291d191557af7cb3cd5bd"
+    },
+    {
+      "bytes": 34092,
+      "file": "rgb-specialist-v0.1.zip",
+      "path": "/downloads/rgb-specialist-v0.1.zip",
+      "sha256": "1c4e2e68c57290c1d29db951952dc864ba3c98dfb72291d191557af7cb3cd5bd"
+    }
+  ],
+  "name": "rgb-specialist",
+  "schema": "rgb-system-skill-artifacts/0.1",
+  "version": "v0.1"
+}

@@ -14,3 +14,4 @@ This directory contains project-wide architecture decisions for RGB System.
 - [ADR-010: Go-Owned Publication Without Python](adr-010-go-owned-publication-without-python.md)
 - [ADR-011: Split License Model](adr-011-split-license-model.md)
 - [ADR-012: MIT-Only License](adr-012-mit-only-license.md)
+- [ADR-013: Skill Distribution Via The Existing Publication Pipeline](adr-013-skill-distribution-via-existing-publication-pipeline.md)

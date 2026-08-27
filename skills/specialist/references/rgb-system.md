@@ -1,0 +1,1912 @@
+# RGB System — Canonical Rules (bundled snapshot)
+
+This file is a verbatim, bundled copy of the RGB System canonical
+documentation, generated for the `rgb-specialist` skill so the
+package is self-contained when copied outside this repository.
+
+**Source of truth**: `docs/core/` in the
+[rpg-system-rgb](https://github.com/SergioLacerda/rpg-system-rgb) repository
+(see ADR-002 and ADR-014). If this file and `docs/core/` ever disagree,
+`docs/core/` wins — this is a manually refreshed snapshot, not a
+generated artifact (see ADR-014).
+
+---
+
+<!-- Source: docs/core/en/introduction/rgb_one_page_rules.md -->
+
+# RGB System — One Page Rules
+
+A minimal reference to start playing the **RGB RPG System** immediately.
+
+## Core Concept
+
+Characters are defined by three vectors:
+
+| Vector | Name | Function |
+|||--|
+| R | Red | pressure, impact, disruption |
+| G | Green | relation, mobility, reaction |
+| B | Blue | preservation, shields, stabilization |
+
+Players distribute **7 starting points** between R, G and B.
+
+Example:
+
+R = 3  
+G = 2  
+B = 2
+
+## Character Durability
+
+```text
+Health = 4 + R + B
+Shield = B × 3
+```
+
+Health represents physical endurance plus preservation.  
+Shield represents energy or special protection.
+
+## Turn Structure
+
+Each turn a character gets:
+
+```text
+Movement (G × 2 meters, free)
++
+1 Action
++
+1 Minor Action
+```
+
+Examples:
+
+Actions:
+
+- attack
+- defend
+- use ability
+
+Minor Actions:
+
+- reload
+- small reposition
+- interact with object
+
+## Tactical Choices
+
+Most combat decisions fall into three categories:
+
+```text
+Press → R
+Reposition → G
+Sustain → B
+```
+
+This creates three combat strategies:
+
+| Strategy | Vector |
+|||
+Striker | R |
+Skirmisher | G |
+Guardian | B |
+
+Hybrid builds are possible.
+
+## Attack Resolution
+
+An attack succeeds if the attacker overcomes the defender according to the combat rules.
+
+If the attack succeeds, damage is resolved.
+
+## Damage Flow
+
+```text
+Hit or Contact Check
+↓
+Impact Source
+↓
+Penetration
+↓
+Armor Reduction
+↓
+Shield Absorption
+↓
+Remaining Damage → Character
+```
+
+Definitions:
+
+Armor → reduces damage per hit  
+Shield → absorbs accumulated damage  
+
+## Example Damage
+
+Weapon Damage: 7  
+Penetration: 2  
+Armor: 4
+
+```text
+Effective Armor = Armor − Penetration
+Effective Armor = 2
+Final Damage = 7 − 2 = 5
+```
+
+If a shield exists, damage is absorbed by the shield first.
+
+## Gameplay Loop
+
+A typical session follows:
+
+```text
+Character Creation
+↓
+Exploration
+↓
+Combat
+↓
+Recovery
+↓
+Story Progression
+```
+
+## RGB Tactical Model
+
+```text
+        G
+   mobility / reaction
+
+R - B
+power / damage    shield / defense
+```
+
+R → deal damage or change the source of pressure  
+G → avoid damage or change relation to pressure  
+B → absorb damage or preserve continuity under pressure  
+
+## Design Philosophy
+
+The RGB system focuses on:
+
+- simple numeric relationships
+- tactical combat decisions
+- modular rules
+- adaptable settings
+
+The same rules can support:
+
+- modern campaigns
+- fantasy worlds
+- science fiction
+- superpowered settings
+
+---
+
+<!-- Source: docs/core/PT-br/introduction/rgb_one_page_rules.md -->
+
+# Sistema RGB — Regras em Uma Página
+
+Uma referência mínima para começar a jogar o **Sistema de RPG RGB** imediatamente.
+
+## Conceito Central
+
+Os personagens são definidos por três vetores:
+
+```text
+| Vetor | Nome | Função |
+|------|------|--------|
+| R | Vermelho | pressão, impacto, disrupção |
+| G | Verde | relação, mobilidade, reação |
+| B | Azul | preservação, escudos, estabilização |
+```
+
+Os jogadores distribuem **7 pontos iniciais** entre R, G e B.
+
+Exemplo:
+
+R = 3  
+G = 2  
+B = 2
+
+## Durabilidade do Personagem
+
+```text
+Vida = 4 + R + B
+Escudo = B × 3
+```
+
+Vida representa endurance física mais preservação.  
+Escudo representa energia ou proteção especial.
+
+## Estrutura de Turno
+
+A cada turno um personagem tem:
+
+```text
+Movimento (G × 2 metros, livre)
++
+1 Ação
++
+1 Ação Menor
+```
+
+Exemplos:
+
+Ações:
+
+- atacar
+- defender
+- usar habilidade
+
+Ações menores:
+
+- recarregar
+- pequeno reposicionamento
+- interagir com objeto
+
+## Escolhas Táticas
+
+A maioria das decisões de combate se divide em três categorias:
+
+```text
+Pressionar   → R
+Reposicionar → G
+Sustentar    → B
+```
+
+Isso cria três estratégias principais de combate:
+
+```text
+| Estratégia | Vetor |
+|------------|------|
+Atacante | R |
+Escaramuçador | G |
+Guardião | B |
+```
+
+Construções híbridas também são possíveis.
+
+## Resolução de Ataque
+
+Um ataque é bem-sucedido quando o atacante supera o defensor de acordo com as regras de combate.
+
+Se o ataque for bem-sucedido, o dano é resolvido.
+
+## Fluxo de Dano
+
+```text
+Verificação de Acerto ou Contato
+↓
+Fonte de Impacto
+↓
+Penetração
+↓
+Redução por Armadura
+↓
+Absorção por Escudo
+↓
+Dano Restante → Personagem
+```
+
+Definições:
+
+Armadura → reduz dano por ataque  
+Escudo → absorve dano acumulado  
+
+## Exemplo de Dano
+
+Fonte de Impacto: 7  
+Penetração: 2  
+Armadura: 4
+
+```text
+Armadura Efetiva = Armadura − Penetração
+Armadura Efetiva = 2
+Dano Final = 7 − 2 = 5
+```
+
+Se houver escudo, o dano é absorvido pelo escudo primeiro.
+
+## Loop de Jogo
+
+Uma sessão típica segue esta estrutura:
+
+```text
+Criação de Personagem
+↓
+Exploração
+↓
+Combate
+↓
+Recuperação
+↓
+Progressão da História
+```
+
+## Modelo Tático RGB
+
+```text
+        G
+   mobilidade / reação
+
+R - B
+poder / dano    escudo / defesa
+```
+
+R → causar dano ou mudar a fonte de pressão  
+G → evitar dano ou mudar a relação com a pressão  
+B → absorver dano ou preservar continuidade sob pressão  
+
+## Filosofia de Design
+
+O sistema RGB foca em:
+
+- relações numéricas simples
+- decisões táticas de combate
+- regras modulares
+- cenários adaptáveis
+
+As mesmas regras podem suportar:
+
+- campanhas modernas
+- mundos de fantasia
+- ficção científica
+- cenários com superpoderes
+
+---
+
+<!-- Source: docs/core/en/reference/rgb_system_engine.md -->
+
+# RGB System Engine
+
+The **RGB System Engine** describes the full architecture of the RGB role‑playing system.
+It connects all system components into a layered structure similar to a game engine.
+
+This model helps explain how the RGB system remains:
+
+- modular
+- scalable
+- easy to balance
+- adaptable to many settings
+
+## RGB System Architecture
+
+The RGB system can be understood as a layered engine:
+
+```text
+           Campaign Setting
+                │
+                ▼
+        RGB Ability Engine
+                │
+                ▼
+          Gameplay Layer
+                │
+                ▼
+           Combat System
+                │
+                ▼
+            Damage Engine
+                │
+                ▼
+           Equipment Data
+                │
+                ▼
+            RGB Vectors
+```
+
+Each layer builds on the one below it.
+
+## Layer Description
+
+## RGB Vectors (Core Layer)
+
+The entire system is built on the three RGB vectors.
+
+```text
+        G
+   mobility / positioning
+
+R ---------------- B
+power / damage      shield / defense
+```
+
+Vectors define the core mechanics:
+
+- **R (Red)** → offensive power
+- **G (Green)** → mobility and reaction
+- **B (Blue)** → defense and energy
+
+All other systems derive from these three values.
+
+## Equipment Data
+
+This layer defines numerical values used by the combat system.
+
+Examples:
+
+- weapon damage
+- armor reduction
+- penetration values
+- shield capacity
+
+Documents:
+
+- Firearms
+- Melee
+- Armor
+- Shields
+
+## Damage Engine
+
+The damage engine determines how attacks affect characters.
+
+```text
+Weapon
+↓
+Penetration
+↓
+Armor
+↓
+Shield
+↓
+Character
+```
+
+Documents:
+
+- Damage Model
+- RGB Damage Interaction Model
+
+## Combat System
+
+The combat layer defines interaction between characters.
+
+Examples:
+
+- attack resolution
+- movement
+- positioning
+- defense reactions
+
+Documents:
+
+- Movement
+- Attack and Defense
+
+## Gameplay Layer
+
+Defines how players interact with the system during play.
+
+Typical gameplay loop:
+
+```text
+Character Creation
+↓
+Exploration
+↓
+Combat
+↓
+Recovery
+```
+
+Documents:
+
+- Character Creation
+- Gameplay Loop
+- Combat Decision Model
+
+## RGB Ability Engine
+
+This layer introduces abilities, powers, and special mechanics.
+
+Abilities are built using the RGB vectors.
+
+```text
+Vector
+Cost
+Effect
+Duration
+Limit
+```
+
+Documents:
+
+- Skills and Abilities
+
+## Campaign Setting
+
+The top layer defines the narrative world.
+
+Examples:
+
+- modern campaigns
+- fantasy worlds
+- science fiction
+- superhero universes
+
+Example:
+
+```text
+RGB System → rule engine
+Aurora → campaign setting built on top of the engine
+```
+
+## Complete System Flow
+
+The full interaction between layers:
+
+```text
+Vectors
+ ↓
+Equipment Data
+ ↓
+Damage Engine
+ ↓
+Combat System
+ ↓
+Gameplay Rules
+ ↓
+Ability Engine
+ ↓
+Campaign Setting
+```
+
+## Design Advantages
+
+The RGB System Engine provides several advantages.
+
+## Modular Design
+
+New subsystems can be added without rewriting core rules.
+
+Examples:
+
+- magic systems
+- vehicles
+- cybernetics
+- superpowers
+
+## Easier Balance
+
+Balance occurs primarily in:
+
+```text
+Damage Engine
+Equipment Data
+```
+
+The rest of the system remains stable.
+
+## Clear Documentation
+
+Each layer answers a specific question.
+
+```text
+Layer             Question
+---------------------------------------------Vectors           What defines a character?
+Equipment         What numbers exist?
+Damage Engine     How damage works?
+Combat System     How characters interact?
+Gameplay          How players interact?
+Abilities         What special powers exist?
+Setting           What world the story happens in?
+```
+
+## Final Observation
+
+The RGB System behaves less like a traditional RPG ruleset and more like a **modular RPG engine**.
+
+Because of this architecture, the same core system can support many different genres
+while remaining simple and consistent.
+
+---
+
+<!-- Source: docs/core/PT-br/reference/rgb_system_engine.md -->
+
+# Engine do Sistema RGB
+
+O **Engine do Sistema RGB** descreve a arquitetura completa do sistema de RPG RGB.
+Ele conecta todos os componentes do sistema em uma estrutura em camadas semelhante à de uma engine de jogos.
+
+Esse modelo ajuda a explicar como o sistema RGB permanece:
+
+- modular
+- escalável
+- fácil de balancear
+- adaptável a diversos cenários
+
+## Arquitetura do Sistema RGB
+
+O sistema RGB pode ser entendido como uma engine em camadas:
+
+```text
+           Cenário da Campanha
+                │
+                ▼
+        RGB Ability Engine
+                │
+                ▼
+          Camada de Gameplay
+                │
+                ▼
+           Sistema de Combate
+                │
+                ▼
+            Motor de Dano
+                │
+                ▼
+           Dados de Equipamento
+                │
+                ▼
+            Vetores RGB
+```
+
+Cada camada se apoia na camada abaixo.
+
+## Descrição das Camadas
+
+## Vetores RGB (Camada Base)
+
+Todo o sistema é construído sobre três vetores fundamentais.
+
+```text
+        G
+   relação / posicionamento
+
+R ---------------- B
+pressão             preservação
+```
+
+Os vetores definem as mecânicas principais:
+
+- **R (Vermelho)** → pressão, impacto e disrupção
+- **G (Verde)** → relação, mobilidade e reação
+- **B (Azul)** → preservação, escudos e estabilização
+
+Todos os outros sistemas derivam desses três valores.
+
+## Dados de Equipamento
+
+Essa camada define os valores numéricos utilizados pelo sistema de combate.
+
+Exemplos:
+
+- fontes de impacto
+- redução de armadura
+- valores de penetração
+- capacidade de escudos
+
+Documentos relacionados:
+
+- Armas de Fogo
+- Armas Corpo a Corpo
+- Armaduras
+- Escudos
+
+## Motor de Dano
+
+O motor de dano determina como ataques afetam os personagens.
+
+```text
+Fonte de Impacto
+↓
+Penetração
+↓
+Redução por Armadura
+↓
+Absorção por Escudo
+↓
+Personagem
+```
+
+Documentos relacionados:
+
+- Modelo de Dano
+- Modelo de Interação RGB
+
+## Sistema de Combate
+
+A camada de combate define a interação entre personagens.
+
+Exemplos:
+
+- resolução de ataques
+- movimento
+- posicionamento
+- reações defensivas
+
+Documentos relacionados:
+
+- Movimento
+- Ataque e Defesa
+
+## Camada de Gameplay
+
+Define como os jogadores interagem com o sistema durante o jogo.
+
+Loop típico de jogo:
+
+```text
+Criação de Personagem
+↓
+Exploração
+↓
+Combate
+↓
+Recuperação
+```
+
+Documentos relacionados:
+
+- Criação de Personagem
+- Loop de Jogo
+- Modelo de Decisão de Combate
+
+## RGB Ability Engine
+
+Essa camada introduz habilidades, poderes e mecânicas especiais.
+
+As habilidades são construídas usando os vetores RGB.
+
+```text
+id
+name
+vector
+tier
+requirements
+action_type
+cost
+range
+duration
+effect
+limits
+tags
+source_status
+```
+
+Documentos relacionados:
+
+- Habilidades e Perícias
+
+## Cenário da Campanha
+
+A camada superior define o mundo narrativo.
+
+Exemplos:
+
+- campanhas modernas
+- mundos de fantasia
+- ficção científica
+- universos com superpoderes
+
+Exemplo de separação:
+
+```text
+Sistema RGB → engine de regras
+Aurora → cenário construído sobre a engine
+```
+
+## Fluxo Completo do Sistema
+
+A interação completa entre as camadas:
+
+```text
+Vetores
+ ↓
+Dados de Equipamento
+ ↓
+Motor de Dano
+ ↓
+Sistema de Combate
+ ↓
+Regras de Gameplay
+ ↓
+Engine de Habilidades
+ ↓
+Cenário da Campanha
+```
+
+## Vantagens de Design
+
+O RGB System Engine oferece diversas vantagens.
+
+## Design Modular
+
+Novos subsistemas podem ser adicionados sem reescrever as regras centrais.
+
+Exemplos:
+
+- sistemas de magia
+- veículos
+- cibernética
+- superpoderes
+
+## Balanceamento Mais Simples
+
+A maior parte do balanceamento ocorre em:
+
+```text
+Motor de Dano
+Dados de Equipamento
+```
+
+O restante do sistema permanece estável.
+
+## Documentação Clara
+
+Cada camada responde a uma pergunta específica.
+
+```text
+Camada            Pergunta
+--------------------------------------------Vetores           O que define um personagem?
+Equipamentos      Quais números existem?
+Motor de Dano     Como o dano funciona?
+Combate           Como personagens interagem?
+Gameplay          Como jogadores interagem?
+Habilidades       Quais poderes existem?
+Cenário           Em que mundo a história ocorre?
+```
+
+## Observação Final
+
+O Sistema RGB se comporta menos como um conjunto tradicional de regras de RPG
+e mais como uma **engine modular de RPG**.
+
+Graças a essa arquitetura, o mesmo sistema pode suportar diferentes gêneros
+mantendo simplicidade e consistência.
+
+---
+
+<!-- Source: docs/core/en/reference/rgb_damage_interaction_model.md -->
+
+# RGB System – Damage Model and Interaction Design Notes
+
+This document consolidates the design observations about the RGB System damage model,
+its mathematical balance, and how the RGB vectors interact with combat mechanics.
+
+The goal of this document is to explain **why the system behaves consistently and remains balanced**,
+while keeping the rules simple.
+
+## RGB Interaction Model
+
+The RGB System is built around three fundamental vectors:
+
+- **R (Red)** — pressure, impact, disruption and physical force
+- **G (Green)** — relation, mobility, timing and reaction
+- **B (Blue)** — preservation, shields, energy and special resistance
+
+These vectors interact to create tactical gameplay.
+
+```text
+        G
+   relation / reaction
+
+R - B
+pressure          preservation
+```
+
+Each vector influences a different aspect of gameplay:
+
+| Vector | Gameplay Role |
+|||
+R | Pressure, impact and physical force |
+G | Mobility, positioning and evasion |
+B | Preservation, energy shields and special defenses |
+
+## System Interaction Flow
+
+The RGB System connects character attributes, equipment and combat mechanics.
+
+```text
+RGB Vectors
+↓
+Character Creation
+↓
+Equipment Selection
+↓
+Combat Interaction
+↓
+Damage Resolution
+```
+
+This modular structure allows the system to adapt to multiple settings such as:
+
+- modern campaigns
+- fantasy worlds
+- science fiction settings
+- super‑powered universes
+
+## RGB Damage Model
+
+Combat damage in the RGB System follows a layered structure.
+
+```text
+Hit or Contact Check
+↓
+Impact Source
+↓
+Penetration
+↓
+Armor Reduction
+↓
+Shield Absorption
+↓
+Remaining Damage → Character
+```
+
+This layered approach ensures that weapons, armor and shields interact predictably.
+
+## Core System Formulas
+
+The RGB system defines character durability using simple formulas.
+
+```text
+Health = 4 + R + B
+Shield = B × 3
+```
+
+Weapons, attributes, abilities or procedures declare the **impact source**,
+while armor provides **fixed reduction values**.
+
+Penetration modifies the effective armor value.
+
+## Effective Armor
+
+Penetration interacts with armor through a simple relationship:
+
+```text
+Effective Armor = Armor − Penetration
+```
+
+Final damage becomes:
+
+```text
+Damage After Armor = Impact Source − Effective Armor
+```
+
+This keeps calculations simple and predictable.
+
+## Natural Damage Scale
+
+If the following ranges are used:
+
+| Element | Typical Scale |
+|--||
+Weapons | 3–10 |
+Armor | 1–6 |
+Penetration | 0–4 |
+
+A natural balance relationship appears:
+
+```text
+Impact Source ≈ Armor + Penetration
+```
+
+This ensures that weapons and defenses remain balanced.
+
+## Example
+
+### Light Weapon
+
+```text
+Damage = 4
+Penetration = 1
+Armor = 4
+```
+
+```text
+Effective Armor = 4 − 1 = 3
+Final Damage = 4 − 3 = 1
+```
+
+### Heavy Weapon
+
+```text
+Damage = 8
+Penetration = 3
+Armor = 6
+```
+
+```text
+Effective Armor = 6 − 3 = 3
+Final Damage = 8 − 3 = 5
+```
+
+## Shield Interaction
+
+After armor reduction, shields absorb remaining damage.
+
+```text
+Remaining Damage − Shield
+```
+
+Shields follow the RGB formula:
+
+```text
+Shield = B × 3
+```
+
+This creates two defensive layers:
+
+```text
+| Defense Type | Function |
+|--|-|
+Armor | Reduces damage per attack |
+Shield | Absorbs accumulated damage |
+```
+
+This separation simplifies combat resolution.
+
+## Balance Rule of Thumb
+
+When designing weapons and armor, the following approximation keeps combat balanced:
+
+```text
+Armor ≈ Impact Source / 2
+Penetration ≈ Impact Source / 3
+```
+
+This keeps most attacks meaningful while preserving defensive value.
+
+## Unexpected Advantage: Multiple Enemy Combat
+
+One interesting property of the RGB damage model is that it performs well when characters face **multiple opponents simultaneously**.
+
+Many RPG systems struggle with this scenario because defensive values scale poorly against repeated attacks.
+
+In RGB, the layered model distributes damage naturally:
+
+```text
+Impact Source → Penetration → Armor → Shield → Character
+```
+
+### Armor
+
+Armor reduces damage **for each individual attack**, preventing weak enemies
+from overwhelming armored characters too quickly.
+
+### Shield
+
+Shields absorb **total accumulated damage**, acting as a buffer against multiple small attacks.
+
+## Tactical Consequences
+
+This creates a stable combat dynamic.
+
+```text
+| Enemy Type | Result |
+||--|
+Many weak enemies | Armor reduces most attacks |
+Few strong enemies | Penetration becomes important |
+Energy-heavy enemies | Shields become critical |
+```
+
+Because armor works per hit and shields work cumulatively,
+the system remains stable even with many attackers.
+
+## Design Conclusion
+
+The RGB damage structure forms a clear defensive hierarchy:
+
+```text
+Weapon
+↓
+Penetration
+↓
+Armor
+↓
+Shield
+↓
+Character
+```
+
+This structure:
+
+- keeps calculations simple
+- supports tactical combat
+- scales naturally with equipment
+- handles multi‑enemy encounters well
+
+The interaction between **R, G and B vectors** ensures that different character builds
+remain viable while encouraging tactical choices during combat.
+
+---
+
+<!-- Source: docs/core/PT-br/reference/rgb_damage_interaction_model.md -->
+
+# Sistema RGB – Modelo de Dano e Notas de Interação
+
+Este documento consolida observações de design sobre o modelo de dano do Sistema
+RGB, seu equilíbrio matemático e como os vetores RGB interagem com as mecânicas
+de combate.
+
+O objetivo é explicar **por que o sistema se comporta de forma consistente e
+permanece equilibrado**, mantendo regras simples.
+
+## Modelo de Interação RGB
+
+O Sistema RGB é construído em torno de três vetores fundamentais:
+
+- **R (Vermelho)** — pressão, impacto e disrupção
+- **G (Verde)** — relação, mobilidade e reação
+- **B (Azul)** — preservação, escudos e estabilização
+
+Esses vetores interagem para criar um combate tático.
+
+```text
+        G
+   mobilidade / reação
+
+R - B
+pressão          preservação
+```
+
+Cada vetor influencia um aspecto diferente do jogo:
+
+```text
+| Vetor | Papel no Jogo |
+|------|----------------|
+R | muda a fonte de pressão |
+G | muda a relação com a pressão |
+B | preserva continuidade sob pressão |
+```
+
+## Fluxo de Interação do Sistema
+
+O Sistema RGB conecta atributos do personagem, equipamentos e mecânicas de
+combate.
+
+```text
+Vetores RGB
+↓
+Criação de Personagem
+↓
+Seleção de Equipamentos
+↓
+Interação de Combate
+↓
+Resolução de Dano
+```
+
+Essa estrutura modular permite que o sistema se adapte a diferentes cenários:
+
+- campanhas modernas
+- mundos de fantasia
+- cenários de ficção científica
+- universos com superpoderes
+
+## Modelo de Dano RGB
+
+O dano no combate segue uma estrutura em camadas.
+
+```text
+Verificação de Acerto ou Contato
+↓
+Fonte de Impacto
+↓
+Penetração
+↓
+Redução por Armadura
+↓
+Absorção por Escudo
+↓
+Dano Restante → Personagem
+```
+
+Essa abordagem garante que fontes de impacto, armaduras e escudos interajam de
+forma previsível.
+
+## Fórmulas Principais do Sistema
+
+O sistema RGB define durabilidade do personagem com fórmulas simples.
+
+```text
+Vida = 4 + R + B
+Escudo = B × 3
+```
+
+A Fonte de Impacto pode vir de arma, atributo, habilidade, procedimento ou
+exceção explícita. Armaduras oferecem **valores fixos de redução por acerto**.
+
+A penetração modifica o valor efetivo da armadura.
+
+## Armadura Efetiva
+
+A penetração interage com a armadura da seguinte forma:
+
+```text
+Armadura Efetiva = Armadura − Penetração
+```
+
+O dano restante após armadura torna-se:
+
+```text
+Dano Restante = Fonte de Impacto − Armadura Efetiva
+```
+
+Isso mantém os cálculos simples e previsíveis.
+
+## Escala Natural de Impacto
+
+Se utilizarmos os seguintes intervalos:
+
+```text
+| Elemento | Escala Típica |
+|----------|---------------|
+Fontes de Impacto | 3–10 |
+Armadura | 1–6 |
+Penetração | 0–4 |
+```
+
+Surge uma relação natural de equilíbrio:
+
+```text
+Fonte de Impacto ≈ Armadura + Penetração
+```
+
+Isso garante que ataques e defesas permaneçam relevantes.
+
+## Exemplo
+
+### Fonte Leve
+
+```text
+Fonte de Impacto = 4
+Penetração = 1
+Armadura = 4
+```
+
+```text
+Armadura Efetiva = 4 − 1 = 3
+Dano Restante = 4 − 3 = 1
+```
+
+### Fonte Pesada
+
+```text
+Fonte de Impacto = 8
+Penetração = 3
+Armadura = 6
+```
+
+```text
+Armadura Efetiva = 6 − 3 = 3
+Dano Restante = 8 − 3 = 5
+```
+
+## Interação com Escudos
+
+Após a redução pela armadura, os escudos absorvem o dano restante.
+
+```text
+Dano Restante − Escudo
+```
+
+Escudos seguem a fórmula RGB:
+
+```text
+Escudo = B × 3
+```
+
+Isso cria duas camadas defensivas:
+
+```text
+| Tipo de Defesa | Função |
+|----------------|--------|
+Armadura | reduz dano por acerto |
+Escudo | absorve dano acumulado restante |
+```
+
+Essa separação simplifica a resolução do combate.
+
+## Regra Prática de Balanceamento
+
+Ao projetar fontes de impacto e armaduras, a seguinte aproximação mantém o
+combate equilibrado:
+
+```text
+Armadura ≈ Fonte de Impacto / 2
+Penetração ≈ Fonte de Impacto / 3
+```
+
+Isso mantém a maioria dos ataques relevantes sem tornar as defesas inúteis.
+
+## Vantagem Inesperada: Combate Contra Múltiplos Inimigos
+
+Uma propriedade interessante do modelo de dano RGB é que ele funciona bem quando
+personagens enfrentam **múltiplos oponentes simultaneamente**.
+
+Muitos sistemas de RPG têm dificuldades nesse cenário porque valores defensivos
+não escalam bem contra ataques repetidos.
+
+No RGB, o modelo em camadas distribui o dano naturalmente:
+
+```text
+Fonte de Impacto → Penetração → Armadura → Escudo → Personagem
+```
+
+### Armadura
+
+A armadura reduz dano **em cada ataque individual**, evitando que inimigos fracos
+sobrecarreguem rapidamente personagens bem protegidos.
+
+### Escudo
+
+Escudos absorvem **o dano total acumulado restante**, funcionando como um
+amortecedor contra vários ataques menores.
+
+## Consequências Táticas
+
+Isso cria uma dinâmica de combate estável.
+
+```text
+| Tipo de Inimigo | Resultado |
+|-----------------|-----------|
+Muitos inimigos fracos | Armadura reduz a maioria dos ataques |
+Poucos inimigos fortes | Penetração torna-se mais importante |
+Inimigos com energia | Escudos tornam-se críticos |
+```
+
+Como a armadura funciona por golpe e os escudos funcionam cumulativamente, o
+sistema permanece estável mesmo com muitos atacantes.
+
+## Conclusão de Design
+
+A estrutura de dano do RGB forma uma hierarquia clara de defesa:
+
+```text
+Fonte de Impacto
+↓
+Penetração
+↓
+Redução por Armadura
+↓
+Absorção por Escudo
+↓
+Personagem
+```
+
+Essa estrutura:
+
+- mantém os cálculos simples
+- suporta combate tático
+- escala naturalmente com equipamentos
+- lida bem com encontros com múltiplos inimigos
+
+---
+
+<!-- Source: docs/core/en/reference/rgb_system_architecture_notes.md -->
+
+# RGB System Architecture – Layered Design Observation
+
+This note documents an interesting structural property that appears when the RGB documentation
+is analyzed as a whole.
+
+Although the RGB System was designed as a simple tabletop RPG system, the documentation naturally
+reveals a **layered architecture** similar to what is often found in game engines.
+
+This structure improves clarity, modularity and long‑term expandability.
+
+## Layered Architecture of the RGB System
+
+When the documentation is organized by function, the system forms the following layers:
+
+```text
+System Layer
+↓
+Gameplay Layer
+↓
+Combat Layer
+↓
+Damage Layer
+↓
+Equipment Layer
+```
+
+Each layer answers a different design question.
+
+## 1. System Layer
+
+Documents:
+
+- System Overview
+- RGB Damage Interaction Model
+
+Purpose:
+
+This layer explains the **core philosophy and structure of the system**.
+
+It defines the RGB vectors:
+
+- **R (Red)** – damage and physical power
+- **G (Green)** – mobility and reaction
+- **B (Blue)** – shields and energy defense
+
+It also shows how the system modules connect.
+
+Equivalent concept in game engines:
+
+Core system design.
+
+## 2. Gameplay Layer
+
+Documents:
+
+- Gameplay Loop
+- Combat Decision Model
+
+Purpose:
+
+This layer explains **how players interact with the system during play**.
+
+Typical flow:
+
+``````text
+Character Creation
+↓
+Exploration
+↓
+Combat
+↓
+Recovery
+```
+
+During combat the player usually chooses between:
+
+```text
+Press
+Reposition
+Sustain
+```
+
+Which map naturally to:
+
+```text
+Press → R
+Reposition → G
+Sustain → B
+```
+
+Equivalent concept in game engines:
+
+Gameplay framework.
+
+# 3. Combat Layer
+
+Documents:
+
+- Attack and Defense
+- Movement
+
+Purpose:
+
+Defines how characters interact during encounters.
+
+This includes:
+
+- movement rules
+- attack resolution
+- defensive reactions
+- positioning
+
+Equivalent concept in game engines:
+
+Combat system.
+
+# 4. Damage Layer
+
+Documents:
+
+- Damage Model
+- RGB Damage Interaction Model
+
+Purpose:
+
+Handles the internal logic of damage calculation.
+
+The RGB damage engine follows this structure:
+
+```text
+Weapon
+↓
+Penetration
+↓
+Armor
+↓
+Shield
+↓
+Character
+```
+
+This layer allows combat to remain tactical while keeping calculations simple.
+
+Equivalent concept in game engines:
+
+Damage engine.
+
+# 5. Equipment Layer
+
+Documents:
+
+- Armor
+- Shields
+- Firearms
+- Melee
+- Explosives
+
+Purpose:
+
+Defines the **data values used by the combat and damage systems**.
+
+Examples:
+
+- weapon damage
+- armor reduction
+- penetration values
+- shield capacity
+
+Equivalent concept in game engines:
+
+Data layer.
+
+# Complete RGB System Architecture
+
+When combined, the RGB documentation forms the following structure:
+
+```text
+System Design
+   │
+   ├─ System Overview
+   ├─ RGB Interaction Model
+   │
+Gameplay
+   │
+   ├─ Gameplay Loop
+   ├─ Combat Decision Model
+   │
+Combat
+   │
+   ├─ Movement
+   ├─ Attack & Defense
+   │
+Damage Engine
+   │
+   ├─ Damage Model
+   │
+Equipment Data
+   │
+   ├─ Armor
+   ├─ Shields
+   ├─ Weapons
+```
+
+# Design Consequences
+
+This layered architecture produces several advantages.
+
+### Modularity
+
+New subsystems can be added without modifying core rules.
+
+Examples:
+
+- magic systems
+- cybernetics
+- vehicles
+- superpowers
+
+### Easier Balance
+
+Most balancing occurs in:
+
+```
+Damage Layer
+Equipment Layer
+```
+
+The rest of the system remains stable.
+
+### Clear Documentation
+
+Each layer answers a different question:
+
+```text
+| Layer | Question |
+||-|
+System | How the system is structured |
+Gameplay | How players interact with the game |
+Combat | How characters interact |
+Damage | How damage is calculated |
+Equipment | Which numerical values exist |
+```
+
+# Final Observation
+
+The RGB System behaves less like a traditional RPG rule set and more like a **reusable RPG system engine**.
+
+This makes the system particularly well suited for:
+
+- modern campaigns
+- fantasy worlds
+- science fiction settings
+- super‑powered universes
+
+In this model:
+
+```text
+RGB System → rule engine
+Setting (e.g., Aurora) → world built on top of the engine
+```
+
+This separation allows the RGB System to remain generic while different settings provide narrative context.
+
+---
+
+<!-- Source: docs/core/PT-br/reference/rgb_system_architecture_notes.md -->
+
+# Arquitetura do Sistema RGB – Observação de Design em Camadas
+
+Esta nota documenta uma propriedade estrutural interessante que aparece quando a documentação do RGB
+é analisada como um todo.
+
+Embora o Sistema RGB tenha sido projetado como um sistema de RPG de mesa simples, a documentação
+revela naturalmente uma **arquitetura em camadas** semelhante à encontrada em engines de jogos.
+
+Essa estrutura melhora a clareza, modularidade e capacidade de expansão a longo prazo.
+
+## Arquitetura em Camadas do Sistema RGB
+
+Quando a documentação é organizada por função, o sistema forma as seguintes camadas:
+
+```text
+Camada do Sistema
+↓
+Camada de Gameplay
+↓
+Camada de Combate
+↓
+Camada de Dano
+↓
+Camada de Equipamentos
+```
+
+Cada camada responde a uma pergunta diferente de design.
+
+## 1. Camada do Sistema
+
+Documentos:
+
+- Visão Geral do Sistema
+- Modelo de Interação RGB
+
+Objetivo:
+
+Esta camada explica a **filosofia central e a estrutura do sistema**.
+
+Ela define os vetores RGB:
+
+- **R (Vermelho)** – dano e poder físico
+- **G (Verde)** – mobilidade e reação
+- **B (Azul)** – escudos e defesa energética
+
+Também mostra como os módulos do sistema se conectam.
+
+Equivalente em engines de jogo:
+
+Design do sistema central.
+
+## 2. Camada de Gameplay
+
+Documentos:
+
+- Loop de Jogo
+- Modelo de Decisão de Combate
+
+Objetivo:
+
+Esta camada explica **como os jogadores interagem com o sistema durante o jogo**.
+
+Fluxo típico:
+
+```text
+Criação de Personagem
+↓
+Exploração
+↓
+Combate
+↓
+Recuperação
+```
+
+Durante o combate o jogador normalmente escolhe entre:
+
+```text
+Atacar
+Mover
+Defender
+```
+
+Que se relacionam naturalmente com:
+
+```text
+Atacar → R
+Mover → G
+Defender → B
+```
+
+Equivalente em engines de jogo:
+
+Estrutura de gameplay.
+
+## 3. Camada de Combate
+
+Documentos:
+
+- Ataque e Defesa
+- Movimento
+
+Objetivo:
+
+Define como os personagens interagem durante encontros.
+
+Isso inclui:
+
+- regras de movimento
+- resolução de ataques
+- reações defensivas
+- posicionamento
+
+Equivalente em engines de jogo:
+
+Sistema de combate.
+
+## 4. Camada de Dano
+
+Documentos:
+
+- Modelo de Dano
+- Modelo de Interação RGB
+
+Objetivo:
+
+Responsável pela lógica interna do cálculo de dano.
+
+O motor de dano RGB segue esta estrutura:
+
+```text
+Fonte de Impacto
+↓
+Penetração
+↓
+Redução por Armadura
+↓
+Absorção por Escudo
+↓
+Personagem
+```
+
+Essa camada permite que o combate permaneça tático enquanto mantém os cálculos simples.
+
+Equivalente em engines de jogo:
+
+Motor de dano.
+
+## 5. Camada de Equipamentos
+
+Documentos:
+
+- Armaduras
+- Escudos
+- Armas de Fogo
+- Armas Corpo a Corpo
+- Explosivos
+
+Objetivo:
+
+Define os **valores de dados utilizados pelos sistemas de combate e dano**.
+
+Exemplos:
+
+- dano de armas
+- redução de armadura
+- valores de penetração
+- capacidade de escudos
+
+Equivalente em engines de jogo:
+
+Camada de dados.
+
+## Arquitetura Completa do Sistema RGB
+
+Quando combinada, a documentação do RGB forma a seguinte estrutura:
+
+```text
+Design do Sistema
+   │
+   ├─ Visão Geral do Sistema
+   ├─ Modelo de Interação RGB
+   │
+Gameplay
+   │
+   ├─ Loop de Jogo
+   ├─ Modelo de Decisão de Combate
+   │
+Combate
+   │
+   ├─ Movimento
+   ├─ Ataque e Defesa
+   │
+Motor de Dano
+   │
+   ├─ Modelo de Dano
+   │
+Dados de Equipamentos
+   │
+   ├─ Armaduras
+   ├─ Escudos
+   ├─ Armas
+```
+
+## Consequências de Design
+
+Essa arquitetura em camadas produz diversas vantagens.
+
+### Modularidade
+
+Novos subsistemas podem ser adicionados sem modificar as regras centrais.
+
+Exemplos:
+
+- sistemas de magia
+- cibernética
+- veículos
+- superpoderes
+
+### Balanceamento Mais Simples
+
+A maior parte do balanceamento ocorre em:
+
+```text
+Camada de Dano
+Camada de Equipamentos
+```
+
+O restante do sistema permanece estável.
+
+### Documentação Clara
+
+Cada camada responde a uma pergunta diferente:
+
+```text
+| Camada | Pergunta |
+|--------|----------|
+Sistema | Como o sistema é estruturado |
+Gameplay | Como os jogadores interagem com o jogo |
+Combate | Como os personagens interagem |
+Dano | Como o dano é calculado |
+Equipamentos | Quais valores numéricos existem |
+```
+
+## Observação Final
+
+O Sistema RGB se comporta menos como um conjunto tradicional de regras de RPG
+e mais como uma **engine reutilizável de sistema de RPG**.
+
+Isso torna o sistema particularmente adequado para:
+
+- campanhas modernas
+- mundos de fantasia
+- cenários de ficção científica
+- universos com superpoderes
+
+Nesse modelo:
+
+```text
+Sistema RGB → engine de regras
+Cenário (ex.: Aurora) → mundo construído sobre a engine
+```
+
+Essa separação permite que o Sistema RGB permaneça genérico,
+enquanto diferentes cenários fornecem o contexto narrativo.
+
+---

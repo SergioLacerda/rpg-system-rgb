@@ -1,3 +1,8 @@
+---
+name: rgb-specialist
+description: Explains, classifies, validates, and traces RGB System rules from canonical sources only, always citing the source and never inventing rules or acting as game master. Use when someone asks to learn, interpret, or verify RGB System content — rules, R/G/B vectors, characters, abilities, equipment, or resolution procedures.
+---
+
 # RGB Specialist Skill
 
 Status: Contract defined. Runtime behavior is not implemented — this
@@ -8,8 +13,9 @@ package.
 
 ## Roadmap Sequencing
 
-Per `.analysis/refined/20260801-specialist-first-skill-roadmap`, Specialist
-is the first skill built out — it consumes existing canonical material
+Per the internal `specialist-first-skill-roadmap` planning analysis,
+Specialist is the first skill built out — it consumes existing canonical
+material
 (semantic IDs, validation, the bundle) and carries lower risk than Maker,
 which creates/restructures content and can accidentally invent or
 overwrite canon. Maker's contract (`../maker/SKILL.md`) is written, but its
@@ -117,6 +123,27 @@ If a question needs a semantic ID outside the pack, fall back to
 `docs/core/semantic/core-v2.index.json` directly — the pack is a
 convenience subset, not the full boundary of what Specialist may cite.
 
+### Grounding Source Precedence
+
+This package also carries a bundled, self-contained copy of the canonical
+rule documentation at [`references/rgb-system.md`](references/rgb-system.md),
+so it keeps working when copied outside this repository. Precedence:
+
+1. `generated/ai-context/core-specialist-pack.json` — when running inside
+   this monorepo and the pack covers the question;
+2. `docs/core/semantic/core-v2.index.json` — when running inside this
+   monorepo and the pack does not cover the question;
+3. `references/rgb-system.md` — the bundled fallback, used as the *only*
+   available source when Specialist runs standalone (outside this
+   monorepo), and consulted inside the monorepo only if neither of the
+   above resolves the question.
+
+Citation is required in every case: cite the semantic ID and Markdown path
+for tiers 1–2, or the section/heading in `references/rgb-system.md` for
+tier 3. `references/rgb-system.md` is a manually refreshed snapshot of
+`docs/core/**`, not a generated artifact — see ADR-014. It never overrides
+`docs/core/**` as the canonical source of truth (ADR-002).
+
 ## Terminology
 
 Canonical EN/PT-br term pairs Specialist must use consistently are listed
@@ -139,3 +166,28 @@ dataset-level enforcement of "no normative answer without a source id."
 `tests/fixtures/specialist_golden_qa_test.go` checks this structurally
 today, ahead of any runtime Specialist implementation to check it
 behaviorally.
+
+## Installation
+
+This package (`SKILL.md` plus `procedures/`, `references/`, `terminology/`,
+`examples/`, `benchmark/`, `config.yaml`) is plain Markdown/YAML — it does
+not depend on any single vendor's runtime. To install it with any LLM or
+agent tool that can load local skill/context folders:
+
+1. Make the `skills/specialist/` folder (or a copy of it) available in
+   whatever local skills/context directory your tool reads from.
+2. Point the assistant at this file, `SKILL.md`, as the entry point — it is
+   the full behavioral contract (Must / Must Not / grounding sources /
+   procedures index).
+3. If the question needs canonical rule text and the tool has no access to
+   the rest of this monorepo, use `references/rgb-system.md` (see
+   Grounding Source Precedence above) — that is the self-contained fallback
+   bundled with this folder for exactly that case.
+
+If your tool supports defining custom commands (a "slash command" or
+equivalent), the installing agent should create one — under whatever name
+fits the host's convention — that forwards the user's question to this
+skill's instructions. This package intentionally does not ship one fixed
+command definition, since the syntax for that varies by host; the
+installing agent should generate it appropriately for the platform it is
+running on at install time.

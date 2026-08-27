@@ -22,6 +22,9 @@ func TestValidateProjectPathsEdges(t *testing.T) {
 	if err := os.MkdirAll(filepath.Join(root, "generated"), 0o750); err != nil {
 		t.Fatal(err)
 	}
+	if err := os.MkdirAll(filepath.Join(root, "skills"), 0o750); err != nil {
+		t.Fatal(err)
+	}
 	if err := ValidateProjectPaths(root); err != nil {
 		t.Fatal(err)
 	}
@@ -49,6 +52,14 @@ func TestValidateProjectPathsEdges(t *testing.T) {
 	}
 	writePathFixture(t, filepath.Join(root, "generated", "client", "governance.txt"), "allowed .strategist/client marker")
 	if err := ValidateProjectPaths(root); err != nil {
+		t.Fatal(err)
+	}
+
+	writePathFixture(t, filepath.Join(root, "skills", "specialist", "SKILL.md"), "see .analysis/refined/some-mission")
+	if err := ValidateProjectPaths(root); err == nil {
+		t.Fatal("expected skills/ runtime marker to fail")
+	}
+	if err := os.Remove(filepath.Join(root, "skills", "specialist", "SKILL.md")); err != nil {
 		t.Fatal(err)
 	}
 }

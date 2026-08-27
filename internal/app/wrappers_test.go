@@ -25,6 +25,15 @@ func TestFacadeMethodsSurfaceComponentErrors(t *testing.T) {
 	if err := CheckReleaseArtifacts(ReleaseArtifactPaths{PublicDir: filepath.Join(root, "downloads"), Basename: "rgb", Version: "v1"}); err == nil {
 		t.Fatal("expected CheckReleaseArtifacts to fail without release artifacts")
 	}
+	if err := PackageSkill(SkillOptions{SourceDir: filepath.Join(root, "missing-skill"), OutDir: filepath.Join(root, "downloads"), Name: "rgb-specialist", Version: "v1"}); err == nil {
+		t.Fatal("expected PackageSkill to fail without a skill source directory")
+	}
+	if err := WriteSkillManifest(SkillManifestPaths{PublicDir: filepath.Join(root, "downloads"), Name: "rgb-specialist", Version: "v1"}); err == nil {
+		t.Fatal("expected WriteSkillManifest to fail without skill artifacts")
+	}
+	if err := CheckSkillManifest(SkillManifestPaths{PublicDir: filepath.Join(root, "downloads"), Name: "rgb-specialist", Version: "v1"}); err == nil {
+		t.Fatal("expected CheckSkillManifest to fail without skill release artifacts")
+	}
 	if err := ValidateDocs(root); err == nil {
 		t.Fatal("expected ValidateDocs to fail without semantic docs")
 	}

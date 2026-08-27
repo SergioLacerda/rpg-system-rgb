@@ -1,10 +1,10 @@
 # Procedure: Validate Example
 
 Check whether a worked example's numbers are internally consistent with
-the rule(s) it illustrates. This generalizes the fix behind
-`.analysis/refined/20260801-core-rules-executable-examples-turn-contract`
-(a published combat example that had shield absorption backwards and
-health increasing after damage) into a repeatable procedure.
+the rule(s) it illustrates. This generalizes the fix behind the internal
+`core-rules-executable-examples-turn-contract` analysis (a published
+combat example that had shield absorption backwards and health increasing
+after damage) into a repeatable procedure.
 
 ## Input
 

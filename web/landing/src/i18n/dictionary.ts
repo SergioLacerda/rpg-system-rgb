@@ -116,6 +116,7 @@ export const dict = {
       kicker: "SKILLS",
       title: "Agentes para consultar e produzir material RGB.",
       desc: "As skills ficam fora da landing, mas a página apresenta o papel operacional de cada uma dentro do ecossistema.",
+      downloadLabel: "Baixar pacote (.zip)",
       specialist: {
         name: "Specialist",
         status: "contrato definido",
@@ -253,6 +254,7 @@ export const dict = {
       kicker: "SKILLS",
       title: "Agents for consulting and producing RGB material.",
       desc: "Skills live outside the landing page, but this page presents each operational role in the ecosystem.",
+      downloadLabel: "Download package (.zip)",
       specialist: {
         name: "Specialist",
         status: "contract defined",

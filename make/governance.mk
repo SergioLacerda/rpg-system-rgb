@@ -1,3 +1,5 @@
+##@ Governance & CI Tooling
+
 .PHONY: tools-install actionlint-install shellcheck-install check-generated-drift check-publication-runtime check-governance-files lint-yaml lint-shell
 
 tools-install: actionlint-install shellcheck-install FORCE ## Install pinned local validation tools
@@ -39,3 +41,17 @@ lint-yaml: actionlint-install FORCE ## Lint GitHub Actions workflows with action
 
 lint-shell: shellcheck-install FORCE ## Lint CI shell scripts with shellcheck
 	"$(SHELLCHECK)" scripts/ci/*.sh
+
+# --- Namespaced aliases (additive, non-breaking) ---
+.PHONY: governance.tools-install governance.actionlint-install \
+  governance.shellcheck-install governance.check-generated-drift \
+  governance.check-publication-runtime governance.check-governance-files \
+  governance.lint-yaml governance.lint-shell
+governance.tools-install: tools-install
+governance.actionlint-install: actionlint-install
+governance.shellcheck-install: shellcheck-install
+governance.check-generated-drift: check-generated-drift
+governance.check-publication-runtime: check-publication-runtime
+governance.check-governance-files: check-governance-files
+governance.lint-yaml: lint-yaml
+governance.lint-shell: lint-shell

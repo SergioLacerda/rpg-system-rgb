@@ -15,9 +15,9 @@ use them verbatim so answers stay traceable back to the semantic index.
 
 ## Turn Economy (post-canonicalization)
 
-Not yet backed by a dedicated `core.term.*` unit (see
-`.analysis/refined/20260801-core-rules-executable-examples-turn-contract`
-for the canonicalization work) — listed here directly from
+Not yet backed by a dedicated `core.term.*` unit (see the internal
+`core-rules-executable-examples-turn-contract` analysis for the
+canonicalization work) — listed here directly from
 `docs/core/en/combat/movement.md`'s "Combat Turn Structure" section:
 
 | EN Term | PT-br Term |

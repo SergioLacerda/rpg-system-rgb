@@ -39,4 +39,37 @@ describe("SkillCard", () => {
     expect(html).toContain("Runtime behavior is not implemented.");
     expect(html).toContain("background:var(--r-bg);color:var(--r)");
   });
+
+  it("omits the download link when no downloadUrl is given", async () => {
+    const container = await AstroContainer.create();
+    const html = await container.renderToString(SkillCard, {
+      props: {
+        name: "Specialist",
+        status: "contract defined",
+        installed: false,
+        desc: "Runtime behavior is not implemented.",
+        tags: ["draft"],
+      },
+    });
+
+    expect(html).not.toContain('class="download"');
+  });
+
+  it("renders a download link when downloadUrl is given", async () => {
+    const container = await AstroContainer.create();
+    const html = await container.renderToString(SkillCard, {
+      props: {
+        name: "Specialist",
+        status: "contract defined",
+        installed: false,
+        desc: "Runtime behavior is not implemented.",
+        tags: ["draft"],
+        downloadUrl: "/downloads/rgb-specialist-latest.zip",
+        downloadLabel: "Download package (.zip)",
+      },
+    });
+
+    expect(html).toContain('href="/downloads/rgb-specialist-latest.zip"');
+    expect(html).toContain("Download package (.zip)");
+  });
 });

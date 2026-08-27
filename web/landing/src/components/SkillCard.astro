@@ -5,8 +5,11 @@ interface Props {
   installed: boolean;
   desc: string;
   tags: string[];
+  downloadUrl?: string;
+  downloadLabel?: string;
 }
-const { name, status, installed, desc, tags } = Astro.props;
+const { name, status, installed, desc, tags, downloadUrl, downloadLabel } =
+  Astro.props;
 const color = installed ? "var(--g)" : "var(--r)";
 const bgColor = installed ? "var(--g-bg)" : "var(--r-bg)";
 const statusMark = installed ? "●" : "○";
@@ -41,6 +44,13 @@ const statusMark = installed ? "●" : "○";
       ))
     }
   </div>
+  {
+    downloadUrl && (
+      <a class="download" href={downloadUrl} style={`color:${color}`}>
+        {downloadLabel ?? "Download"}
+      </a>
+    )
+  }
 </div>
 <style>
   .card {
@@ -78,5 +88,12 @@ const statusMark = installed ? "●" : "○";
     font-size: 11px;
     padding: 4px 10px;
     border-radius: 20px;
+  }
+  .download {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 12px;
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
   }
 </style>

@@ -56,6 +56,7 @@ func ValidateProjectPaths(repoRoot string) error {
 		"README.md",
 		"docs",
 		"generated",
+		"skills",
 	}
 	for _, root := range publicRoots {
 		if err := rejectRuntimeRefs(filepath.Join(repoRoot, filepath.FromSlash(root)), publicPathWalkExclusions[root]); err != nil {
