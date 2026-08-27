@@ -191,15 +191,29 @@ func buildAndWriteProjection(
 }
 
 // GenerateDefault runs Generate against the standard
-// docs/core/semantic/** manifest, index, and source paths under repoRoot.
+// docs/core/semantic/** manifest, index, and source paths under repoRoot,
+// then regenerates the Specialist skill's bundled documentation snapshot
+// (see GenerateSkillSnapshot).
 func GenerateDefault(repoRoot string) error {
 	semantic := filepath.Join(repoRoot, "docs", "core", "semantic")
-	return Generate(
+	if err := Generate(
 		repoRoot,
 		filepath.Join(semantic, "projection-manifest.v0.1.json"),
 		filepath.Join(semantic, "core-v2.index.json"),
 		filepath.Join(semantic, "source", "core-v2-rules.v0.1.json"),
-	)
+	); err != nil {
+		return err
+	}
+	return GenerateSkillSnapshot(repoRoot, SkillSnapshotConfig{
+		OutputPath: "skills/specialist/references/rgb-system.md",
+		Inputs: []string{
+			"introduction/rgb_one_page_rules.md",
+			"reference/rgb_system_engine.md",
+			"reference/rgb_damage_interaction_model.md",
+			"reference/rgb_system_architecture_notes.md",
+		},
+		Locales: []string{"en", "PT-br"},
+	})
 }
 
 func projectUnit(indexUnit generationIndexUnit, sourceUnit generationSourceUnit) generatedProjectionUnit {

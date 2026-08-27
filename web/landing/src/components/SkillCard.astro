@@ -1,99 +1,233 @@
 ---
 interface Props {
   name: string;
-  status: string;
-  installed: boolean;
+  role: string;
+  badge: string;
   desc: string;
   tags: string[];
+  size?: string;
+  // `packaged` is a separate signal from `installed`: packaged means a real
+  // .zip exists (produced via ADR-013's `cmd/rgb docs skill` pipeline).
+  // `installed` means a verified runtime exists. A skill can be packaged
+  // without a runtime — see skills/specialist/README.md.
+  packaged: boolean;
+  installed?: boolean;
+  accent: "g" | "r";
+  icon?: "search" | "doc";
   downloadUrl?: string;
-  downloadLabel?: string;
+  downloadLabel: string;
+  soonLabel: string;
+  soonNote: string;
 }
-const { name, status, installed, desc, tags, downloadUrl, downloadLabel } =
-  Astro.props;
-const color = installed ? "var(--g)" : "var(--r)";
-const bgColor = installed ? "var(--g-bg)" : "var(--r-bg)";
-const statusMark = installed ? "●" : "○";
+const {
+  name,
+  role,
+  badge,
+  desc,
+  tags,
+  size = "",
+  packaged,
+  installed = false,
+  accent,
+  icon = "search",
+  downloadUrl,
+  downloadLabel,
+  soonLabel,
+  soonNote,
+} = Astro.props;
+const c = accent === "g" ? "var(--g)" : "var(--r)";
+const cBg = accent === "g" ? "var(--g-bg)" : "var(--r-bg)";
 ---
 
-<div class="card">
-  <div class="head">
-    <svg width="26" height="26" viewBox="0 0 180 170"
-      ><polygon
-        points="90,20 150,120 30,120"
-        fill="none"
-        stroke={color}
-        stroke-width="6"></polygon></svg
-    >
-    <div>
-      <div class="name">Skill: {name}</div>
-      <div
-        class="status"
-        style={`color:${installed ? "var(--g)" : "var(--text-mute)"}`}
-      >
-        {`${statusMark} ${status}`}
+<article
+  class:list={["skill", { featured: packaged }]}
+  data-runtime-verified={installed}
+>
+  <header>
+    <div class="ident">
+      <div class="icon" style={`background:${cBg}`}>
+        {
+          icon === "search" ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <circle cx="11" cy="11" r="7" stroke={c} stroke-width="2" />
+              <path
+                d="M16 16l5 5"
+                stroke={c}
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M4 20V6a2 2 0 012-2h8l4 4v12a2 2 0 01-2 2H6a2 2 0 01-2-2z"
+                stroke={c}
+                stroke-width="2"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M9 13h6M9 16h4"
+                stroke={c}
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          )
+        }
+      </div>
+      <div>
+        <h3>{name}</h3>
+        <div class="role">{role}</div>
       </div>
     </div>
-  </div>
-  <div class="desc">{desc}</div>
+    <span class="badge" style={packaged ? `background:${cBg};color:${c}` : ""}
+      >{badge}</span
+    >
+  </header>
+
+  <p class="desc">{desc}</p>
+
   <div class="tags">
     {
       tags.map((tag) => (
-        <span class="tag" style={`background:${bgColor};color:${color}`}>
+        <span class="tag" style={`background:${cBg};color:${c}`}>
           {tag}
         </span>
       ))
     }
   </div>
-  {
-    downloadUrl && (
-      <a class="download" href={downloadUrl} style={`color:${color}`}>
-        {downloadLabel ?? "Download"}
-      </a>
-    )
-  }
-</div>
+
+  <footer>
+    {
+      packaged && downloadUrl ? (
+        <a class="dl" href={downloadUrl} download>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 20h16"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          {downloadLabel}
+        </a>
+      ) : (
+        <span class="dl disabled">{soonLabel}</span>
+      )
+    }
+    <div class="meta">{packaged ? size : soonNote}</div>
+  </footer>
+</article>
+
 <style>
-  .card {
-    background: var(--surface);
-    border-radius: 10px;
-    padding: 28px;
+  .skill {
+    background: #0f1526;
     border: 1px solid var(--border);
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
   }
-  .head {
+  .skill.featured {
+    background: linear-gradient(160deg, #151d33 0%, var(--surface) 100%);
+    border-color: #26314f;
+  }
+  header {
+    padding: 26px 26px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .ident {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 11px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 14px;
+    justify-content: center;
+    flex: none;
   }
-  .name {
+  h3 {
     font-family: var(--font-serif);
-    font-size: 18px;
+    font-size: 21px;
     color: var(--text);
+    margin: 0;
+    line-height: 1.2;
+    font-weight: 400;
   }
-  .status {
-    font-size: 11px;
+  .role {
+    font-size: 12px;
+    color: var(--text-mute);
+    margin-top: 3px;
+  }
+  .badge {
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    flex: none;
+    background: var(--border);
+    color: var(--text-mute);
   }
   .desc {
-    font-size: 13px;
+    padding: 0 26px;
+    margin: 18px 0 0;
+    font-size: 14px;
     color: var(--text-mute);
-    line-height: 1.6;
-    margin-bottom: 16px;
+    line-height: 1.65;
   }
   .tags {
+    padding: 18px 26px 0;
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
   }
   .tag {
     font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 20px;
+    padding: 5px 11px;
+    border-radius: 6px;
   }
-  .download {
-    display: inline-block;
-    margin-top: 16px;
-    font-size: 12px;
-    text-decoration: none;
-    border-bottom: 1px solid currentColor;
+  footer {
+    margin-top: auto;
+    padding: 24px 26px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .dl {
+    background: var(--g);
+    color: #07160f;
+    padding: 14px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    box-shadow: 0 4px 16px #3fd6942e;
+    transition: transform 0.15s;
+  }
+  .dl:hover {
+    transform: translateY(-1px);
+    color: #07160f;
+  }
+  .dl.disabled {
+    background: none;
+    border: 1px dashed #2a3350;
+    color: var(--text-mute);
+    font-weight: 400;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .meta {
+    font-size: 11px;
+    color: #5c6480;
+    line-height: 1.4;
   }
 </style>

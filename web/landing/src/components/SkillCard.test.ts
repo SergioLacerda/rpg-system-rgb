@@ -2,74 +2,65 @@ import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import { describe, expect, it } from "vitest";
 import SkillCard from "./SkillCard.astro";
 
+const baseProps = {
+  name: "Specialist",
+  role: "Consults and interprets the rules",
+  badge: "v0.1 · contract defined",
+  desc: "Runtime behavior is not implemented yet.",
+  tags: ["runtime not implemented"],
+  downloadLabel: "Download package (.zip)",
+  soonLabel: "Package coming soon",
+  soonNote: "follow the changelog",
+};
+
 describe("SkillCard", () => {
-  it("renders implemented skills with the enabled state", async () => {
+  it("renders a packaged skill with the download CTA", async () => {
     const container = await AstroContainer.create();
     const html = await container.renderToString(SkillCard, {
       props: {
-        name: "Library",
-        status: "installed",
-        installed: true,
-        desc: "Answers rules questions.",
-        tags: ["Library", "R G B"],
-      },
-    });
-
-    expect(html).toContain("Skill: Library");
-    expect(html).toContain("● installed");
-    expect(html).toContain("Answers rules questions.");
-    expect(html).toContain("Library");
-    expect(html).toContain("background:var(--g-bg);color:var(--g)");
-  });
-
-  it("renders contract-defined skills with the disabled state", async () => {
-    const container = await AstroContainer.create();
-    const html = await container.renderToString(SkillCard, {
-      props: {
-        name: "Specialist",
-        status: "contract defined",
-        installed: false,
-        desc: "Runtime behavior is not implemented.",
-        tags: ["draft"],
-      },
-    });
-
-    expect(html).toContain("Skill: Specialist");
-    expect(html).toContain("○ contract defined");
-    expect(html).toContain("Runtime behavior is not implemented.");
-    expect(html).toContain("background:var(--r-bg);color:var(--r)");
-  });
-
-  it("omits the download link when no downloadUrl is given", async () => {
-    const container = await AstroContainer.create();
-    const html = await container.renderToString(SkillCard, {
-      props: {
-        name: "Specialist",
-        status: "contract defined",
-        installed: false,
-        desc: "Runtime behavior is not implemented.",
-        tags: ["draft"],
-      },
-    });
-
-    expect(html).not.toContain('class="download"');
-  });
-
-  it("renders a download link when downloadUrl is given", async () => {
-    const container = await AstroContainer.create();
-    const html = await container.renderToString(SkillCard, {
-      props: {
-        name: "Specialist",
-        status: "contract defined",
-        installed: false,
-        desc: "Runtime behavior is not implemented.",
-        tags: ["draft"],
+        ...baseProps,
+        packaged: true,
+        accent: "g",
+        size: "33 KB · SKILL.md + references",
         downloadUrl: "/downloads/rgb-specialist-latest.zip",
-        downloadLabel: "Download package (.zip)",
       },
     });
 
+    expect(html).toContain("Specialist");
+    expect(html).toContain("Consults and interprets the rules");
+    expect(html).toContain("v0.1 · contract defined");
     expect(html).toContain('href="/downloads/rgb-specialist-latest.zip"');
     expect(html).toContain("Download package (.zip)");
+    expect(html).toContain("33 KB · SKILL.md + references");
+    expect(html).not.toContain("Package coming soon");
+  });
+
+  it("renders a not-yet-packaged skill with the soon state instead of a download link", async () => {
+    const container = await AstroContainer.create();
+    const html = await container.renderToString(SkillCard, {
+      props: {
+        ...baseProps,
+        name: "Maker",
+        role: "Structures raw material",
+        badge: "contract defined",
+        packaged: false,
+        accent: "r",
+      },
+    });
+
+    expect(html).toContain("Maker");
+    expect(html).toContain("Package coming soon");
+    expect(html).toContain("follow the changelog");
+    expect(html).not.toContain('class="dl"');
+    expect(html).not.toContain("href=");
+  });
+
+  it("does not claim an installed runtime through the badge or description text", async () => {
+    const container = await AstroContainer.create();
+    const html = await container.renderToString(SkillCard, {
+      props: { ...baseProps, packaged: true, accent: "g" },
+    });
+
+    expect(html.toLowerCase()).not.toContain("installed");
   });
 });
