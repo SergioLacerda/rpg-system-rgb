@@ -4,7 +4,7 @@ set -euo pipefail
 generate_output="$(make generate)"
 echo "$generate_output"
 
-if ! git diff --exit-code -- generated docs/core/semantic web/landing/generated; then
+if ! git diff --exit-code -- generated docs/core/semantic web/landing/generated skills/specialist/references; then
   echo "::error::generated artifacts drifted; run 'make generate' and review the diff"
   exit 1
 fi

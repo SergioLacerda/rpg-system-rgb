@@ -41,13 +41,25 @@ rules, tactical combat, modular design, and adaptable worlds.
 | --- | --- |
 | RGB Core V2 | Implemented |
 | Semantic tooling | Implemented |
+| Bundle output | Experimental |
 | Library HTML | Implemented |
 | PDF downloads | Implemented |
 | Landing | Implemented |
 | Maker | Contract defined |
 | Specialist | Contract defined |
+| PDF/UA tagging | Deferred |
 
 ## Development
+
+**Prerequisites:** Go 1.24.x, Node 24.x, npm 11.x.
+
+```bash
+git clone https://github.com/SergioLacerda/rpg-system-rgb.git
+cd rpg-system-rgb
+make install        # installs landing page npm dependencies
+```
+
+Then run the gate locally before opening a PR:
 
 ```bash
 make check-fast
