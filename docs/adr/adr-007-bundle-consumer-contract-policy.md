@@ -71,6 +71,22 @@ Negative / accepted costs:
   what they actually need, which this ADR does not do — it is a process
   gate, not a schedule.
 
+## Update (2026-08-27)
+
+This ADR's Context section evaluated `internal/components/bundles` (the Go
+component) but missed a pre-existing, parallel artifact:
+`docs/core/semantic/projection-manifest.v0.1.json` already declared a
+`projection.bundle.core-rules.v0_1` projection (added 2026-07-26, a week
+before this ADR), claiming `"owner": "bundles"` and producing
+`generated/bundles/core-v2-rules.bundle.json` with a shape already larger
+than the minimal one described above — the same "attractive but unused
+generated artifact" risk this ADR warns against, just via a different code
+path. It had no real consumer (confirmed: no non-test Go code read it) and
+was never promoted past `"status": "proposed"`. The entry has been removed
+from the projection manifest; this Decision's contract-first policy now
+applies without exception across both the `bundles` component and any
+future `owner: bundles` projection-manifest entries.
+
 ## Non-negotiable: component import boundaries
 
 Independent of bundle scope, `docs/architecture/components.md`'s enforced
