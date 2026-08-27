@@ -11,6 +11,11 @@ sources:
   primary_context_pack: generated/ai-context/core-specialist-pack.json
   semantic_index: docs/core/semantic/core-v2.index.json
   semantic_source: docs/core/semantic/source/core-v2-rules.v0.1.json
+  # Bundled fallback (ADR-014): a hand-maintained snapshot of docs/core/**,
+  # used only when the other three sources are unavailable — i.e. when this
+  # skill package runs standalone, outside this monorepo. See SKILL.md's
+  # Grounding Source Precedence section for the full tier order.
+  bundled_snapshot: skills/specialist/references/rgb-system.md
 
 allowed_inputs:
   - canonical_markdown_bridge

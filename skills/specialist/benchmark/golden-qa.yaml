@@ -1,5 +1,5 @@
-# Offline golden Q/A dataset for RGB Specialist, per
-# .analysis/refined/20260801-specialist-first-skill-roadmap.
+# Offline golden Q/A dataset for RGB Specialist, per the internal
+# specialist-first-skill-roadmap planning analysis.
 #
 # Every entry outside category "ambiguous" must have a non-empty
 # semantic_ids list, and every listed ID must exist in

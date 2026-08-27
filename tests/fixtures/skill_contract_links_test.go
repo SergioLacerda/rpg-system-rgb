@@ -39,6 +39,12 @@ func TestSkillContractLinksResolve(t *testing.T) {
 			if isExternalLink(target) {
 				continue
 			}
+			if hashIndex := strings.IndexByte(target, '#'); hashIndex >= 0 {
+				target = target[:hashIndex]
+				if target == "" {
+					continue
+				}
+			}
 			resolved := filepath.Join(dir, filepath.FromSlash(target))
 			if _, statErr := os.Stat(resolved); statErr != nil {
 				t.Errorf("%s: link target %q does not resolve (looked for %s)", path, target, resolved)

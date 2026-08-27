@@ -1,4 +1,6 @@
-.PHONY: pdf-publish release-artifact-manifest release-artifact-check release-supply-chain release-supply-chain-check pdf-editorial-check
+##@ Release Artifacts (PDF/Skill)
+
+.PHONY: pdf-publish release-artifact-manifest release-artifact-check release-supply-chain release-supply-chain-check pdf-editorial-check release-skill-manifest release-skill-check
 
 pdf-publish: FORCE ## Publish a provided PDF into landing downloads
 	@test -n "$(PDF_SRC)" || { echo "PDF_SRC is required"; exit 1; }
@@ -24,3 +26,22 @@ release-supply-chain-check: FORCE ## Validate release SBOM and provenance metada
 
 pdf-editorial-check: release-artifact-check release-supply-chain-check FORCE ## Validate PDF editorial smoke, raster, and supply-chain checks
 	@echo "pdf-editorial-check: all gates passed"
+
+release-skill-manifest: FORCE ## Write release skill .zip manifest and checksums
+	$(GOENV) $(GO) run ./cmd/rgb release skill-manifest --public-dir "$(PDF_PUBLIC_DIR)" --name "$(SKILL_NAME)" --version "$(SKILL_VERSION)" --manifest "$(SKILL_MANIFEST)" --checksums "$(SKILL_CHECKSUMS)"
+
+release-skill-check: FORCE ## Validate release skill .zip manifest and checksums
+	$(GOENV) $(GO) run ./cmd/rgb release skill-check --public-dir "$(PDF_PUBLIC_DIR)" --name "$(SKILL_NAME)" --version "$(SKILL_VERSION)" --manifest "$(SKILL_MANIFEST)" --checksums "$(SKILL_CHECKSUMS)"
+
+# --- Namespaced aliases (additive, non-breaking) ---
+.PHONY: release.pdf-publish release.artifact-manifest release.artifact-check \
+  release.supply-chain release.supply-chain-check release.pdf-editorial-check \
+  release.skill-manifest release.skill-check
+release.pdf-publish: pdf-publish
+release.artifact-manifest: release-artifact-manifest
+release.artifact-check: release-artifact-check
+release.supply-chain: release-supply-chain
+release.supply-chain-check: release-supply-chain-check
+release.pdf-editorial-check: pdf-editorial-check
+release.skill-manifest: release-skill-manifest
+release.skill-check: release-skill-check

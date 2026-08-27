@@ -37,3 +37,4 @@ check_package "publication component" "./internal/components/publication" "${PUB
 check_package "application orchestration" "./internal/app" "${APP_COVER_THRESHOLD:-90}"
 check_package "unified CLI" "./cmd/rgb" "${CLI_COVER_THRESHOLD:-90}"
 check_package "legacy tooling CLI" "./cmd/rgb-tooling" "${TOOLING_CLI_COVER_THRESHOLD:-90}"
+check_package "skill packaging" "./internal/components/skillpkg" "${SKILLPKG_COVER_THRESHOLD:-90}"

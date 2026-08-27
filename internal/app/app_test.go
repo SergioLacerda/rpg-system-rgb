@@ -28,6 +28,7 @@ func TestComponentsExposeExpectedBoundaries(t *testing.T) {
 		"publication",
 		"tooling",
 		"bundles",
+		"skillpkg",
 	}
 	if !reflect.DeepEqual(ids, expected) {
 		t.Fatalf("unexpected component IDs: got %v want %v", ids, expected)
@@ -39,7 +40,7 @@ func TestHelloOutputIsDeterministic(t *testing.T) {
 	if !strings.HasPrefix(output, "RGB System V2 scaffold ready") {
 		t.Fatalf("unexpected hello prefix: %q", output)
 	}
-	for _, id := range []string{"core", "maker", "specialist", "publication", "tooling", "bundles"} {
+	for _, id := range []string{"core", "maker", "specialist", "publication", "tooling", "bundles", "skillpkg"} {
 		if !strings.Contains(output, "- "+id+":") {
 			t.Fatalf("hello output missing component %s:\n%s", id, output)
 		}

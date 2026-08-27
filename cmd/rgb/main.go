@@ -54,7 +54,7 @@ func optionalRepoRoot(args []string) string {
 //nolint:gocyclo // Mirrors the top-level CLI dispatch shape for docs subcommands.
 func runDocs(args []string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("missing docs subcommand (want library|pdf|check)")
+		return fmt.Errorf("missing docs subcommand (want library|pdf|skill|check)")
 	}
 	switch args[0] {
 	case "library":
@@ -69,6 +69,12 @@ func runDocs(args []string) error {
 			return err
 		}
 		return app.PublishPDFs(options)
+	case "skill":
+		options, err := parseSkillFlags(args[1:])
+		if err != nil {
+			return err
+		}
+		return app.PackageSkill(options)
 	case "check":
 		options, err := parseDocsCheckFlags(args[1:])
 		if err != nil {
@@ -76,7 +82,7 @@ func runDocs(args []string) error {
 		}
 		return app.CheckPublication(options)
 	default:
-		return fmt.Errorf("unknown docs subcommand %q (want library|pdf|check)", args[0])
+		return fmt.Errorf("unknown docs subcommand %q (want library|pdf|skill|check)", args[0])
 	}
 }
 
@@ -113,6 +119,23 @@ func parsePDFFlags(args []string) (app.PDFOptions, error) {
 	return options, nil
 }
 
+func parseSkillFlags(args []string) (app.SkillOptions, error) {
+	var options app.SkillOptions
+	flags := flag.NewFlagSet("docs skill", flag.ContinueOnError)
+	flags.SetOutput(io.Discard)
+	flags.StringVar(&options.SourceDir, "source", "", "skill package source directory")
+	flags.StringVar(&options.OutDir, "out", "web/landing/public/downloads", "public downloads directory")
+	flags.StringVar(&options.Name, "name", "", "skill package name")
+	flags.StringVar(&options.Version, "version", "", "skill package version")
+	if err := flags.Parse(args); err != nil {
+		return app.SkillOptions{}, err
+	}
+	if flags.NArg() != 0 {
+		return app.SkillOptions{}, fmt.Errorf("unexpected docs skill arguments: %v", flags.Args())
+	}
+	return options, nil
+}
+
 func parseDocsCheckFlags(args []string) (app.PublicationCheckOptions, error) {
 	var options app.PublicationCheckOptions
 	flags := flag.NewFlagSet("docs check", flag.ContinueOnError)
@@ -130,9 +153,10 @@ func parseDocsCheckFlags(args []string) (app.PublicationCheckOptions, error) {
 	return options, nil
 }
 
+//nolint:gocyclo // Mirrors the top-level CLI dispatch shape for release subcommands.
 func runRelease(args []string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("missing release subcommand (want manifest|check)")
+		return fmt.Errorf("missing release subcommand (want manifest|check|skill-manifest|skill-check)")
 	}
 	switch args[0] {
 	case "manifest":
@@ -147,8 +171,20 @@ func runRelease(args []string) error {
 			return err
 		}
 		return app.CheckReleaseArtifacts(paths)
+	case "skill-manifest":
+		paths, err := parseSkillReleaseFlags("release skill-manifest", args[1:])
+		if err != nil {
+			return err
+		}
+		return app.WriteSkillManifest(paths)
+	case "skill-check":
+		paths, err := parseSkillReleaseFlags("release skill-check", args[1:])
+		if err != nil {
+			return err
+		}
+		return app.CheckSkillManifest(paths)
 	default:
-		return fmt.Errorf("unknown release subcommand %q (want manifest|check)", args[0])
+		return fmt.Errorf("unknown release subcommand %q (want manifest|check|skill-manifest|skill-check)", args[0])
 	}
 }
 
@@ -166,6 +202,24 @@ func parseReleaseFlags(name string, args []string) (app.ReleaseArtifactPaths, er
 	}
 	if flags.NArg() != 0 {
 		return app.ReleaseArtifactPaths{}, fmt.Errorf("unexpected release arguments: %v", flags.Args())
+	}
+	return paths, nil
+}
+
+func parseSkillReleaseFlags(name string, args []string) (app.SkillManifestPaths, error) {
+	var paths app.SkillManifestPaths
+	flags := flag.NewFlagSet(name, flag.ContinueOnError)
+	flags.SetOutput(io.Discard)
+	flags.StringVar(&paths.PublicDir, "public-dir", "", "public downloads directory")
+	flags.StringVar(&paths.Name, "name", "", "skill package name")
+	flags.StringVar(&paths.Version, "version", "", "skill package version")
+	flags.StringVar(&paths.Manifest, "manifest", "", "skill manifest path")
+	flags.StringVar(&paths.Checksums, "checksums", "", "skill SHA256SUMS path")
+	if err := flags.Parse(args); err != nil {
+		return app.SkillManifestPaths{}, err
+	}
+	if flags.NArg() != 0 {
+		return app.SkillManifestPaths{}, fmt.Errorf("unexpected release arguments: %v", flags.Args())
 	}
 	return paths, nil
 }
