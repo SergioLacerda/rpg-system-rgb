@@ -11,6 +11,7 @@ import (
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/core"
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/maker"
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/publication"
+	"github.com/SergioLacerda/rpg-system-rgb/internal/components/skillpkg"
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/specialist"
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components/tooling"
 )
@@ -24,6 +25,7 @@ func Components() []components.Component {
 		publication.Descriptor(),
 		tooling.Descriptor(),
 		bundles.Descriptor(),
+		skillpkg.Descriptor(),
 	}
 }
 

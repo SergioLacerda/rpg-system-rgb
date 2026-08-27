@@ -24,10 +24,10 @@ Mismatches: none
 Cited: docs/core/en/reference/combat_example.md
 ```
 
-This is the corrected state of the example — before
-`.analysis/refined/20260801-core-rules-executable-examples-turn-contract`,
-the published document stated `Health Damage = 1, Remaining Health = 9`
-for this attack, which fails re-derivation twice over: the shield
+This is the corrected state of the example — before the internal
+`core-rules-executable-examples-turn-contract` analysis, the published
+document stated `Health Damage = 1, Remaining Health = 9` for this
+attack, which fails re-derivation twice over: the shield
 (3 available) was never applied to absorb the 1 remaining damage, and
 health cannot increase from a damage step under any re-derivation of
 `core.damage.flow`.

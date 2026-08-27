@@ -1,4 +1,6 @@
-.PHONY: landing-install landing-check landing-build landing-preview preview lint-web lint-web-fix test-web
+##@ Web (landing)
+
+.PHONY: landing-install landing-check landing-build landing-preview preview lint-web lint-web-fix test-web audit-web
 
 landing-install: FORCE ## Install landing page npm dependencies
 	$(NPM) --prefix $(LANDING_DIR) install
@@ -22,3 +24,18 @@ lint-web-fix: landing-install FORCE ## Format landing page files and rerun lint/
 
 test-web: landing-install FORCE ## Run landing page unit tests with coverage
 	$(NPM) --prefix $(LANDING_DIR) run test
+
+audit-web: landing-install FORCE ## Scan landing page npm dependencies for known vulnerabilities
+	$(NPM) --prefix $(LANDING_DIR) audit --audit-level=high
+
+# --- Namespaced aliases (additive, non-breaking) ---
+.PHONY: web.install web.check web.build web.preview web.lint web.lint-fix \
+  web.test web.audit
+web.install: landing-install
+web.check: landing-check
+web.build: landing-build
+web.preview: landing-preview
+web.lint: lint-web
+web.lint-fix: lint-web-fix
+web.test: test-web
+web.audit: audit-web

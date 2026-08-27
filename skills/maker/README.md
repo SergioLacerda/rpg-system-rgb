@@ -11,9 +11,9 @@ conflict report), and [`examples/`](examples/) for a worked example.
 This package does not yet run — it should not be presented as an available
 product until a runtime implementation exists.
 
-**Sequencing:** per
-`.analysis/refined/20260801-specialist-first-skill-roadmap`, Maker's
-*runtime* work is deferred until [`../specialist/`](../specialist/) has a
+**Sequencing:** per the internal `specialist-first-skill-roadmap` planning
+analysis, Maker's *runtime* work is deferred until
+[`../specialist/`](../specialist/) has a
 source-trace benchmark (see
 [`../specialist/benchmark/golden-qa.yaml`](../specialist/benchmark/golden-qa.yaml)),
 the bundle/search context shape is stable, and Maker's provenance/canon

@@ -65,6 +65,7 @@ func TestRunDocsSubcommandsSurfaceComponentErrors(t *testing.T) {
 	cases := [][]string{
 		{"docs", "library", "--source", root, "--out", root + "/out"},
 		{"docs", "pdf", "--public-dir", root + "/downloads", "--basename", "rgb", "--version", "v1"},
+		{"docs", "skill", "--source", root + "/missing-skill", "--out", root + "/downloads", "--name", "rgb-specialist", "--version", "v1"},
 		{"docs", "check", "--library", root + "/library", "--public-dir", root + "/downloads", "--basename", "rgb", "--version", "v1"},
 	}
 	for _, args := range cases {
@@ -114,11 +115,32 @@ func TestParseDocsFlagsRejectInvalidAndPositionalArgs(t *testing.T) {
 	if _, err := parsePDFFlags([]string{"extra"}); err == nil {
 		t.Fatal("expected positional pdf arg to fail")
 	}
+	if _, err := parseSkillFlags([]string{"--bad"}); err == nil {
+		t.Fatal("expected invalid skill flag to fail")
+	}
+	if _, err := parseSkillFlags([]string{"extra"}); err == nil {
+		t.Fatal("expected positional skill arg to fail")
+	}
 	if _, err := parseDocsCheckFlags([]string{"--bad"}); err == nil {
 		t.Fatal("expected invalid docs check flag to fail")
 	}
 	if _, err := parseDocsCheckFlags([]string{"extra"}); err == nil {
 		t.Fatal("expected positional docs check arg to fail")
+	}
+}
+
+func TestParseSkillFlags(t *testing.T) {
+	options, err := parseSkillFlags([]string{
+		"--source", "skills/specialist",
+		"--out", "downloads",
+		"--name", "rgb-specialist",
+		"--version", "v0.1",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if options.SourceDir != "skills/specialist" || options.OutDir != "downloads" || options.Name != "rgb-specialist" || options.Version != "v0.1" {
+		t.Fatalf("unexpected skill options: %+v", options)
 	}
 }
 
@@ -151,6 +173,8 @@ func TestRunReleaseSubcommandsSurfaceComponentErrors(t *testing.T) {
 	cases := [][]string{
 		{"release", "manifest", "--public-dir", root + "/downloads", "--basename", "rgb", "--version", "v1"},
 		{"release", "check", "--public-dir", root + "/downloads", "--basename", "rgb", "--version", "v1"},
+		{"release", "skill-manifest", "--public-dir", root + "/downloads", "--name", "rgb-specialist", "--version", "v1"},
+		{"release", "skill-check", "--public-dir", root + "/downloads", "--name", "rgb-specialist", "--version", "v1"},
 	}
 	for _, args := range cases {
 		if err := run(args); err == nil {
@@ -189,5 +213,48 @@ func TestParseReleaseFlagsRejectsPositionalArgs(t *testing.T) {
 	})
 	if err == nil {
 		t.Fatal("expected positional release argument to be rejected")
+	}
+}
+
+func TestRunRejectsUnknownReleaseSkillSubcommand(t *testing.T) {
+	err := run([]string{"release", "skill-bogus"})
+	if err == nil {
+		t.Fatal("expected error for unknown release subcommand")
+	}
+	if !strings.Contains(err.Error(), "skill-bogus") {
+		t.Fatalf("error should mention the unknown release subcommand, got: %v", err)
+	}
+}
+
+func TestParseSkillReleaseFlagsAcceptsAllFieldsAndRejectsInvalidFlags(t *testing.T) {
+	paths, err := parseSkillReleaseFlags("release skill-manifest", []string{
+		"--public-dir", "public",
+		"--name", "rgb-specialist",
+		"--version", "v0.1",
+		"--manifest", "skill-manifest.json",
+		"--checksums", "SKILL-SHA256SUMS",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if paths.PublicDir != "public" || paths.Name != "rgb-specialist" || paths.Version != "v0.1" || paths.Manifest != "skill-manifest.json" || paths.Checksums != "SKILL-SHA256SUMS" {
+		t.Fatalf("unexpected skill release paths: %+v", paths)
+	}
+	if _, err := parseSkillReleaseFlags("release skill-manifest", []string{"--bad"}); err == nil {
+		t.Fatal("expected invalid skill release flag to fail")
+	}
+}
+
+func TestParseSkillReleaseFlagsRejectsPositionalArgs(t *testing.T) {
+	_, err := parseSkillReleaseFlags("release skill-manifest", []string{
+		"--public-dir", "public",
+		"--name", "rgb-specialist",
+		"--version", "v0.1",
+		"--manifest", "skill-manifest.json",
+		"--checksums", "SKILL-SHA256SUMS",
+		"extra",
+	})
+	if err == nil {
+		t.Fatal("expected positional skill release argument to be rejected")
 	}
 }

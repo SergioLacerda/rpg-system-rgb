@@ -43,7 +43,7 @@ func TestValidateProjectPathsRejectsForbiddenMarker(t *testing.T) {
 // empty README.md placeholder to be overwritten by the caller.
 func mustMakeMinimalProjectShape(t *testing.T, scratch string) {
 	t.Helper()
-	for _, dir := range []string{"docs/core", "docs/adr", "generated"} {
+	for _, dir := range []string{"docs/core", "docs/adr", "generated", "skills"} {
 		if err := os.MkdirAll(filepath.Join(scratch, dir), 0o755); err != nil {
 			t.Fatal(err)
 		}

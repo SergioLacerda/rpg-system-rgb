@@ -6,9 +6,9 @@ never do. See [ADR-001](../../docs/adr/adr-001-ai-first-documentation-authority.
 (AI-First Documentation Authority) for the authority model this contract
 extends into content creation.
 
-**Deferred by design:** per
-`.analysis/refined/20260801-specialist-first-skill-roadmap`, Maker's
-runtime implementation is deferred until [`../specialist/`](../specialist/)
+**Deferred by design:** per the internal `specialist-first-skill-roadmap`
+planning analysis, Maker's runtime implementation is deferred until
+[`../specialist/`](../specialist/)
 proves out the rule/source/bundle path (source-trace benchmark, stable
 bundle/search context shape, accepted provenance schemas) — see
 [`../specialist/SKILL.md`](../specialist/SKILL.md)'s "Roadmap
