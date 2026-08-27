@@ -194,7 +194,6 @@ func TestGeneratedProjectionOutputsRemainDerivedArtifacts(t *testing.T) {
 		"generated/library/core-v2-rules.json",
 		"generated/pdf/core-v2-rules.manifest.json",
 		"web/landing/generated/core-v2-summary.json",
-		"generated/bundles/core-v2-rules.bundle.json",
 		"generated/ai-context/core-specialist-pack.json",
 		"generated/search/core-v2.index.json",
 	}

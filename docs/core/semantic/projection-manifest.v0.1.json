@@ -113,50 +113,6 @@
       ]
     },
     {
-      "id": "projection.bundle.core-rules.v0_1",
-      "surface": "bundle",
-      "owner": "bundles",
-      "status": "proposed",
-      "description": "Distribution slice for Core V2 source IDs, dependencies, locale, status, and provenance.",
-      "source_units": [
-        "core.vector.r",
-        "core.vector.g",
-        "core.vector.b",
-        "core.resource.health",
-        "core.resource.shield",
-        "core.combat.attack-margin",
-        "core.damage.flow",
-        "core.damage.impact-source",
-        "core.damage.penetration",
-        "core.damage.armor-reduction",
-        "core.damage.shield-absorption",
-        "core.ability.contract",
-        "core.term.impact-source",
-        "core.term.health",
-        "core.term.attack-margin",
-        "core.term.armor-reduction",
-        "core.term.shield-absorption"
-      ],
-      "output_path": "generated/bundles/core-v2-rules.bundle.json",
-      "provenance": {
-        "source_revision": "manual",
-        "decision_refs": [
-          "docs/adr/adr-001-ai-first-documentation-authority.md",
-          "docs/adr/adr-001-ai-first-documentation-authority.md"
-        ]
-      },
-      "required_disclosures": [
-        "derived_projection",
-        "source_ids_required",
-        "generated_status"
-      ],
-      "generation_gate": [
-        "source units exist",
-        "owner contract allows bundle surface",
-        "bundle includes provenance"
-      ]
-    },
-    {
       "id": "projection.ai-context.core-specialist.v0_1",
       "surface": "ai_context_pack",
       "owner": "bundles",
