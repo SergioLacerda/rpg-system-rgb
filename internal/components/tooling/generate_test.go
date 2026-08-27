@@ -10,13 +10,15 @@ import (
 )
 
 // TestGenerateDefaultMatchesCommittedOutput regenerates every projection
-// declared in the projection manifest into a scratch copy of the repo's
-// docs/core/semantic tree and compares each one byte-for-byte against the
-// committed output. This is the migration's correctness check: the new
-// package must produce identical output to the retired
-// scripts/generate_semantic_projections.go. It only compares the
-// projection manifest's own declared outputs, not everything under
-// generated/ — that directory also holds output from internal/components/bundles
+// declared in the projection manifest, plus the Specialist skill's bundled
+// documentation snapshot, into a scratch copy of the repo's docs/core tree
+// and compares each byte-for-byte against the committed output. This is the
+// migration's correctness check: the new package must produce identical
+// output to the retired scripts/generate_semantic_projections.go, and (for
+// the skill snapshot) to whatever the last `make generate` run committed.
+// It only compares the projection manifest's own declared outputs plus the
+// skill snapshot, not everything under generated/ — that directory also
+// holds output from internal/components/bundles
 // (generated/bundle/rgb.bundle.json), which GenerateDefault does not own.
 func TestGenerateDefaultMatchesCommittedOutput(t *testing.T) {
 	root := repoRoot(t)
@@ -26,11 +28,20 @@ func TestGenerateDefaultMatchesCommittedOutput(t *testing.T) {
 	semanticDst := filepath.Join(scratch, "docs", "core", "semantic")
 	mustCopyTree(t, semanticSrc, semanticDst)
 
+	// GenerateDefault also regenerates the skill snapshot (see
+	// skill_snapshot.go), which reads from docs/core/{en,PT-br}/.
+	for _, locale := range []string{"en", "PT-br"} {
+		mustCopyTree(t, filepath.Join(root, "docs", "core", locale), filepath.Join(scratch, "docs", "core", locale))
+	}
+
 	if err := GenerateDefault(scratch); err != nil {
 		t.Fatalf("GenerateDefault failed: %v", err)
 	}
 
-	for _, outputPath := range declaredProjectionOutputs(t, root) {
+	outputs := declaredProjectionOutputs(t, root)
+	outputs = append(outputs, "skills/specialist/references/rgb-system.md")
+
+	for _, outputPath := range outputs {
 		want, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(outputPath)))
 		if err != nil {
 			t.Fatal(err)

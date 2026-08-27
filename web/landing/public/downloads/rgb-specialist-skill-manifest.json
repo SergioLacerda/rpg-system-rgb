@@ -1,16 +1,16 @@
 {
   "artifacts": [
     {
-      "bytes": 34092,
+      "bytes": 34331,
       "file": "rgb-specialist-latest.zip",
       "path": "/downloads/rgb-specialist-latest.zip",
-      "sha256": "1c4e2e68c57290c1d29db951952dc864ba3c98dfb72291d191557af7cb3cd5bd"
+      "sha256": "55d5d0a22ef82ccf0ebb09bd7181bdf8522373678f5db7cd90cafdbf13298b5e"
     },
     {
-      "bytes": 34092,
+      "bytes": 34331,
       "file": "rgb-specialist-v0.1.zip",
       "path": "/downloads/rgb-specialist-v0.1.zip",
-      "sha256": "1c4e2e68c57290c1d29db951952dc864ba3c98dfb72291d191557af7cb3cd5bd"
+      "sha256": "55d5d0a22ef82ccf0ebb09bd7181bdf8522373678f5db7cd90cafdbf13298b5e"
     }
   ],
   "name": "rgb-specialist",

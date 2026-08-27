@@ -38,10 +38,21 @@ describe("landing dictionary", () => {
       const skills = dict[locale].skills;
 
       expect(skills.specialist.name).toBe("Specialist");
-      expect(skills.specialist.status).not.toMatch(/installed|instalada/i);
-      expect(skills.maker.status).not.toMatch(/installed|instalada/i);
-      expect(skills.specialist.desc).toMatch(/runtime/i);
+      expect(skills.specialist.badge).not.toMatch(/installed|instalada/i);
+      expect(skills.maker.badge).not.toMatch(/installed|instalada/i);
+      // Maker has no runtime yet and its copy says so explicitly; Specialist
+      // is packaged (see the `packaged` test below) and its badge/tags carry
+      // the "contract defined" signal instead of a runtime disclaimer.
       expect(skills.maker.desc).toMatch(/runtime/i);
+    }
+  });
+
+  it("only marks the specialist skill as packaged (a real .zip exists)", () => {
+    for (const locale of locales) {
+      const skills = dict[locale].skills;
+
+      expect(skills.specialist.packaged).toBe(true);
+      expect(skills.maker.packaged).toBe(false);
     }
   });
 });

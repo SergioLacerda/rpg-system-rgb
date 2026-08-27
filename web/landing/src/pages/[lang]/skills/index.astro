@@ -1,0 +1,242 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import SkillCard from "../../../components/SkillCard.astro";
+import { dict, locales, type Locale } from "../../../i18n/dictionary";
+import { landingPath } from "../../../lib/paths";
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const t = dict[lang].skills;
+// Packaging (ADR-013) and "installed" status are different signals: the zip
+// exists once cmd/rgb docs skill has run, but installed stays false until a
+// verified runtime exists (see skills/specialist/README.md).
+const specialistDownloadHref = landingPath(
+  "/downloads/rgb-specialist-latest.zip",
+);
+---
+
+<BaseLayout lang={lang} title={t.title}>
+  <section class="cards">
+    <SkillCard
+      name={t.specialist.name}
+      role={t.specialist.role}
+      badge={t.specialist.badge}
+      desc={t.specialist.desc}
+      tags={[...t.specialist.tags]}
+      size={t.specialist.size}
+      packaged={t.specialist.packaged}
+      accent="g"
+      icon="search"
+      downloadUrl={t.specialist.packaged ? specialistDownloadHref : undefined}
+      downloadLabel={t.downloadLabel}
+      soonLabel={t.soonLabel}
+      soonNote={t.soonNote}
+    />
+    <SkillCard
+      name={t.maker.name}
+      role={t.maker.role}
+      badge={t.maker.badge}
+      desc={t.maker.desc}
+      tags={[...t.maker.tags]}
+      size={t.maker.size}
+      packaged={t.maker.packaged}
+      accent="r"
+      icon="doc"
+      downloadLabel={t.downloadLabel}
+      soonLabel={t.soonLabel}
+      soonNote={t.soonNote}
+    />
+  </section>
+
+  <section class="install">
+    <div class="install-head">
+      <div>
+        <div class="kicker blue">{t.install.kicker}</div>
+        <div class="install-title">{t.install.title}</div>
+      </div>
+      <div class="install-note">{t.install.note}</div>
+    </div>
+
+    <div class="steps">
+      {
+        t.install.steps.map((step, i) => (
+          <div class="step">
+            <div class="step-head">
+              <span class="num">{i + 1}</span>
+              <span class="step-title">{step.title}</span>
+            </div>
+            <div class="step-desc">{step.desc}</div>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="prompt">
+      <div class="prompt-head">
+        <span>{t.install.promptLabel}</span>
+        <button class="copy-prompt" data-prompt={t.install.prompt}>COPY</button>
+      </div>
+      <div class="prompt-body">{t.install.prompt}</div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  document
+    .querySelectorAll<HTMLButtonElement>(".copy-prompt")
+    .forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(btn.dataset.prompt ?? "");
+        const original = btn.textContent;
+        btn.textContent = "✓ COPIED";
+        setTimeout(() => (btn.textContent = original), 1400);
+      });
+    });
+</script>
+
+<style>
+  .kicker {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--g);
+    margin-bottom: 14px;
+  }
+  .kicker.blue {
+    color: var(--b);
+    margin-bottom: 8px;
+  }
+
+  .cards {
+    padding: 28px 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .install {
+    margin: 20px 48px 80px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px 34px;
+  }
+  .install-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 26px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .install-title {
+    font-family: var(--font-serif);
+    font-size: 24px;
+    color: var(--text);
+  }
+  .install-note {
+    font-size: 12px;
+    color: #5c6480;
+    max-width: 300px;
+    line-height: 1.5;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px;
+  }
+  .step-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #1d2a4a;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+  }
+  .step-title {
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .step-desc {
+    font-size: 13px;
+    color: var(--text-mute);
+    line-height: 1.6;
+  }
+
+  .prompt {
+    margin-top: 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .prompt-head {
+    padding: 10px 18px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .copy-prompt {
+    background: none;
+    border: 1px solid #2a3350;
+    color: var(--text-dim);
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    cursor: pointer;
+  }
+  .copy-prompt:hover {
+    border-color: var(--b);
+    color: var(--text);
+  }
+  .prompt-body {
+    padding: 16px 18px;
+    font-size: 13px;
+    color: #c9d1e8;
+    line-height: 1.7;
+    font-family: ui-monospace, monospace;
+  }
+
+  @media (max-width: 820px) {
+    .cards,
+    .steps {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 760px) {
+    .cards {
+      padding: 22px;
+    }
+    .install {
+      margin: 16px 22px 64px;
+      padding: 24px 20px;
+    }
+  }
+</style>
