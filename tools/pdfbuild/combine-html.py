@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import re
 import sys
+from dataclasses import dataclass
+from html import escape
 from pathlib import Path
 
 import yaml
@@ -18,6 +20,15 @@ BODY_RE = re.compile(r"<body[^>]*>(?P<body>.*)</body>", re.IGNORECASE | re.DOTAL
 TITLE_RE = re.compile(r"<title>(?P<title>.*?)</title>", re.IGNORECASE | re.DOTALL)
 ID_RE = re.compile(r'id="([^"]+)"')
 HREF_RE = re.compile(r'href="#([^"]+)"')
+
+
+@dataclass(frozen=True)
+class BookPage:
+    path: Path
+    title: str
+    group: str
+    group_index: int
+    level: int
 
 
 def prefix_anchors(html: str, anchor_prefix: str) -> str:
@@ -50,38 +61,119 @@ def html_path_for_markdown(site_dir: Path, markdown_path: str) -> Path:
     return site_dir / rel
 
 
-def nav_markdown_paths(items: list[object]) -> list[str]:
-    paths: list[str] = []
+def collect_nav_pages(
+    items: list[object],
+    site_dir: Path,
+    group: str,
+    level: int = 1,
+) -> list[BookPage]:
+    pages: list[BookPage] = []
     for item in items:
         if isinstance(item, str):
-            paths.append(item)
+            path = html_path_for_markdown(site_dir, item)
+            if path.exists():
+                pages.append(BookPage(path, page_title(path), group, 0, level))
         elif isinstance(item, dict):
-            for value in item.values():
+            for label, value in item.items():
                 if isinstance(value, str):
-                    paths.append(value)
+                    path = html_path_for_markdown(site_dir, value)
+                    if path.exists():
+                        pages.append(BookPage(path, label, group, 0, level))
                 elif isinstance(value, list):
-                    paths.extend(nav_markdown_paths(value))
-    return paths
+                    pages.extend(collect_nav_pages(value, site_dir, label, level + 1))
+    return pages
 
 
-def page_paths(site_dir: Path, config_path: Path) -> list[Path]:
+def book_pages(site_dir: Path, config_path: Path) -> list[BookPage]:
     config = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
-    nav_pages = [
-        html_path_for_markdown(site_dir, path)
-        for path in nav_markdown_paths(config.get("nav", []))
-    ]
-    nav_pages = [path for path in nav_pages if path.exists()]
+    nav_pages: list[BookPage] = []
+    for item in config.get("nav", []):
+        if isinstance(item, str):
+            path = html_path_for_markdown(site_dir, item)
+            if path.exists():
+                nav_pages.append(BookPage(path, page_title(path), "Foundations", 0, 2))
+        elif isinstance(item, dict):
+            for label, value in item.items():
+                if isinstance(value, str):
+                    path = html_path_for_markdown(site_dir, value)
+                    if path.exists():
+                        group = "Foundations" if value == "README.md" or value.startswith("introduction/") else label
+                        nav_pages.append(BookPage(path, label, group, 0, 2))
+                elif isinstance(value, list):
+                    nav_pages.extend(collect_nav_pages(value, site_dir, label, 2))
+    nav_paths = [page.path for page in nav_pages]
     fallback_pages = [
         path
         for path in sorted(site_dir.rglob("*.html"))
-        if path.name != "404.html" and "search" not in path.parts and path not in nav_pages
+        if path.name != "404.html" and "search" not in path.parts and path not in nav_paths
     ]
-    return nav_pages + fallback_pages
+    appendices = [
+        BookPage(path, page_title(path), "Appendices", len(nav_pages) + 1, 2)
+        for path in fallback_pages
+    ]
+    return nav_pages + appendices
 
 
 def page_anchor(site_dir: Path, page: Path) -> str:
     rel = page.relative_to(site_dir).with_suffix("")
     return "page-" + "-".join(part for part in rel.parts if part)
+
+
+def group_anchor(group: str) -> str:
+    normalized = re.sub(r"[^a-z0-9]+", "-", group.lower()).strip("-")
+    return f"chapter-{normalized or 'section'}"
+
+
+def group_vector(index: int) -> str:
+    return ("b", "r", "g")[index % 3]
+
+
+def display_label(lang: str, label: str) -> str:
+    if not lang.lower().startswith("pt"):
+        return label
+    labels = {
+        "Appendices": "Apêndices",
+        "Armor": "Armaduras",
+        "Attack and Defense": "Ataque e defesa",
+        "Attributes": "Atributos",
+        "Character Creation": "Criação de personagem",
+        "Character Sheet": "Ficha de personagem",
+        "Combat": "Combate",
+        "Combat Decision Model": "Modelo de decisão de combate",
+        "Combat Example": "Exemplo de combate",
+        "Combat Walkthrough": "Passo a passo de combate",
+        "Core": "Sistema base",
+        "Damage Interaction Model": "Modelo de interação de dano",
+        "Damage Model": "Modelo de dano",
+        "Equipment": "Equipamentos",
+        "Extra": "Extra",
+        "Foundations": "Fundamentos",
+        "Game Play Example": "Exemplo de jogo",
+        "Gameplay Example": "Exemplo de jogo",
+        "Gameplay Loop": "Loop de jogo",
+        "Gear": "Equipamentos gerais",
+        "Glossary": "Glossário",
+        "Movement": "Movimento",
+        "One Page Rules": "Regras em uma página",
+        "Overview": "Visão geral",
+        "Progression": "Progressão",
+        "Quick Start": "Início rápido",
+        "Reference": "Referência",
+        "Skills and Abilities": "Habilidades",
+        "System Engine": "Engine do sistema",
+        "System Overview": "Visão geral do sistema",
+        "Weapons": "Armas",
+    }
+    return labels.get(label, label)
+
+
+def chapter_label(lang: str, index: int) -> str:
+    noun = "Capítulo" if lang.lower().startswith("pt") else "Chapter"
+    return f"{noun} {index:02d}"
+
+
+def in_section_label(lang: str) -> str:
+    return "Nesta seção" if lang.lower().startswith("pt") else "In this section"
 
 
 def main() -> int:
@@ -97,7 +189,7 @@ def main() -> int:
     cover = Path(sys.argv[3])
     site = Path(sys.argv[4])
     config = Path(sys.argv[5])
-    pages = page_paths(site, config)
+    pages = book_pages(site, config)
 
     print("<!doctype html>")
     print(f'<html lang="{lang}">')
@@ -117,17 +209,47 @@ def main() -> int:
     print(f'    <span class="toc__version">{version}</span>')
     print("  </div>")
     print("  <ol>")
-    vector_classes = ("b", "r", "g", "b")
-    for index, page in enumerate(pages):
-        anchor = page_anchor(site, page)
-        vector = vector_classes[index % len(vector_classes)]
-        print(f'    <li class="lvl-1 vector-{vector}"><a href="#{anchor}">{page_title(page)}</a></li>')
+    current_group = ""
+    current_group_index = 0
+    for page in pages:
+        if page.group != current_group:
+            current_group = page.group
+            current_group_index += 1
+            vector = group_vector(current_group_index)
+            group_label = display_label(lang, page.group)
+            print(f'    <li class="toc__group vector-{vector}"><a href="#{group_anchor(page.group)}">{escape(group_label)}</a></li>')
+        anchor = page_anchor(site, page.path)
+        vector = group_vector(current_group_index)
+        print(f'    <li class="lvl-{page.level} vector-{vector}"><a href="#{anchor}">{escape(display_label(lang, page.title))}</a></li>')
     print("  </ol>")
     print("</nav>")
+
+    current_group = ""
+    current_group_index = 0
     for page in pages:
-        anchor = page_anchor(site, page)
+        if page.group != current_group:
+            current_group = page.group
+            current_group_index += 1
+            vector = group_vector(current_group_index)
+            group_label = display_label(lang, page.group)
+            print(f'<section id="{group_anchor(page.group)}" class="chapter-opener chapter-opener--{vector}">')
+            print(f'  <div class="chapter-opener__rule"></div>')
+            print(f'  <p class="chapter-opener__label">{chapter_label(lang, current_group_index)}</p>')
+            print(f'  <h1>{escape(group_label)}</h1>')
+            print('  <div class="chapter-opener__contents">')
+            print(f"    <p>{in_section_label(lang)}</p>")
+            print("    <ol>")
+            for child in [candidate for candidate in pages if candidate.group == page.group][:6]:
+                child_anchor = page_anchor(site, child.path)
+                child_label = display_label(lang, child.title)
+                print(f'      <li><a href="#{child_anchor}">{escape(child_label)}</a></li>')
+            print("    </ol>")
+            print("  </div>")
+            print("</section>")
+
+        anchor = page_anchor(site, page.path)
         print(f'<section id="{anchor}" class="pdf-page-source">')
-        print(extract_body(page, anchor))
+        print(extract_body(page.path, anchor))
         print("</section>")
     print("</body>")
     print("</html>")
