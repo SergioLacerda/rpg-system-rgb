@@ -19,6 +19,24 @@ import (
 
 const releaseArtifactSchema = "rgb-system-release-artifacts/0.1"
 
+var publicEngineeringMarkers = []string{
+	"docs/adr/",
+	"../adr/",
+	"../../adr/",
+	"/adr/",
+	"adr-",
+	"adrs",
+	"architecture decisions",
+	"decisões de arquitetura",
+	"decisoes de arquitetura",
+	"relationship to prior adrs",
+}
+
+var chapterOpenerRE = regexp.MustCompile(`^(CHAPTER|CAPÍTULO)\s+[0-9]+$`)
+var rasterPageRE = regexp.MustCompile(`-(\d+)\.png$`)
+var indexPageNumberRE = regexp.MustCompile(`\b\d+\b`)
+var alphaRE = regexp.MustCompile(`[[:alpha:]]`)
+
 // ReleaseArtifactPaths identifies the PDF artifacts and metadata files used by
 // the public release surface.
 type ReleaseArtifactPaths struct {
@@ -191,11 +209,14 @@ func validateLocaleEditorialPages(paths ReleaseArtifactPaths, tmpDir, locale str
 	if err := validatePDFTOC(pdf, filepath.Join(tmpDir, locale+".txt")); err != nil {
 		return err
 	}
-	if err := validatePDFLinks(pdf, filepath.Join(tmpDir, locale+"-links")); err != nil {
-		return err
-	}
 	pages, err := pdfPageCount(pdf)
 	if err != nil {
+		return err
+	}
+	if err := validatePDFPublicContent(pdf, filepath.Join(tmpDir, locale+"-public.txt"), pages); err != nil {
+		return err
+	}
+	if err := validatePDFLinks(pdf, filepath.Join(tmpDir, locale+"-links")); err != nil {
 		return err
 	}
 	return rasterizePDF(pdf, filepath.Join(tmpDir, locale+"-page"), min(pages, 8))
@@ -386,6 +407,23 @@ func validatePDFTOC(pdf, textPath string) error {
 	return nil
 }
 
+func validatePDFPublicContent(pdf, textPath string, pageCount int) error {
+	if _, err := runCommand("pdftotext", "-layout", pdf, textPath); err != nil {
+		return err
+	}
+	text, err := os.ReadFile(textPath) //nolint:gosec // G304: temporary path created by this process.
+	if err != nil {
+		return err
+	}
+	if containsPublicEngineeringReference(string(text)) {
+		return fmt.Errorf("::error::%s contains engineering-only ADR content", pdf)
+	}
+	if err := validateChapterOpenersRecto(pdf, string(text)); err != nil {
+		return err
+	}
+	return validateBookIndexReferences(pdf, string(text), pageCount)
+}
+
 func validatePDFLinks(pdf, outputPrefix string) error {
 	if _, err := runCommand("pdftohtml", "-xml", "-i", "-f", "1", "-l", "3", pdf, outputPrefix); err != nil {
 		return err
@@ -398,6 +436,99 @@ func validatePDFLinks(pdf, outputPrefix string) error {
 		return fmt.Errorf("::error::%s has no extractable TOC links on the critical pages", pdf)
 	}
 	return nil
+}
+
+func containsPublicEngineeringReference(text string) bool {
+	lower := strings.ToLower(text)
+	for _, marker := range publicEngineeringMarkers {
+		if strings.Contains(lower, marker) {
+			return true
+		}
+	}
+	return false
+}
+
+func validateChapterOpenersRecto(pdf, text string) error {
+	for pageNumber, page := range strings.Split(text, "\f") {
+		if !pageHasChapterOpener(page) {
+			continue
+		}
+		physicalPage := pageNumber + 1
+		if physicalPage%2 == 0 {
+			return fmt.Errorf("::error::%s has a chapter opener on verso page %d", pdf, physicalPage)
+		}
+	}
+	return nil
+}
+
+func pageHasChapterOpener(page string) bool {
+	for index, line := range strings.Split(page, "\n") {
+		if index >= 12 {
+			return false
+		}
+		trimmed := strings.TrimSpace(line)
+		if chapterOpenerRE.MatchString(trimmed) {
+			return true
+		}
+	}
+	return false
+}
+
+func validateBookIndexReferences(pdf, text string, pageCount int) error {
+	indexPage, ok := extractBookIndexPage(text)
+	if !ok {
+		return fmt.Errorf("::error::%s is missing a generated book index", pdf)
+	}
+	entries := 0
+	for _, line := range strings.Split(indexPage, "\n") {
+		if !isBookIndexEntryLine(line) {
+			continue
+		}
+		entries++
+		for _, match := range indexPageNumberRE.FindAllString(line, -1) {
+			page, err := strconv.Atoi(match)
+			if err != nil || page < 1 || page > pageCount {
+				return fmt.Errorf("::error::%s contains an orphaned book-index reference to page %s", pdf, match)
+			}
+		}
+	}
+	if entries == 0 {
+		return fmt.Errorf("::error::%s has no extractable book-index entries", pdf)
+	}
+	return nil
+}
+
+func extractBookIndexPage(text string) (string, bool) {
+	for _, page := range strings.Split(text, "\f") {
+		if pageHasBookIndexHeading(page) {
+			return page, true
+		}
+	}
+	return "", false
+}
+
+func pageHasBookIndexHeading(page string) bool {
+	for index, line := range strings.Split(page, "\n") {
+		if index >= 12 {
+			return false
+		}
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "Index" || trimmed == "Índice remissivo" {
+			return true
+		}
+	}
+	return false
+}
+
+func isBookIndexEntryLine(line string) bool {
+	trimmed := strings.TrimSpace(line)
+	if trimmed == "" || strings.HasPrefix(trimmed, "RGB SYSTEM") || strings.HasPrefix(trimmed, "v2.0") {
+		return false
+	}
+	if trimmed == "Index" || trimmed == "Índice remissivo" {
+		return false
+	}
+	return alphaRE.MatchString(trimmed)
 }
 
 func rasterizePDF(pdf, outputPrefix string, firstContentPage int) error {
@@ -448,19 +579,30 @@ func validateRasterImage(name string, imageData image.Image) error {
 	}
 
 	avg, readableRatio, veryLightRatio := rasterLuminanceStats(imageData)
-	if isReadableDarkCover(name, avg, veryLightRatio) {
+	if skipsRasterEdgeChecks(name, avg, readableRatio, veryLightRatio) {
 		return nil
 	}
-	if isTooDarkForContent(avg, veryLightRatio) {
-		return fmt.Errorf("%s appears too dark for editorial PDF output", name)
-	}
-	if readableRatio < 0.003 {
-		return fmt.Errorf("%s appears blank or missing readable text", name)
+	if err := validateRasterReadability(name, avg, readableRatio, veryLightRatio); err != nil {
+		return err
 	}
 
 	margin := max(4, min(width, height)*2/100)
 	if rasterEdgeDarkRatio(imageData, margin) > 0.015 {
 		return fmt.Errorf("%s has excessive dark marks near page edges", name)
+	}
+	return nil
+}
+
+func skipsRasterEdgeChecks(name string, avg, readableRatio, veryLightRatio float64) bool {
+	return isReadableDarkCover(name, avg, veryLightRatio) || isIntentionalBlankVerso(name, readableRatio, veryLightRatio)
+}
+
+func validateRasterReadability(name string, avg, readableRatio, veryLightRatio float64) error {
+	if isTooDarkForContent(avg, veryLightRatio) {
+		return fmt.Errorf("%s appears too dark for editorial PDF output", name)
+	}
+	if readableRatio < 0.003 {
+		return fmt.Errorf("%s appears blank or missing readable text", name)
 	}
 	return nil
 }
@@ -471,6 +613,20 @@ func isReadableDarkCover(name string, avg, veryLightRatio float64) bool {
 
 func isTooDarkForContent(avg, veryLightRatio float64) bool {
 	return avg < 180 || veryLightRatio < 0.55
+}
+
+func isIntentionalBlankVerso(name string, readableRatio, veryLightRatio float64) bool {
+	page, ok := rasterPageNumber(name)
+	return ok && page%2 == 0 && readableRatio < 0.003 && veryLightRatio > 0.98
+}
+
+func rasterPageNumber(name string) (int, bool) {
+	match := rasterPageRE.FindStringSubmatch(name)
+	if match == nil {
+		return 0, false
+	}
+	page, err := strconv.Atoi(match[1])
+	return page, err == nil
 }
 
 func isCoverRaster(name string) bool {

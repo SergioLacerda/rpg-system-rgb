@@ -589,7 +589,7 @@ hr {
 }
 
 .chapter-opener {
-  break-before: page;
+  break-before: recto;
   min-height: 235mm;
   page: frontmatter;
   position: relative;

@@ -51,6 +51,36 @@ func loadSemanticIndexUnits(t *testing.T) map[string]semanticIndexUnit {
 	return units
 }
 
+type consumerContract struct {
+	Component               string   `json:"component"`
+	ForbiddenAuthorityTypes []string `json:"forbidden_authority_types"`
+}
+
+// loadConsumerContractForbiddenTypes returns, per component, the set of
+// authority types that component's consumer contract forbids ingesting.
+func loadConsumerContractForbiddenTypes(t *testing.T) map[string]map[string]bool {
+	t.Helper()
+	body, err := os.ReadFile("../../docs/core/semantic/consumer-contracts.v0.1.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		Contracts []consumerContract `json:"contracts"`
+	}
+	if err := json.Unmarshal(body, &doc); err != nil {
+		t.Fatal(err)
+	}
+	forbidden := make(map[string]map[string]bool, len(doc.Contracts))
+	for _, contract := range doc.Contracts {
+		types := make(map[string]bool, len(contract.ForbiddenAuthorityTypes))
+		for _, authorityType := range contract.ForbiddenAuthorityTypes {
+			types[authorityType] = true
+		}
+		forbidden[contract.Component] = types
+	}
+	return forbidden
+}
+
 func loadProjectionSourceUnits(t *testing.T) map[string]bool {
 	t.Helper()
 	body, err := os.ReadFile("../../docs/core/semantic/projection-manifest.v0.1.json")
@@ -92,6 +122,33 @@ func TestGoldenSemanticUnitsKeepStableProjectionCoverage(t *testing.T) {
 			}
 			if !projectionCoverage[want.id] {
 				t.Fatalf("%s: no projection in projection-manifest.v0.1.json lists it as a source_unit", want.id)
+			}
+		})
+	}
+}
+
+// TestGoldenSemanticUnitsRemainConsumable guards against a consumer contract
+// accidentally forbidding the authority_type these canonical golden units
+// carry (e.g. Core itself losing the ability to ingest canonical_semantic
+// content it owns), per design.md's golden-layer guidance to extend
+// coverage into docs/core/semantic/consumer-contracts.v0.1.json.
+func TestGoldenSemanticUnitsRemainConsumable(t *testing.T) {
+	indexUnits := loadSemanticIndexUnits(t)
+	forbiddenByComponent := loadConsumerContractForbiddenTypes(t)
+	if len(forbiddenByComponent) == 0 {
+		t.Fatal("no consumer contracts loaded from consumer-contracts.v0.1.json")
+	}
+
+	for _, want := range goldenSemanticUnits {
+		t.Run(want.id, func(t *testing.T) {
+			unit, ok := indexUnits[want.id]
+			if !ok {
+				t.Fatalf("semantic id %q no longer exists in core-v2.index.json", want.id)
+			}
+			for component, forbiddenTypes := range forbiddenByComponent {
+				if forbiddenTypes[unit.AuthorityType] {
+					t.Fatalf("%s: consumer contract %q forbids authority_type %q, which this canonical unit carries", want.id, component, unit.AuthorityType)
+				}
 			}
 		})
 	}

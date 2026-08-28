@@ -133,9 +133,18 @@ func TestValidateRasterImageRejectsBlankPage(t *testing.T) {
 	page := image.NewRGBA(image.Rect(0, 0, 200, 200))
 	fill(page, color.RGBA{R: 255, G: 255, B: 255, A: 255})
 
-	err := validateRasterImage("blank.png", page)
+	err := validateRasterImage("en-page-005.png", page)
 	if err == nil || !strings.Contains(err.Error(), "blank") {
 		t.Fatalf("expected blank-page error, got %v", err)
+	}
+}
+
+func TestValidateRasterImageAcceptsBlankVersoSpacer(t *testing.T) {
+	page := image.NewRGBA(image.Rect(0, 0, 200, 200))
+	fill(page, color.RGBA{R: 255, G: 255, B: 255, A: 255})
+
+	if err := validateRasterImage("en-page-004.png", page); err != nil {
+		t.Fatalf("expected blank verso spacer, got %v", err)
 	}
 }
 
