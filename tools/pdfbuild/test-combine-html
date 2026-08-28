@@ -1,0 +1,134 @@
+#!/usr/bin/env python3
+"""Unit checks for the manual PDF HTML combiner."""
+
+from __future__ import annotations
+
+import importlib.util
+import sys
+import unittest
+from pathlib import Path
+
+
+MODULE_PATH = Path(__file__).with_name("combine-html.py")
+TESTDATA = Path(__file__).with_name("testdata") / "combine-html"
+
+
+def load_combiner():
+    spec = importlib.util.spec_from_file_location("combine_html", MODULE_PATH)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load {MODULE_PATH}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+combine_html = load_combiner()
+
+
+def fixture(name: str) -> str:
+    return (TESTDATA / name).read_text(encoding="utf-8")
+
+
+class TextTableConversionTests(unittest.TestCase):
+    def test_converts_editorial_tables_against_golden(self) -> None:
+        got = combine_html.convert_text_tables(fixture("editorial-input.html"))
+
+        self.assertEqual(got, fixture("editorial-output.html"))
+
+    def test_converts_degenerate_pipe_separator_table(self) -> None:
+        html = """<pre><code class="language-text">| Vector | Name | Function |
+|||--|
+| R | Red | pressure |
+| G | Green | movement |
+</code></pre>"""
+
+        got = combine_html.convert_text_tables(html)
+
+        self.assertIn('class="value-table value-table--text"', got)
+        self.assertIn("<th>Vector</th>", got)
+        self.assertIn("<td>Green</td>", got)
+        self.assertNotIn("<pre><code", got)
+
+    def test_converts_borderless_pipe_body_rows(self) -> None:
+        html = """<pre><code class="language-text">| Strategy | Vector |
+|----------|--------|
+Attacker | R |
+Skirmisher | G |
+</code></pre>"""
+
+        got = combine_html.convert_text_tables(html)
+
+        self.assertIn("<th>Strategy</th><th>Vector</th>", got)
+        self.assertIn("<td>Skirmisher</td><td>G</td>", got)
+
+    def test_converts_spaced_table_with_separator(self) -> None:
+        html = """<pre><code class="language-text">Vector   Name    Function
+------   ----    --------
+R        Red     pressure and disruption
+B        Blue    preservation
+</code></pre>"""
+
+        got = combine_html.convert_text_tables(html)
+
+        self.assertIn("<th>Vector</th><th>Name</th><th>Function</th>", got)
+        self.assertIn("<td>B</td><td>Blue</td><td>preservation</td>", got)
+
+    def test_converts_spaced_table_with_glued_first_row(self) -> None:
+        html = """<pre><code class="language-text">Vector   Name     Function
+------   -------  --------------------------------------R        Red      attacks, power
+G        Green    evasion
+B        Blue     shields
+</code></pre>"""
+
+        got = combine_html.convert_text_tables(html)
+
+        self.assertIn("<th>Vector</th><th>Name</th><th>Function</th>", got)
+        self.assertIn("<td>R</td><td>Red</td><td>attacks, power</td>", got)
+        self.assertIn("<td>B</td><td>Blue</td><td>shields</td>", got)
+        self.assertNotIn("------", got)
+
+    def test_keeps_formulas_and_flows_as_text_blocks(self) -> None:
+        html = """<pre><code class="language-text">Health = 4 + R + B
+Shield = B x 3
+</code></pre>
+<pre><code class="language-text">Hit Check
+down
+Impact Source
+down
+Penetration
+</code></pre>"""
+
+        got = combine_html.convert_text_tables(html)
+
+        self.assertEqual(got, html)
+
+
+class PublicEngineeringStripTests(unittest.TestCase):
+    def test_strips_public_engineering_content_against_golden(self) -> None:
+        got = combine_html.strip_public_engineering_html(fixture("public-strip-input.html"))
+
+        self.assertEqual(got, fixture("public-strip-output.html"))
+
+    def test_removes_adr_sections_links_and_list_items(self) -> None:
+        html = """<h1>Core</h1>
+<p>Keep this.</p>
+<h2>Architecture Decisions</h2>
+<ul><li><a href="../../adr/adr-016-pdf.md">ADR-016</a></li></ul>
+<h2>Rules</h2>
+<ul><li>Use this rule.</li><li>See ADR-013.</li></ul>
+<p><a href="../adr/adr-010-go.md">Decision</a> text stays readable.</p>"""
+
+        got = combine_html.strip_public_engineering_html(html)
+
+        self.assertIn("<p>Keep this.</p>", got)
+        self.assertIn("<h2>Rules</h2>", got)
+        self.assertIn("<li>Use this rule.</li>", got)
+        self.assertIn("<p>Decision text stays readable.</p>", got)
+        self.assertNotIn("Architecture Decisions", got)
+        self.assertNotIn("ADR-", got)
+        self.assertNotIn("../adr/", got)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

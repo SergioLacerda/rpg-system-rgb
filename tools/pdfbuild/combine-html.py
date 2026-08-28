@@ -25,6 +25,7 @@ TEXT_CODE_RE = re.compile(
     r'<pre><code class="language-text">(?P<body>.*?)</code></pre>',
     re.IGNORECASE | re.DOTALL,
 )
+LIST_ITEM_RE = re.compile(r"<li\b[^>]*>.*?</li>", re.IGNORECASE | re.DOTALL)
 PARAGRAPH_RE = re.compile(r"<p>(?P<body>.*?)</p>", re.IGNORECASE | re.DOTALL)
 EXAMPLE_RE = re.compile(
     r"<p>(?P<label>Example:|Examples:|Exemplo:|Exemplos:)</p>\s*(?P<body><(?:ul|ol|pre|table)\b.*?</(?:ul|ol|pre|table)>)",
@@ -76,7 +77,7 @@ def strip_public_engineering_html(html: str) -> str:
         html,
         flags=re.IGNORECASE | re.DOTALL,
     )
-    html = re.sub(r"<li>.*?(?:docs/adr/|\.\./adr/|\.\./\.\./adr/|ADR-).*?</li>", "", html, flags=re.IGNORECASE | re.DOTALL)
+    html = LIST_ITEM_RE.sub(lambda match: "" if contains_adr_reference(match.group(0)) else match.group(0), html)
     html = re.sub(r'<a\s+href="[^"]*(?:docs/adr/|\.\./adr/|\.\./\.\./adr/|adr-)[^"]*">(.*?)</a>', r"\1", html, flags=re.IGNORECASE | re.DOTALL)
     return html
 
@@ -105,18 +106,75 @@ def pipe_table_cells(line: str) -> list[str]:
 
 
 def is_pipe_table_separator(line: str) -> bool:
+    normalized = line.replace(" ", "")
+    if not normalized or set(normalized) <= {"|", "-", ":"}:
+        return True
     cells = pipe_table_cells(line)
     if not cells:
         return False
-    return all(re.fullmatch(r":?-{3,}:?", cell.replace(" ", "")) for cell in cells)
+    return all(
+        cell == "" or re.fullmatch(r":?-{3,}:?", cell.replace(" ", ""))
+        for cell in cells
+    )
+
+
+def parse_pipe_table_line(line: str) -> list[str] | None:
+    if "|" not in line:
+        return None
+    cells = pipe_table_cells(line)
+    cells = [cell for cell in cells if cell != ""]
+    return cells if len(cells) >= 2 else None
+
+
+def is_spaced_table_separator(line: str) -> bool:
+    return bool(re.fullmatch(r"[-\s]{6,}", line)) and "---" in line
+
+
+def parse_spaced_table_line(line: str) -> list[str] | None:
+    cells = [cell.strip() for cell in re.split(r"\s{2,}", line.strip())]
+    cells = [cell for cell in cells if cell != ""]
+    return cells if len(cells) >= 2 else None
+
+
+def normalize_text_table_lines(code: str) -> list[str]:
+    lines: list[str] = []
+    for line in code.splitlines():
+        line = unescape(line).strip()
+        if not line:
+            continue
+        glued = re.search(r"-{3,}:?(?P<row>[^\s-].*)$", line)
+        if glued:
+            lines.append(line[: glued.start("row")].strip())
+            lines.append(glued.group("row").strip())
+            continue
+        lines.append(line)
+    return lines
 
 
 def text_table_html(code: str) -> str | None:
-    lines = [unescape(line).strip() for line in code.splitlines() if line.strip()]
-    if len(lines) < 2 or not all(line.startswith("|") and line.endswith("|") for line in lines):
+    lines = normalize_text_table_lines(code)
+    if len(lines) < 2:
         return None
 
-    rows = [pipe_table_cells(line) for line in lines if not is_pipe_table_separator(line)]
+    rows: list[list[str]] = []
+    if "|" in lines[0]:
+        for line in lines:
+            if is_pipe_table_separator(line):
+                continue
+            row = parse_pipe_table_line(line)
+            if row is None:
+                return None
+            rows.append(row)
+    elif len(lines) >= 3 and is_spaced_table_separator(lines[1]):
+        rows.append(parse_spaced_table_line(lines[0]) or [])
+        for line in lines[2:]:
+            row = parse_spaced_table_line(line)
+            if row is None:
+                return None
+            rows.append(row)
+    else:
+        return None
+
     if len(rows) < 2:
         return None
     column_count = len(rows[0])

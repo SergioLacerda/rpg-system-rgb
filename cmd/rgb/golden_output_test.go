@@ -38,6 +38,51 @@ func TestRunGoldenErrorText(t *testing.T) {
 			args: []string{"release", "bogus"},
 			want: `unknown release subcommand "bogus" (want manifest|check|pdf-regression-check|skill-manifest|skill-check)`,
 		},
+		{
+			name: "unknown flag on docs library",
+			args: []string{"docs", "library", "--bogus"},
+			want: "flag provided but not defined: -bogus",
+		},
+		{
+			name: "unknown flag on docs pdf",
+			args: []string{"docs", "pdf", "--bogus"},
+			want: "flag provided but not defined: -bogus",
+		},
+		{
+			name: "unknown flag on docs skill",
+			args: []string{"docs", "skill", "--bogus"},
+			want: "flag provided but not defined: -bogus",
+		},
+		{
+			name: "unknown flag on docs check",
+			args: []string{"docs", "check", "--bogus"},
+			want: "flag provided but not defined: -bogus",
+		},
+		{
+			name: "unknown flag on release manifest",
+			args: []string{"release", "manifest", "--bogus"},
+			want: "flag provided but not defined: -bogus",
+		},
+		{
+			name: "unknown flag on release check",
+			args: []string{"release", "check", "--bogus"},
+			want: "flag provided but not defined: -bogus",
+		},
+		{
+			name: "unknown flag on release pdf-regression-check",
+			args: []string{"release", "pdf-regression-check", "--bogus"},
+			want: "flag provided but not defined: -bogus",
+		},
+		{
+			name: "unknown flag on release skill-manifest",
+			args: []string{"release", "skill-manifest", "--bogus"},
+			want: "flag provided but not defined: -bogus",
+		},
+		{
+			name: "unknown flag on release skill-check",
+			args: []string{"release", "skill-check", "--bogus"},
+			want: "flag provided but not defined: -bogus",
+		},
 	}
 
 	for _, tc := range cases {

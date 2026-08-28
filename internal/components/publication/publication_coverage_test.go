@@ -187,3 +187,26 @@ func TestCheckRejectsDirectoryArtifact(t *testing.T) {
 		t.Fatal("expected directory artifact to fail")
 	}
 }
+
+func TestCheckRejectsEngineeringContentInLibrary(t *testing.T) {
+	root := t.TempDir()
+	library := filepath.Join(root, "library")
+	public := filepath.Join(root, "downloads")
+	options := CheckOptions{LibraryDir: library, PublicDir: public, Basename: "rgb", Version: "v1"}
+	for _, path := range []string{
+		filepath.Join(library, "index.html"),
+		filepath.Join(library, "core", "en", "index.html"),
+		filepath.Join(library, "core", "PT-br", "index.html"),
+		filepath.Join(public, "rgb-latest-en.pdf"),
+		filepath.Join(public, "rgb-v1-en.pdf"),
+		filepath.Join(public, "rgb-latest-pt-br.pdf"),
+		filepath.Join(public, "rgb-v1-pt-br.pdf"),
+	} {
+		writeTestFile(t, path, "content")
+	}
+	writeTestFile(t, filepath.Join(library, "core", "en", "index.html"), "See ADR-016.")
+
+	if err := Check(options); err == nil {
+		t.Fatal("expected engineering-only Library content to fail")
+	}
+}

@@ -47,7 +47,7 @@ CLI_COVER_THRESHOLD ?= 90
 TOOLING_CLI_COVER_THRESHOLD ?= 90
 SKILLPKG_COVER_THRESHOLD ?= 90
 
-.PHONY: help install review-structure check-fast check release-check FORCE
+.PHONY: help install review-structure public-artifact-check check-fast check release-check FORCE
 
 .DEFAULT_GOAL := help
 
@@ -74,7 +74,10 @@ include make/governance.mk
 review-structure: vet lint test test-arch validate cover-check FORCE ## Run the full base-structure review gate
 	@echo "review-structure: all gates passed"
 
-check-fast: fmt-check vet lint test test-arch validate check-generated-drift cover-check mutation-core check-publication-runtime check-governance-files FORCE ## Run the fast local and PR gate
+public-artifact-check: pdf-author-unit-test docs-check pdf-editorial-check release-skill-check FORCE ## Validate generated public HTML, PDF, and skill artifacts
+	@echo "public-artifact-check: all gates passed"
+
+check-fast: fmt-check vet lint test test-arch validate check-generated-drift cover-check mutation-core coverage-inventory public-artifact-check check-publication-runtime check-governance-files FORCE ## Run the fast local and PR gate
 	@echo "check-fast: all gates passed"
 
 check: check-fast lint-web test-web landing-build lint-yaml lint-shell FORCE ## Run the full development and main gate

@@ -369,7 +369,12 @@ func TestEditorialHelpersRejectBadFakeToolOutput(t *testing.T) {
 	runExternalCommand = func(name string, args ...string) ([]byte, error) {
 		switch name {
 		case "pdftotext":
-			return nil, os.WriteFile(args[len(args)-1], []byte("bad entry 0\n"), 0o644)
+			for _, arg := range args {
+				if arg == "-f" {
+					return nil, os.WriteFile(args[len(args)-1], []byte("bad entry 0\n"), 0o644)
+				}
+			}
+			return nil, os.WriteFile(args[len(args)-1], []byte("Public rule\nADR-016\n"), 0o644)
 		case "pdftohtml":
 			return nil, os.WriteFile(args[len(args)-1]+".xml", []byte(`<page></page>`), 0o644)
 		case "pdfinfo":
@@ -386,6 +391,13 @@ func TestEditorialHelpersRejectBadFakeToolOutput(t *testing.T) {
 	if err := validatePDFTOC(pdf, filepath.Join(dir, "toc.txt")); err == nil {
 		t.Fatal("expected page-zero TOC to fail")
 	}
+	pageCount, err := pdfPageCount(pdf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := validatePDFPublicContent(pdf, filepath.Join(dir, "public.txt"), pageCount); err == nil {
+		t.Fatal("expected public PDF content with ADR marker to fail")
+	}
 	if err := validatePDFLinks(pdf, filepath.Join(dir, "links")); err == nil {
 		t.Fatal("expected missing links to fail")
 	}
@@ -397,6 +409,23 @@ func TestEditorialHelpersRejectBadFakeToolOutput(t *testing.T) {
 	}
 	if _, err := runCommand("pdftoppm"); err == nil {
 		t.Fatal("expected runCommand to wrap command failure")
+	}
+}
+
+func TestChapterOpenersMustStartOnRectoPages(t *testing.T) {
+	oddChapter := "Cover\fFrontmatter\fContents\f\fCHAPTER 01\nFoundations\n"
+	if err := validateChapterOpenersRecto("doc.pdf", oddChapter); err != nil {
+		t.Fatal(err)
+	}
+
+	evenChapter := "Cover\fFrontmatter\fContents\fCHAPTER 01\nFoundations\n"
+	if err := validateChapterOpenersRecto("doc.pdf", evenChapter); err == nil {
+		t.Fatal("expected chapter opener on an even physical page to fail")
+	}
+
+	ptChapter := "Capa\fFicha tecnica\fContents\f\fCAPÍTULO 01\nFundamentos\n"
+	if err := validateChapterOpenersRecto("doc.pdf", ptChapter); err != nil {
+		t.Fatal(err)
 	}
 }
 

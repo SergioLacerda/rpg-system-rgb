@@ -115,3 +115,43 @@ func TestDeadlineReachedWithoutObjectiveFailsFeatureExample(t *testing.T) {
 		t.Fatalf("failure reason got %q want %q", result.Objective.FailureReason, evacuationFailureReason)
 	}
 }
+
+// TestObjectiveAlreadyMetResolvesAtRoundOne covers the same-round success
+// path (current round clock never advances past 0) that the deadline-based
+// scenarios above cannot reach: the target already holds the required state
+// before any action is validly resolved, so evaluateObjective's zero-round
+// guard is the only thing standing between a correct "round 1" resolution
+// and an incorrect "round 0" one. Mutation guard for
+// encounter-objective-zero-guard-dropped in scripts/ci/mutation-core.sh.
+func TestObjectiveAlreadyMetResolvesAtRoundOne(t *testing.T) {
+	characters := evacuationCharacters(t)
+	if err := characters["researcher"].AddState(core.StateDistant); err != nil {
+		t.Fatal(err)
+	}
+	encounter := core.Encounter{
+		ID:   "laboratory-evacuation",
+		Name: "Laboratory Evacuation",
+		Actions: []core.Action{
+			{
+				Actor:  "warden",
+				Target: "researcher",
+				Round:  -1, // deliberately invalid: keeps currentRound at 0
+			},
+		},
+		Objective: evacuationObjective(),
+	}
+
+	result, err := core.RunEncounter(characters, encounter)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(result.UndefinedSteps) != 1 {
+		t.Fatalf("undefined steps got %d want 1 (the deliberately invalid action): %v", len(result.UndefinedSteps), result.UndefinedSteps)
+	}
+	if !result.Objective.Succeeded {
+		t.Fatal("objective must succeed: the researcher already holds the required state")
+	}
+	if result.Objective.ResolvedRound != 1 {
+		t.Fatalf("resolved round got %d want 1 (round 0 must never be reported as a resolution round)", result.Objective.ResolvedRound)
+	}
+}

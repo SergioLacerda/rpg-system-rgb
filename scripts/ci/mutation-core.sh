@@ -61,6 +61,18 @@ run_mutation "resolve-modifier-sign" "internal/components/core/resolution.go" \
   "actingValue \\+ modifier - opposingValue" \
   "actingValue - modifier - opposingValue" \
   "./internal/components/core ./tests/properties ./tests/core_behavior"
+run_mutation "resolve-margin-success-boundary" "internal/components/core/resolution.go" \
+  "case margin >= 1:" \
+  "case margin > 1:" \
+  "./internal/components/core ./tests/properties ./tests/core_behavior"
+run_mutation "resolve-margin-failure-opportunity-boundary" "internal/components/core/resolution.go" \
+  "case margin >= -2:" \
+  "case margin > -2:" \
+  "./internal/components/core ./tests/properties ./tests/core_behavior"
+run_mutation "resolve-margin-cost-band-dropped" "internal/components/core/resolution.go" \
+  "case margin == 0:" \
+  "case margin != 0:" \
+  "./internal/components/core ./tests/properties ./tests/core_behavior"
 
 # --- Damage ---
 run_mutation "damage-shield-pre-armor" "internal/components/core/damage.go" \
@@ -70,6 +82,14 @@ run_mutation "damage-shield-pre-armor" "internal/components/core/damage.go" \
 run_mutation "damage-injure-on-zero" "internal/components/core/damage.go" \
   "else if healthDamage > 0" \
   "else if healthDamage >= 0" \
+  "./internal/components/core ./tests/core_behavior ./tests/properties"
+run_mutation "damage-armor-floor-dropped" "internal/components/core/damage.go" \
+  "effectiveArmor := max\\(target\\.Resources\\.Armor-input\\.Penetration, 0\\)" \
+  "effectiveArmor := target.Resources.Armor-input.Penetration" \
+  "./internal/components/core ./tests/core_behavior ./tests/properties"
+run_mutation "damage-downed-threshold-inverted" "internal/components/core/damage.go" \
+  "target\\.Resources\\.CurrentHealth == 0" \
+  "target.Resources.CurrentHealth >= 0" \
   "./internal/components/core ./tests/core_behavior ./tests/properties"
 
 # --- Resources ---
@@ -95,3 +115,11 @@ run_mutation "surprise-priority-inverted" "internal/components/core/initiative.g
   "return sorted\\[i\\]\\.Surprise" \
   "return sorted[j].Surprise" \
   "./internal/components/core ./tests/core_behavior"
+run_mutation "encounter-round-tracking-inverted" "internal/components/core/encounter.go" \
+  "round > currentRound" \
+  "round < currentRound" \
+  "./internal/components/core ./tests/core_behavior ./tests/simulation"
+run_mutation "encounter-objective-zero-guard-dropped" "internal/components/core/encounter.go" \
+  "outcome\\.ResolvedRound == 0" \
+  "false" \
+  "./internal/components/core ./tests/core_behavior ./tests/simulation"
