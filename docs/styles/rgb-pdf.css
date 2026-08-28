@@ -2,11 +2,11 @@
  * Print stylesheet behind the currently shipped RGB System Core PDF
  * (web/landing/public/downloads/rgb-system-core-v2-*.pdf, Producer:
  * WeasyPrint 62.3). Not dead code: it is byte-identical to the copy
- * embedded in the old MkDocs build output and is the real, working CSS
+ * embedded in the old static documentation output and is the real, working CSS
  * that produced that PDF's typography, TOC pagination, and running
  * headers/footers.
  *
- * Currently unwired: the mkdocs.yml that once invoked this stylesheet was
+ * Currently unwired: the site configuration that once invoked this stylesheet was
  * deleted when ADR-010 retired the automated interpreter-backed
  * publication pipeline. Per ADR-016 (docs/adr/adr-016-pdf-external-
  * authoring-exception.md), this is the intended starting point for the
@@ -152,7 +152,7 @@ h6 {
 
 h1 {
   border-bottom: 1px solid var(--rgb-pdf-border);
-  break-before: recto;
+  break-before: page;
   font-size: 24pt;
   margin: 0 0 12mm;
   padding-bottom: 4mm;
@@ -278,8 +278,8 @@ hr {
 }
 
 .pdf-cover {
-  background: var(--rgb-pdf-text);
-  color: var(--rgb-paper-alt);
+  background: #111111 !important;
+  color: #f4f1e8 !important;
   display: block;
   height: 297mm;
   page: cover;
@@ -309,14 +309,16 @@ hr {
 
 .pdf-cover__kicker,
 .pdf-cover__meta {
-  color: #c9c7c2;
+  color: #c9c7c2 !important;
   font-family: var(--rgb-pdf-mono);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .pdf-cover__title {
-  color: var(--rgb-paper-alt);
+  border: 0;
+  break-before: auto;
+  color: #f4f1e8 !important;
   font-family: var(--rgb-pdf-sans);
   font-size: 48pt;
   line-height: 0.98;
@@ -325,7 +327,7 @@ hr {
 }
 
 .pdf-cover__subtitle {
-  color: #c9c7c2;
+  color: #d8d4ca !important;
   font-family: var(--rgb-pdf-serif);
   font-size: 16pt;
   font-style: italic;
@@ -335,7 +337,7 @@ hr {
 
 .pdf-cover__rule {
   border: 0;
-  border-top: 0.5pt solid #55565d;
+  border-top: 0.5pt solid #77736a !important;
   margin: 8mm 0;
 }
 
@@ -360,6 +362,31 @@ hr {
   font-size: 8.5pt;
   line-height: 13pt;
   page: frontmatter;
+}
+
+.pdf-colophon h2 {
+  border-bottom: 1px solid var(--rgb-pdf-border);
+  break-before: auto;
+  font-size: 16pt;
+  margin: 0 0 8mm;
+  padding-bottom: 3mm;
+}
+
+.pdf-colophon dl {
+  display: block;
+}
+
+.pdf-colophon dt {
+  color: var(--rgb-pdf-text);
+  font-family: var(--rgb-pdf-mono);
+  font-size: 7.8pt;
+  font-weight: 700;
+  margin-top: 3.2mm;
+  text-transform: uppercase;
+}
+
+.pdf-colophon dd {
+  margin: 0 0 1.8mm;
 }
 
 .rule,
