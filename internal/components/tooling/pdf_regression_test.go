@@ -371,7 +371,7 @@ func TestCheckPDFRegressionRasterNoPagesAvailable(t *testing.T) {
 	baseline := filepath.Join(dir, "baseline.pdf")
 	candidate := filepath.Join(dir, "candidate.pdf")
 
-	withFakePDFTools(t, func(name string, args ...string) ([]byte, error) {
+	withFakePDFTools(t, func(name string, _ ...string) ([]byte, error) {
 		if name != "pdfinfo" {
 			return nil, fmt.Errorf("unexpected command %s", name)
 		}

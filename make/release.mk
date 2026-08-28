@@ -16,7 +16,7 @@ release-artifact-manifest: FORCE ## Write release PDF manifest and checksums
 	$(GOENV) $(GO) run ./cmd/rgb release manifest --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)" --manifest "$(RELEASE_MANIFEST)" --checksums "$(RELEASE_CHECKSUMS)"
 
 release-artifact-check: FORCE ## Validate release PDF manifest and checksums
-	$(GOENV) $(GO) run ./cmd/rgb release check --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)"
+	$(GOENV) $(GO) run ./cmd/rgb release check --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)" --manifest "$(RELEASE_MANIFEST)" --checksums "$(RELEASE_CHECKSUMS)"
 
 pdf-regression-check: FORCE ## Validate a candidate PDF renderer's output against the shipped baseline (manual — not part of check/release-check; see ADR-017)
 	$(GOENV) $(GO) run ./cmd/rgb release pdf-regression-check --baseline-dir "$(PDF_PUBLIC_DIR)" --candidate-dir "$(PDF_REGRESSION_CANDIDATE_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)"
