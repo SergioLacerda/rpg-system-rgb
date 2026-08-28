@@ -108,7 +108,7 @@ func parsePDFFlags(args []string) (app.PDFOptions, error) {
 	flags.SetOutput(io.Discard)
 	flags.StringVar(&options.PublicDir, "public-dir", "web/landing/public/downloads", "public downloads directory")
 	flags.StringVar(&options.Basename, "basename", "rgb-system-core-v2", "release artifact basename")
-	flags.StringVar(&options.Version, "version", "v0.2", "release version")
+	flags.StringVar(&options.Version, "version", "v2.0", "release version")
 	flags.StringVar(&options.SourceEN, "source-en", "", "reviewed English PDF source")
 	flags.StringVar(&options.SourcePT, "source-pt-br", "", "reviewed Portuguese PDF source")
 	if err := flags.Parse(args); err != nil {
@@ -144,7 +144,7 @@ func parseDocsCheckFlags(args []string) (app.PublicationCheckOptions, error) {
 	flags.StringVar(&options.LibraryDir, "library", "web/landing/public/library", "public Library directory")
 	flags.StringVar(&options.PublicDir, "public-dir", "web/landing/public/downloads", "public downloads directory")
 	flags.StringVar(&options.Basename, "basename", "rgb-system-core-v2", "release artifact basename")
-	flags.StringVar(&options.Version, "version", "v0.2", "release version")
+	flags.StringVar(&options.Version, "version", "v2.0", "release version")
 	if err := flags.Parse(args); err != nil {
 		return app.PublicationCheckOptions{}, err
 	}
