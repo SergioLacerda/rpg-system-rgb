@@ -11,6 +11,8 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components"
 )
@@ -98,12 +100,46 @@ func addZipFile(writer *zip.Writer, sourcePath, zipPath string) error {
 	if err != nil {
 		return err
 	}
+	content = sanitizePackagedSkillContent(zipPath, content)
 	entry, err := writer.Create(zipPath)
 	if err != nil {
 		return err
 	}
 	_, err = entry.Write(content)
 	return err
+}
+
+var packagedSkillEngineeringHeading = regexp.MustCompile(`(?i)^(#{1,6}\s*)?(architecture decisions|decis(?:õ|o)es de arquitetura|relationship to prior adrs)\s*$`)
+
+func sanitizePackagedSkillContent(zipPath string, content []byte) []byte {
+	switch strings.ToLower(filepath.Ext(zipPath)) {
+	case ".md", ".yaml", ".yml", ".txt":
+	default:
+		return content
+	}
+	var out []string
+	skipSection := false
+	for _, raw := range strings.Split(string(content), "\n") {
+		line := strings.TrimSpace(raw)
+		if strings.HasPrefix(line, "#") {
+			skipSection = packagedSkillEngineeringHeading.MatchString(line)
+		}
+		if skipSection || containsADRReference(line) {
+			continue
+		}
+		out = append(out, raw)
+	}
+	return []byte(strings.TrimRight(strings.Join(out, "\n"), "\n") + "\n")
+}
+
+func containsADRReference(text string) bool {
+	lower := strings.ToLower(text)
+	return strings.Contains(lower, "docs/adr/") ||
+		strings.Contains(lower, "../adr/") ||
+		strings.Contains(lower, "../../adr/") ||
+		strings.Contains(lower, "/adr/") ||
+		strings.Contains(lower, "adr-") ||
+		strings.Contains(lower, "adrs")
 }
 
 func copyFile(source, dest string) error {

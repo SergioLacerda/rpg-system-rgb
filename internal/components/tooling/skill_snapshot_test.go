@@ -100,6 +100,44 @@ func TestGenerateSkillSnapshotStripsRelativeLinksButKeepsExternalOnes(t *testing
 	}
 }
 
+func TestGenerateSkillSnapshotRemovesEngineeringADRContent(t *testing.T) {
+	root := t.TempDir()
+	writeFixtureDoc(t, root, "en", "topic.md", strings.Join([]string{
+		"# Topic",
+		"",
+		"Rules content.",
+		"",
+		"## Architecture Decisions",
+		"",
+		"See [ADR-002](../../adr/adr-002-rgb-core-v2-design-control.md).",
+		"",
+		"## Play",
+		"",
+		"Do not expose [engineering decisions](../../adr/adr-001-ai-first-documentation-authority.md).",
+	}, "\n"))
+
+	cfg := SkillSnapshotConfig{
+		OutputPath: "out/snapshot.md",
+		Inputs:     []string{"topic.md"},
+		Locales:    []string{"en"},
+	}
+	if err := GenerateSkillSnapshot(root, cfg); err != nil {
+		t.Fatalf("GenerateSkillSnapshot failed: %v", err)
+	}
+
+	raw, err := os.ReadFile(filepath.Join(root, "out", "snapshot.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := string(raw)
+	if strings.Contains(got, "ADR-") || strings.Contains(got, "Architecture Decisions") || strings.Contains(got, "adr-") {
+		t.Fatalf("expected skill snapshot to omit ADR content, got:\n%s", got)
+	}
+	if strings.Contains(got, "(see ADR") || strings.Contains(got, "hand-maintained (see") {
+		t.Fatalf("expected generated snapshot header to avoid ADR references, got:\n%s", got)
+	}
+}
+
 func TestGenerateSkillSnapshotMissingFileErrors(t *testing.T) {
 	root := t.TempDir()
 	cfg := SkillSnapshotConfig{

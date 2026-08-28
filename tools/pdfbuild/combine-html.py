@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 import sys
 from dataclasses import dataclass
-from html import escape
+from html import escape, unescape
 from pathlib import Path
 
 import yaml
@@ -20,6 +20,24 @@ BODY_RE = re.compile(r"<body[^>]*>(?P<body>.*)</body>", re.IGNORECASE | re.DOTAL
 TITLE_RE = re.compile(r"<title>(?P<title>.*?)</title>", re.IGNORECASE | re.DOTALL)
 ID_RE = re.compile(r'id="([^"]+)"')
 HREF_RE = re.compile(r'href="#([^"]+)"')
+HEADING_RE = re.compile(r"<h(?P<level>[23])[^>]*>(?P<body>.*?)</h[23]>", re.IGNORECASE | re.DOTALL)
+TEXT_CODE_RE = re.compile(
+    r'<pre><code class="language-text">(?P<body>.*?)</code></pre>',
+    re.IGNORECASE | re.DOTALL,
+)
+PARAGRAPH_RE = re.compile(r"<p>(?P<body>.*?)</p>", re.IGNORECASE | re.DOTALL)
+EXAMPLE_RE = re.compile(
+    r"<p>(?P<label>Example:|Examples:|Exemplo:|Exemplos:)</p>\s*(?P<body><(?:ul|ol|pre|table)\b.*?</(?:ul|ol|pre|table)>)",
+    re.IGNORECASE | re.DOTALL,
+)
+SEE_ALSO_RE = re.compile(
+    r"<p>(?P<label>See also:|Veja:|Ver também:)</p>\s*(?P<body><ul\b.*?</ul>)",
+    re.IGNORECASE | re.DOTALL,
+)
+OPTIONAL_RULE_RE = re.compile(
+    r"(?P<heading><h[23][^>]*>(?:Optional Rule|Regra Opcional):.*?</h[23]>)\s*<p>(?P<body>.*?)</p>",
+    re.IGNORECASE | re.DOTALL,
+)
 
 
 @dataclass(frozen=True)
@@ -44,6 +62,114 @@ def extract_body(path: Path, anchor_prefix: str = "") -> str:
         return prefix_anchors(body, anchor_prefix) if anchor_prefix else body
     match = BODY_RE.search(text)
     return match.group("body") if match else text
+
+
+def contains_adr_reference(text: str) -> bool:
+    lowered = text.lower()
+    return any(marker in lowered for marker in ("docs/adr/", "../adr/", "../../adr/", "/adr/", "adr-"))
+
+
+def strip_public_engineering_html(html: str) -> str:
+    html = re.sub(
+        r"<h2[^>]*>(?:Architecture Decisions|Decisões de Arquitetura)</h2>.*?(?=<h2|\Z)",
+        "",
+        html,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    html = re.sub(r"<li>.*?(?:docs/adr/|\.\./adr/|\.\./\.\./adr/|ADR-).*?</li>", "", html, flags=re.IGNORECASE | re.DOTALL)
+    html = re.sub(r'<a\s+href="[^"]*(?:docs/adr/|\.\./adr/|\.\./\.\./adr/|adr-)[^"]*">(.*?)</a>', r"\1", html, flags=re.IGNORECASE | re.DOTALL)
+    return html
+
+
+def vector_label(lang: str, level: str, vector: str) -> str:
+    if level == "rule":
+        noun = "Regra" if lang.lower().startswith("pt") else "Rule"
+        return f"{vector.upper()} {noun}"
+    if level == "exception":
+        noun = "Exceção" if lang.lower().startswith("pt") else "Exception"
+        return f"{vector.upper()}! {noun}"
+    if level == "example":
+        return "Na mesa" if lang.lower().startswith("pt") else "At the table"
+    return vector.upper()
+
+
+def editorial_box(level: str, vector: str, label: str, body: str) -> str:
+    return (
+        f'<div class="vector-box vector-box--{level} vector-box--{vector}">'
+        f'<p class="vector-box__label">{escape(label)}</p>{body}</div>'
+    )
+
+
+def pipe_table_cells(line: str) -> list[str]:
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+
+def is_pipe_table_separator(line: str) -> bool:
+    cells = pipe_table_cells(line)
+    if not cells:
+        return False
+    return all(re.fullmatch(r":?-{3,}:?", cell.replace(" ", "")) for cell in cells)
+
+
+def text_table_html(code: str) -> str | None:
+    lines = [unescape(line).strip() for line in code.splitlines() if line.strip()]
+    if len(lines) < 2 or not all(line.startswith("|") and line.endswith("|") for line in lines):
+        return None
+
+    rows = [pipe_table_cells(line) for line in lines if not is_pipe_table_separator(line)]
+    if len(rows) < 2:
+        return None
+    column_count = len(rows[0])
+    if column_count < 2 or any(len(row) != column_count for row in rows):
+        return None
+
+    head = "".join(f"<th>{escape(cell)}</th>" for cell in rows[0])
+    body = "\n".join(
+        "    <tr>" + "".join(f"<td>{escape(cell)}</td>" for cell in row) + "</tr>"
+        for row in rows[1:]
+    )
+    return f'<table class="value-table value-table--text"><thead><tr>{head}</tr></thead><tbody>\n{body}\n  </tbody></table>'
+
+
+def convert_text_tables(html: str) -> str:
+    def replacement(match: re.Match[str]) -> str:
+        table = text_table_html(match.group("body"))
+        return table if table else match.group(0)
+
+    return TEXT_CODE_RE.sub(replacement, html)
+
+
+def annotate_editorial_blocks(html: str, lang: str, vector: str) -> str:
+    html = strip_public_engineering_html(html)
+    html = convert_text_tables(html)
+
+    def optional_rule(match: re.Match[str]) -> str:
+        body = match.group("body")
+        box = editorial_box("exception", vector, vector_label(lang, "exception", vector), f"<p>{body}</p>")
+        return f"{match.group('heading')}\n{box}"
+
+    html = OPTIONAL_RULE_RE.sub(optional_rule, html)
+
+    def example(match: re.Match[str]) -> str:
+        return editorial_box("example", "g", vector_label(lang, "example", "g"), match.group("body"))
+
+    html = EXAMPLE_RE.sub(example, html)
+
+    def see_also(match: re.Match[str]) -> str:
+        return editorial_box("marginal", "g", vector_label(lang, "marginal", "g"), match.group("body"))
+
+    html = SEE_ALSO_RE.sub(see_also, html)
+
+    def paragraph(match: re.Match[str]) -> str:
+        body = match.group("body").strip()
+        normalized = re.sub(r"<.*?>", "", body).strip()
+        if contains_adr_reference(body):
+            return ""
+        if re.match(r"^(Do not|Não|Nunca|Never|Examples cannot|Exemplos não)\b", normalized, re.IGNORECASE):
+            return editorial_box("rule", vector, vector_label(lang, "rule", vector), f"<p>{body}</p>")
+        return match.group(0)
+
+    return PARAGRAPH_RE.sub(paragraph, html)
 
 
 def page_title(path: Path) -> str:
@@ -176,6 +302,98 @@ def in_section_label(lang: str) -> str:
     return "Nesta seção" if lang.lower().startswith("pt") else "In this section"
 
 
+def reference_sheet_label(lang: str) -> str:
+    return "Folhas de referência" if lang.lower().startswith("pt") else "Reference Sheets"
+
+
+def index_label(lang: str) -> str:
+    return "Índice remissivo" if lang.lower().startswith("pt") else "Index"
+
+
+def strip_tags(html: str) -> str:
+    text = re.sub(r"<[^>]+>", "", html)
+    return " ".join(unescape(text).split())
+
+
+def collect_index_entries(lang: str, site: Path, pages: list[BookPage]) -> list[tuple[str, str]]:
+    entries: dict[str, tuple[str, str]] = {}
+    skip_titles = {"overview", "visão geral", "appendices", "apêndices"}
+    for page in pages:
+        label = display_label(lang, page.title)
+        if label.strip().lower() not in skip_titles:
+            entries.setdefault(label.casefold(), (label, page_anchor(site, page.path)))
+        if page.path.stem != "glossary":
+            continue
+        for match in HEADING_RE.finditer(extract_body(page.path)):
+            term = strip_tags(match.group("body"))
+            if term:
+                entries.setdefault(term.casefold(), (term, page_anchor(site, page.path)))
+    return sorted(entries.values(), key=lambda item: item[0].casefold())
+
+
+def emit_reference_sheets(lang: str, version: str) -> None:
+    pt = lang.lower().startswith("pt")
+    title = reference_sheet_label(lang)
+    vectors = [
+        ("R", "Pressão" if pt else "Pressure", "impacto, força, interrupção" if pt else "impact, force, interruption"),
+        ("G", "Relação" if pt else "Relation", "movimento, timing, esquiva" if pt else "movement, timing, evasion"),
+        ("B", "Preservação" if pt else "Preservation", "escudo, bloqueio, resistência" if pt else "shield, block, resistance"),
+    ]
+    damage_steps = [
+        "Verificação de acerto ou contato" if pt else "Hit or contact check",
+        "Fonte de impacto" if pt else "Impact source",
+        "Penetração" if pt else "Penetration",
+        "Redução por armadura" if pt else "Armor reduction",
+        "Absorção por escudo" if pt else "Shield absorption",
+        "Dano restante ou consequência" if pt else "Remaining damage or consequence",
+    ]
+    defense_rows = [
+        ("Esquiva" if pt else "Evade", "G", "evitar ou alterar contato" if pt else "avoid or alter contact"),
+        ("Reposicionar" if pt else "Reposition", "G", "mudar alcance, cobertura ou engajamento" if pt else "change range, cover, or engagement"),
+        ("Bloquear" if pt else "Block", "B", "receber pressão de forma intencional" if pt else "intentionally receive pressure"),
+        ("Interromper" if pt else "Interrupt", "R", "parar ação com pressão primeiro" if pt else "stop an action by applying pressure first"),
+    ]
+
+    print('<section id="reference-sheets" class="reference-sheets">')
+    print(f"  <h1>{escape(title)}</h1>")
+    print(f'  <p class="reference-sheets__version">{escape(version)}</p>')
+    print(f"  <h2>{escape('Vetores' if pt else 'Vectors')}</h2>")
+    print('  <table class="value-table value-table--vectors"><thead><tr>')
+    print(f"    <th>{escape('Vetor' if pt else 'Vector')}</th><th>{escape('Nome' if pt else 'Name')}</th><th>{escape('Uso em mesa' if pt else 'At the table')}</th>")
+    print("  </tr></thead><tbody>")
+    for vector, name, use in vectors:
+        print(f'    <tr><td class="value-table__key">{vector}</td><td>{escape(name)}</td><td>{escape(use)}</td></tr>')
+    print("  </tbody></table>")
+
+    print(f"  <h2>{escape('Fluxo de dano' if pt else 'Damage Flow')}</h2>")
+    print('  <ol class="reference-flow">')
+    for step in damage_steps:
+        print(f"    <li>{escape(step)}</li>")
+    print("  </ol>")
+
+    print(f"  <h2>{escape('Procedimentos defensivos' if pt else 'Defensive Procedures')}</h2>")
+    print('  <table class="value-table"><thead><tr>')
+    print(f"    <th>{escape('Procedimento' if pt else 'Procedure')}</th><th>{escape('Vetor' if pt else 'Vector')}</th><th>{escape('Função' if pt else 'Purpose')}</th>")
+    print("  </tr></thead><tbody>")
+    for procedure, vector, purpose in defense_rows:
+        print(f'    <tr><td>{escape(procedure)}</td><td class="value-table__key">{vector}</td><td>{escape(purpose)}</td></tr>')
+    print("  </tbody></table>")
+
+    print(f"  <div class=\"vector-box vector-box--rule vector-box--r\"><p class=\"vector-box__label\">{escape(vector_label(lang, 'rule', 'r'))}</p>")
+    print(f"    <p>{escape('Exemplos e atalhos não substituem a regra declarada.' if pt else 'Examples and shortcuts do not replace the declared rule.')}</p></div>")
+    print("</section>")
+
+
+def emit_book_index(lang: str, site: Path, pages: list[BookPage]) -> None:
+    print('<section id="book-index" class="book-index">')
+    print(f"  <h1>{escape(index_label(lang))}</h1>")
+    print("  <ol>")
+    for label, anchor in collect_index_entries(lang, site, pages):
+        print(f'    <li><a href="#{anchor}">{escape(label)}</a></li>')
+    print("  </ol>")
+    print("</section>")
+
+
 def main() -> int:
     if len(sys.argv) != 6:
         print(
@@ -221,6 +439,8 @@ def main() -> int:
         anchor = page_anchor(site, page.path)
         vector = group_vector(current_group_index)
         print(f'    <li class="lvl-{page.level} vector-{vector}"><a href="#{anchor}">{escape(display_label(lang, page.title))}</a></li>')
+    print(f'    <li class="toc__group vector-r"><a href="#reference-sheets">{escape(reference_sheet_label(lang))}</a></li>')
+    print(f'    <li class="toc__group vector-g"><a href="#book-index">{escape(index_label(lang))}</a></li>')
     print("  </ol>")
     print("</nav>")
 
@@ -249,8 +469,10 @@ def main() -> int:
 
         anchor = page_anchor(site, page.path)
         print(f'<section id="{anchor}" class="pdf-page-source">')
-        print(extract_body(page.path, anchor))
+        print(annotate_editorial_blocks(extract_body(page.path, anchor), lang, group_vector(page.group_index or current_group_index)))
         print("</section>")
+    emit_reference_sheets(lang, version)
+    emit_book_index(lang, site, pages)
     print("</body>")
     print("</html>")
     return 0

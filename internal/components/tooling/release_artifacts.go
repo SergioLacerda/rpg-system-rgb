@@ -257,7 +257,7 @@ func validatePDFHeader(pdf string) error {
 }
 
 func validatePDFMetadata(pdf string, output []byte) error {
-	for _, field := range []string{"Title:", "Subject:", "Producer:"} {
+	for _, field := range []string{"Title:", "Subject:", "Producer:", "Metadata Stream: yes", "Tagged:          yes"} {
 		if !regexp.MustCompile(`(?m)^` + regexp.QuoteMeta(field)).Match(output) {
 			name := strings.TrimSuffix(strings.ToLower(field), ":")
 			return fmt.Errorf("::error::%s is missing PDF %s metadata", pdf, name)

@@ -2,8 +2,10 @@ package skillpkg
 
 import (
 	"archive/zip"
+	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -59,6 +61,43 @@ func TestPackageWritesVersionedAndLatestZips(t *testing.T) {
 	}
 }
 
+func TestPackageRemovesADRReferencesFromGeneratedZip(t *testing.T) {
+	root := t.TempDir()
+	source := filepath.Join(root, "specialist")
+	writeTestFile(t, filepath.Join(source, "SKILL.md"), strings.Join([]string{
+		"# Specialist",
+		"",
+		"Public skill guidance.",
+		"",
+		"See [ADR-002](../../docs/adr/adr-002-rgb-core-v2-design-control.md).",
+		"",
+		"## Relationship To Prior ADRs",
+		"",
+		"Internal publication history.",
+		"",
+		"## Usage",
+		"",
+		"Use the rules.",
+	}, "\n"))
+	writeTestFile(t, filepath.Join(source, "config.yaml"), strings.Join([]string{
+		"# Bundled fallback, see ADR-014.",
+		"reference: references/rgb-system.md",
+	}, "\n"))
+
+	out := filepath.Join(root, "downloads")
+	options := Options{SourceDir: source, OutDir: out, Name: "rgb-specialist", Version: "v0.1"}
+	if err := Package(options); err != nil {
+		t.Fatalf("Package returned error: %v", err)
+	}
+
+	for _, name := range []string{"rgb-specialist/SKILL.md", "rgb-specialist/config.yaml"} {
+		got := zipEntryContent(t, filepath.Join(out, "rgb-specialist-v0.1.zip"), name)
+		if strings.Contains(got, "ADR-") || strings.Contains(got, "docs/adr") || strings.Contains(strings.ToLower(got), "adrs") {
+			t.Fatalf("expected %s to omit ADR content, got:\n%s", name, got)
+		}
+	}
+}
+
 func zipEntryNames(t *testing.T, path string) []string {
 	t.Helper()
 	reader, err := zip.OpenReader(path)
@@ -73,6 +112,36 @@ func zipEntryNames(t *testing.T, path string) []string {
 		names = append(names, file.Name)
 	}
 	return names
+}
+
+func zipEntryContent(t *testing.T, path, name string) string {
+	t.Helper()
+	reader, err := zip.OpenReader(path)
+	if err != nil {
+		t.Fatalf("opening zip %s: %v", path, err)
+	}
+	defer func() {
+		_ = reader.Close()
+	}()
+	for _, file := range reader.File {
+		if file.Name != name {
+			continue
+		}
+		handle, err := file.Open()
+		if err != nil {
+			t.Fatalf("opening zip entry %s: %v", name, err)
+		}
+		defer func() {
+			_ = handle.Close()
+		}()
+		buf := new(strings.Builder)
+		if _, err := io.Copy(buf, handle); err != nil {
+			t.Fatalf("reading zip entry %s: %v", name, err)
+		}
+		return buf.String()
+	}
+	t.Fatalf("zip entry %s not found in %s", name, path)
+	return ""
 }
 
 func TestPackageRequiresAllOptions(t *testing.T) {
