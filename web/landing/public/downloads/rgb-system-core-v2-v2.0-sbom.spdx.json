@@ -5,17 +5,17 @@
   "name": "rgb-system-core-v2-v2.0-release-artifacts",
   "documentNamespace": "https://github.com/SergioLacerda/rpg-system-rgb/releases/v2.0/sbom",
   "creationInfo": {
-    "created": "2026-08-28T11:05:50Z",
+    "created": "2026-08-28T12:31:13Z",
     "creators": ["Tool: scripts/ci/write-release-supply-chain.sh"]
   },
   "files": [
-    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-latest-en-pdf", "fileName": "rgb-system-core-v2-latest-en.pdf", "checksums": [{"algorithm": "SHA256", "checksumValue": "428c2ae6b2f839fd10ecdfee1542a1d0d7f14b2d1685e1cc4d1945b5dc875992"}]},
-    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-v2-0-en-pdf", "fileName": "rgb-system-core-v2-v2.0-en.pdf", "checksums": [{"algorithm": "SHA256", "checksumValue": "428c2ae6b2f839fd10ecdfee1542a1d0d7f14b2d1685e1cc4d1945b5dc875992"}]},
-    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-latest-pt-br-pdf", "fileName": "rgb-system-core-v2-latest-pt-br.pdf", "checksums": [{"algorithm": "SHA256", "checksumValue": "f0854619b48a6a296ebfb1374d7841694d3ea178f06e69bbfc0c344bde548a50"}]},
-    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-v2-0-pt-br-pdf", "fileName": "rgb-system-core-v2-v2.0-pt-br.pdf", "checksums": [{"algorithm": "SHA256", "checksumValue": "f0854619b48a6a296ebfb1374d7841694d3ea178f06e69bbfc0c344bde548a50"}]},
-    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-release-manifest-json", "fileName": "rgb-system-core-v2-release-manifest.json", "checksums": [{"algorithm": "SHA256", "checksumValue": "528b726d00aeb16467db6d307362c5d1f202ee10f8667dedbf35eeeab0ebcc70"}]},
-    {"SPDXID": "SPDXRef-File-SHA256SUMS", "fileName": "SHA256SUMS", "checksums": [{"algorithm": "SHA256", "checksumValue": "00d9db33dc98695f41272ecbb56f692a13b9790b838619569ba6ff878d811454"}]},
-    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-v2-0-en-pdf-sha256", "fileName": "rgb-system-core-v2-v2.0-en.pdf.sha256", "checksums": [{"algorithm": "SHA256", "checksumValue": "b5507efe42904bc97503bbccc3eab2e561cac255ab2434e6d719b9ab62814a95"}]},
-    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-v2-0-pt-br-pdf-sha256", "fileName": "rgb-system-core-v2-v2.0-pt-br.pdf.sha256", "checksums": [{"algorithm": "SHA256", "checksumValue": "8c77fd6ac36b56538f9c8368e73b6e6f4ccc4b62b1272c6edc7c3072f54a5dcc"}]}
+    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-latest-en-pdf", "fileName": "rgb-system-core-v2-latest-en.pdf", "checksums": [{"algorithm": "SHA256", "checksumValue": "91f7de58e90bad155fe9850b3d7953203760259cf09ccb2d0261ee1f84710200"}]},
+    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-v2-0-en-pdf", "fileName": "rgb-system-core-v2-v2.0-en.pdf", "checksums": [{"algorithm": "SHA256", "checksumValue": "91f7de58e90bad155fe9850b3d7953203760259cf09ccb2d0261ee1f84710200"}]},
+    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-latest-pt-br-pdf", "fileName": "rgb-system-core-v2-latest-pt-br.pdf", "checksums": [{"algorithm": "SHA256", "checksumValue": "73c3bd19bef7f96f24e38be68efcd2a46157caa281f6cb5ebf2ba55205ee571c"}]},
+    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-v2-0-pt-br-pdf", "fileName": "rgb-system-core-v2-v2.0-pt-br.pdf", "checksums": [{"algorithm": "SHA256", "checksumValue": "73c3bd19bef7f96f24e38be68efcd2a46157caa281f6cb5ebf2ba55205ee571c"}]},
+    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-release-manifest-json", "fileName": "rgb-system-core-v2-release-manifest.json", "checksums": [{"algorithm": "SHA256", "checksumValue": "f818ccf8c8bf5a77050b3726ca036b9628207c5b1eadead538d7d6a0d1ae3d5e"}]},
+    {"SPDXID": "SPDXRef-File-SHA256SUMS", "fileName": "SHA256SUMS", "checksums": [{"algorithm": "SHA256", "checksumValue": "7f067a1442630e6c825d699ccb7f5135f77c2e08fc2618749d2420b3d4076187"}]},
+    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-v2-0-en-pdf-sha256", "fileName": "rgb-system-core-v2-v2.0-en.pdf.sha256", "checksums": [{"algorithm": "SHA256", "checksumValue": "41e76f8b1cbbb96be61505180c18824038c0b314c7c848b677529488bb257043"}]},
+    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-v2-0-pt-br-pdf-sha256", "fileName": "rgb-system-core-v2-v2.0-pt-br.pdf.sha256", "checksums": [{"algorithm": "SHA256", "checksumValue": "ea489a490f311d0d571476ab31413b6fcb764a9a755e2d873382be9ae62aa805"}]}
   ]
 }

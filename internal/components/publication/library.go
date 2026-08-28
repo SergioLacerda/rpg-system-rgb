@@ -34,6 +34,7 @@ type docPage struct {
 var markdownLinkPattern = regexp.MustCompile(`\[([^\]]+)\]\(([^)]+)\)`)
 var inlineCodePattern = regexp.MustCompile("`([^`]+)`")
 var boldPattern = regexp.MustCompile(`\*\*([^*]+)\*\*`)
+var publicEngineeringSectionHeading = regexp.MustCompile(`(?i)^(architecture decisions|decis(?:õ|o)es de arquitetura)$`)
 
 // BuildLibrary renders docs/core/** Markdown into a static HTML Library.
 //
@@ -102,7 +103,7 @@ func collectPages(sourceDir string) ([]docPage, error) {
 			RelPath: rel,
 			URLPath: outputURL(rel),
 			Lang:    langFromRel(rel),
-			Body:    renderMarkdown(content),
+			Body:    renderMarkdown(stripPublicEngineeringMarkdown(string(content))),
 		}
 		pages = append(pages, page)
 		return nil
@@ -214,6 +215,25 @@ func renderMarkdown(content []byte) string {
 	return out.String()
 }
 
+func stripPublicEngineeringMarkdown(content string) []byte {
+	var out []string
+	skipSection := false
+	for _, raw := range strings.Split(content, "\n") {
+		line := strings.TrimSpace(raw)
+		if strings.HasPrefix(line, "## ") {
+			heading := strings.TrimSpace(strings.TrimPrefix(line, "## "))
+			skipSection = publicEngineeringSectionHeading.MatchString(heading)
+		} else if strings.HasPrefix(line, "#") {
+			skipSection = false
+		}
+		if skipSection || containsADRReference(line) {
+			continue
+		}
+		out = append(out, raw)
+	}
+	return []byte(strings.TrimRight(strings.Join(out, "\n"), "\n") + "\n")
+}
+
 func headingLevel(line string) int {
 	level := 0
 	for level < len(line) && line[level] == '#' {
@@ -257,10 +277,22 @@ func renderInline(text string) string {
 		if len(parts) != 3 {
 			return match
 		}
+		if containsADRReference(parts[2]) {
+			return parts[1]
+		}
 		return fmt.Sprintf(`<a href="%s">%s</a>`, html.EscapeString(rewriteMarkdownHref(parts[2])), parts[1])
 	})
 	escaped = inlineCodePattern.ReplaceAllString(escaped, "<code>$1</code>")
 	return boldPattern.ReplaceAllString(escaped, "<strong>$1</strong>")
+}
+
+func containsADRReference(text string) bool {
+	lower := strings.ToLower(text)
+	return strings.Contains(lower, "docs/adr/") ||
+		strings.Contains(lower, "../adr/") ||
+		strings.Contains(lower, "../../adr/") ||
+		strings.Contains(lower, "/adr/") ||
+		strings.Contains(lower, "adr-")
 }
 
 func rewriteMarkdownHref(href string) string {

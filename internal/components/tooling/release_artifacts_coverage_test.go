@@ -92,7 +92,7 @@ func TestReleasePDFHeaderMetadataAndPageParsing(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	metadata := []byte("Title: RGB\nSubject: Core\nProducer: Test\nPages: 4\n")
+	metadata := []byte("Title: RGB\nSubject: Core\nProducer: Test\nMetadata Stream: yes\nTagged:          yes\nPages: 4\n")
 	if err := validatePDFMetadata(good, metadata); err != nil {
 		t.Fatal(err)
 	}
@@ -100,6 +100,8 @@ func TestReleasePDFHeaderMetadataAndPageParsing(t *testing.T) {
 		[]byte("Subject: Core\nProducer: Test\n"),
 		[]byte("Title: RGB\nProducer: Test\n"),
 		[]byte("Title: RGB\nSubject: Core\n"),
+		[]byte("Title: RGB\nSubject: Core\nProducer: Test\nMetadata Stream: no\nTagged:          yes\n"),
+		[]byte("Title: RGB\nSubject: Core\nProducer: Test\nMetadata Stream: yes\nTagged:          no\n"),
 	} {
 		if err := validatePDFMetadata(good, output); err == nil {
 			t.Fatalf("expected incomplete metadata to fail: %s", output)
@@ -261,7 +263,7 @@ func TestCheckReleaseArtifactsWithFakePDFTools(t *testing.T) {
 	runExternalCommand = func(name string, args ...string) ([]byte, error) {
 		switch name {
 		case "pdfinfo":
-			return []byte("Title: RGB\nSubject: Core\nProducer: Test\nPages: 4\n"), nil
+			return []byte("Title: RGB\nSubject: Core\nProducer: Test\nMetadata Stream: yes\nTagged:          yes\nPages: 4\n"), nil
 		case "pdftotext":
 			if len(args) == 0 {
 				return nil, fmt.Errorf("missing pdftotext args")
@@ -318,7 +320,7 @@ func TestCheckReleaseArtifactsFailureStages(t *testing.T) {
 	runExternalCommand = func(name string, _ ...string) ([]byte, error) {
 		switch name {
 		case "pdfinfo":
-			return []byte("Title: RGB\nSubject: Core\nProducer: Test\nPages: 4\n"), nil
+			return []byte("Title: RGB\nSubject: Core\nProducer: Test\nMetadata Stream: yes\nTagged:          yes\nPages: 4\n"), nil
 		default:
 			return nil, fmt.Errorf("unexpected command %s", name)
 		}
@@ -346,7 +348,7 @@ func TestCheckReleaseArtifactsFailureStages(t *testing.T) {
 		case "pdftohtml":
 			return nil, os.WriteFile(args[len(args)-1]+".xml", []byte(`<page><a href="#x">x</a></page>`), 0o644)
 		case "pdfinfo":
-			return []byte("Title: RGB\nSubject: Core\nProducer: Test\nPages: 1\n"), nil
+			return []byte("Title: RGB\nSubject: Core\nProducer: Test\nMetadata Stream: yes\nTagged:          yes\nPages: 1\n"), nil
 		case "pdftoppm":
 			return nil, nil
 		default:

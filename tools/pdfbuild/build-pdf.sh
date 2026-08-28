@@ -49,9 +49,7 @@ rm -rf "${work_dir}/docs" "${work_dir}/site"
 mkdir -p "${work_dir}/docs" "${work_dir}/styles"
 
 cp -R "${repo_root}/docs/core/${source_lang}/." "${work_dir}/docs/"
-mkdir -p "${work_dir}/docs/adr"
-cp -R "${repo_root}/docs/adr/." "${work_dir}/docs/adr/"
-find "${work_dir}/docs" -type f -name '*.md' -exec perl -0pi -e 's|\.\./\.\./adr/|adr/|g' {} +
+python3 "${script_dir}/strip-public-engineering-markdown.py" "${work_dir}/docs"
 cp "${repo_root}/docs/styles/rgb-pdf.css" "${work_dir}/styles/rgb-pdf.css"
 cp "${script_dir}/mkdocs.pdf.yml" "${work_dir}/mkdocs.yml"
 
@@ -87,6 +85,8 @@ weasyprint \
   --encoding utf-8 \
   --stylesheet "${work_dir}/styles/rgb-pdf.css" \
   --pdf-identifier "rgb-system-core-${version}-${lang_code}" \
+  --pdf-variant pdf/ua-1 \
+  --custom-metadata \
   "${book_html}" \
   "${pdf}"
 
