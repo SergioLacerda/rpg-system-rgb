@@ -1,31 +1,31 @@
 {
   "artifacts": [
     {
-      "bytes": 1176683,
+      "bytes": 483878,
       "file": "rgb-system-core-v2-latest-en.pdf",
       "path": "/downloads/rgb-system-core-v2-latest-en.pdf",
-      "sha256": "acdb8e79f895fea5f0c9bbdcd9061da7a9731dc95ac2909ab7b8968c833026b3"
+      "sha256": "61032ed55f69adb8af32d24a694ba90ac12591fd6bc9f1f060b3b770379a8685"
     },
     {
-      "bytes": 1176683,
-      "file": "rgb-system-core-v2-v0.2-en.pdf",
-      "path": "/downloads/rgb-system-core-v2-v0.2-en.pdf",
-      "sha256": "acdb8e79f895fea5f0c9bbdcd9061da7a9731dc95ac2909ab7b8968c833026b3"
+      "bytes": 483878,
+      "file": "rgb-system-core-v2-v2.0-en.pdf",
+      "path": "/downloads/rgb-system-core-v2-v2.0-en.pdf",
+      "sha256": "61032ed55f69adb8af32d24a694ba90ac12591fd6bc9f1f060b3b770379a8685"
     },
     {
-      "bytes": 1166457,
+      "bytes": 493797,
       "file": "rgb-system-core-v2-latest-pt-br.pdf",
       "path": "/downloads/rgb-system-core-v2-latest-pt-br.pdf",
-      "sha256": "1f2246ec60fb17573bbdc0765b17aa685c6747791d18fc6a3d590fcdd8f14f86"
+      "sha256": "44bd4b0a98e66f7c9ba6f6323ce80b28c05bae38b4bcbc0aabde549e75b0d850"
     },
     {
-      "bytes": 1166457,
-      "file": "rgb-system-core-v2-v0.2-pt-br.pdf",
-      "path": "/downloads/rgb-system-core-v2-v0.2-pt-br.pdf",
-      "sha256": "1f2246ec60fb17573bbdc0765b17aa685c6747791d18fc6a3d590fcdd8f14f86"
+      "bytes": 493797,
+      "file": "rgb-system-core-v2-v2.0-pt-br.pdf",
+      "path": "/downloads/rgb-system-core-v2-v2.0-pt-br.pdf",
+      "sha256": "44bd4b0a98e66f7c9ba6f6323ce80b28c05bae38b4bcbc0aabde549e75b0d850"
     }
   ],
   "basename": "rgb-system-core-v2",
   "schema": "rgb-system-release-artifacts/0.1",
-  "version": "v0.2"
+  "version": "v2.0"
 }

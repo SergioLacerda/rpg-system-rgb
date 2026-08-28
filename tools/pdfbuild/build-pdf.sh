@@ -38,7 +38,7 @@ esac
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "${script_dir}/../.." && pwd)"
-work_dir="${repo_root}/.pdfbuild/${lang_code}"
+work_dir="${repo_root}/.pdfbuild/${lang_code}/${version}"
 out_dir="${script_dir}/out"
 venv_dir="${script_dir}/.venv"
 stamp="$(date -u +%Y-%m-%d)"

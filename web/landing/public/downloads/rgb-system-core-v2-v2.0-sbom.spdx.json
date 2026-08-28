@@ -1,0 +1,21 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "rgb-system-core-v2-v2.0-release-artifacts",
+  "documentNamespace": "https://github.com/SergioLacerda/rpg-system-rgb/releases/v2.0/sbom",
+  "creationInfo": {
+    "created": "2026-08-28T03:46:40Z",
+    "creators": ["Tool: scripts/ci/write-release-supply-chain.sh"]
+  },
+  "files": [
+    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-latest-en-pdf", "fileName": "rgb-system-core-v2-latest-en.pdf", "checksums": [{"algorithm": "SHA256", "checksumValue": "61032ed55f69adb8af32d24a694ba90ac12591fd6bc9f1f060b3b770379a8685"}]},
+    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-v2-0-en-pdf", "fileName": "rgb-system-core-v2-v2.0-en.pdf", "checksums": [{"algorithm": "SHA256", "checksumValue": "61032ed55f69adb8af32d24a694ba90ac12591fd6bc9f1f060b3b770379a8685"}]},
+    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-latest-pt-br-pdf", "fileName": "rgb-system-core-v2-latest-pt-br.pdf", "checksums": [{"algorithm": "SHA256", "checksumValue": "44bd4b0a98e66f7c9ba6f6323ce80b28c05bae38b4bcbc0aabde549e75b0d850"}]},
+    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-v2-0-pt-br-pdf", "fileName": "rgb-system-core-v2-v2.0-pt-br.pdf", "checksums": [{"algorithm": "SHA256", "checksumValue": "44bd4b0a98e66f7c9ba6f6323ce80b28c05bae38b4bcbc0aabde549e75b0d850"}]},
+    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-release-manifest-json", "fileName": "rgb-system-core-v2-release-manifest.json", "checksums": [{"algorithm": "SHA256", "checksumValue": "36b9ab56a2dd6cfc837be804aeecedfc9394850febf4aa10a95e94214dd6548f"}]},
+    {"SPDXID": "SPDXRef-File-SHA256SUMS", "fileName": "SHA256SUMS", "checksums": [{"algorithm": "SHA256", "checksumValue": "3b515d0a51ccf82cfee0d8c2467b7aad99aff5fe2e2976301185063fc90d1539"}]},
+    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-v2-0-en-pdf-sha256", "fileName": "rgb-system-core-v2-v2.0-en.pdf.sha256", "checksums": [{"algorithm": "SHA256", "checksumValue": "5e364fe1d90e04169881a6f1442c8849f23e8fa87bab6eac8c8afe35e154e1c4"}]},
+    {"SPDXID": "SPDXRef-File-rgb-system-core-v2-v2-0-pt-br-pdf-sha256", "fileName": "rgb-system-core-v2-v2.0-pt-br.pdf.sha256", "checksums": [{"algorithm": "SHA256", "checksumValue": "4f80152d7249acd2c5e4eebd03763f975618095e9eead5684bf28c9a89da2399"}]}
+  ]
+}
