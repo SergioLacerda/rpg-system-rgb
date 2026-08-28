@@ -25,6 +25,9 @@ func TestFacadeMethodsSurfaceComponentErrors(t *testing.T) {
 	if err := CheckReleaseArtifacts(ReleaseArtifactPaths{PublicDir: filepath.Join(root, "downloads"), Basename: "rgb", Version: "v1"}); err == nil {
 		t.Fatal("expected CheckReleaseArtifacts to fail without release artifacts")
 	}
+	if err := CheckPDFRegression(PDFRegressionPaths{BaselineDir: filepath.Join(root, "downloads"), CandidateDir: filepath.Join(root, "downloads"), Basename: "rgb", Version: "v1"}); err == nil {
+		t.Fatal("expected CheckPDFRegression to fail without release PDFs or PDF tools")
+	}
 	if err := PackageSkill(SkillOptions{SourceDir: filepath.Join(root, "missing-skill"), OutDir: filepath.Join(root, "downloads"), Name: "rgb-specialist", Version: "v1"}); err == nil {
 		t.Fatal("expected PackageSkill to fail without a skill source directory")
 	}
