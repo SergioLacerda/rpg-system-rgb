@@ -3,6 +3,10 @@
 .strategist
 generated/
 web/landing/coverage/
+.pdfbuild/
+tools/pdfbuild/.venv/
+tools/pdfbuild/out/
+__pycache__/
 .analysis
 .sdd
 

@@ -159,6 +159,12 @@ PDF publication is Go-owned for this quality gate. Reviewed PDF assets are
 published under stable latest and versioned names, then validated by Go-owned
 release artifact checks.
 
+PDF authoring is separate from publication. `make pdf-author` is the manual,
+non-CI authoring step allowed by ADR-016; it uses `tools/pdfbuild/` to create a
+reviewed candidate PDF with cover and R/G/B callout styling. The reviewed asset
+then enters the unchanged Go publication path through `make docs-pdf
+PDF_SRC_EN=... PDF_SRC_PT_BR=...`.
+
 `make pdf-editorial-check` rejects common publication defects:
 
 - missing PDF headers or suspiciously small files;

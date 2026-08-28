@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="{{ lang_code }}">
+<head>
+  <meta charset="utf-8">
+  <title>{{ title }} - {{ subtitle }} ({{ lang_name }})</title>
+  <meta name="author" content="{{ author }}">
+  <meta name="subject" content="{{ subtitle }} - {{ version }} - {{ lang_name }}">
+</head>
+<body data-version="{{ version }}">
+  <section class="pdf-cover">
+    <header class="pdf-cover__head">
+      <div class="pdf-cover__swatches" aria-hidden="true"><i></i><i></i><i></i></div>
+      <span class="pdf-cover__meta">{{ lang_code }} - A4</span>
+    </header>
+    <div class="pdf-cover__body">
+      <p class="pdf-cover__kicker">{{ kicker }}</p>
+      <h1 class="pdf-cover__title">{{ title }}</h1>
+      <p class="pdf-cover__subtitle">{{ subtitle }}</p>
+      <hr class="pdf-cover__rule">
+      <p class="pdf-cover__meta">{{ version }} - {{ lang_name }} - {{ date }}<br>{{ license }} - {{ commit_sha }}</p>
+    </div>
+  </section>
+  <section class="pdf-colophon">
+    <h2>{{ colophon_title }}</h2>
+    <dl>
+      <dt>Title</dt><dd>{{ title }} - {{ subtitle }}</dd>
+      <dt>Version</dt><dd>{{ version }} ({{ date }})</dd>
+      <dt>Language</dt><dd>{{ lang_name }} ({{ lang_code }})</dd>
+      <dt>Authors</dt><dd>{{ author }}</dd>
+      <dt>License</dt><dd>{{ license }}</dd>
+      <dt>Source</dt><dd>{{ repo_url }} @ {{ commit_sha }}</dd>
+      <dt>Generator</dt><dd>{{ generator }}</dd>
+    </dl>
+  </section>
+</body>
+</html>
