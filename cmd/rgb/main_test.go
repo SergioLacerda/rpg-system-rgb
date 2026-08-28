@@ -185,7 +185,7 @@ func TestRunReleaseSubcommandsSurfaceComponentErrors(t *testing.T) {
 }
 
 func TestParsePDFRegressionFlagsAcceptsAllFieldsAndRejectsInvalidFlags(t *testing.T) {
-	paths, err := parsePDFRegressionFlags("release pdf-regression-check", []string{
+	paths, err := parsePDFRegressionFlags([]string{
 		"--baseline-dir", "baseline",
 		"--candidate-dir", "candidate",
 		"--basename", "rgb",
@@ -197,10 +197,10 @@ func TestParsePDFRegressionFlagsAcceptsAllFieldsAndRejectsInvalidFlags(t *testin
 	if paths.BaselineDir != "baseline" || paths.CandidateDir != "candidate" || paths.Basename != "rgb" || paths.Version != "v1" {
 		t.Fatalf("unexpected pdf regression paths: %+v", paths)
 	}
-	if _, err := parsePDFRegressionFlags("release pdf-regression-check", []string{"--bad"}); err == nil {
+	if _, err := parsePDFRegressionFlags([]string{"--bad"}); err == nil {
 		t.Fatal("expected invalid pdf-regression-check flag to fail")
 	}
-	if _, err := parsePDFRegressionFlags("release pdf-regression-check", []string{"extra"}); err == nil {
+	if _, err := parsePDFRegressionFlags([]string{"extra"}); err == nil {
 		t.Fatal("expected positional pdf-regression-check argument to be rejected")
 	}
 }

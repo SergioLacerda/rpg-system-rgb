@@ -275,7 +275,11 @@ func rasterDiffRatio(basePath, candPath string) (float64, error) {
 		return 1, nil
 	}
 
-	var total, diff int64
+	total, diff := countDifferingPixels(baseImg, candImg, baseBounds, candBounds)
+	return float64(diff) / float64(total), nil
+}
+
+func countDifferingPixels(baseImg, candImg image.Image, baseBounds, candBounds image.Rectangle) (total, diff int64) {
 	for y := 0; y < baseBounds.Dy(); y++ {
 		for x := 0; x < baseBounds.Dx(); x++ {
 			br, bg, bb, _ := baseImg.At(baseBounds.Min.X+x, baseBounds.Min.Y+y).RGBA()
@@ -286,7 +290,7 @@ func rasterDiffRatio(basePath, candPath string) (float64, error) {
 			}
 		}
 	}
-	return float64(diff) / float64(total), nil
+	return total, diff
 }
 
 func pixelDiffers(br, bg, bb, cr, cg, cb uint32) bool {
