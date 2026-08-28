@@ -205,12 +205,18 @@ downloads.
 make docs-build  # build the Go-rendered Library into web/landing/public/library
 make landing-build # embed the Library into the Astro static site
 make docs-pdf    # publish latest and versioned PDF downloads through Go
+make pdf-author  # manually author a reviewed PDF candidate with ADR-016 tooling
 ```
 
 `make docs-pdf` writes latest aliases and versioned PDFs under
 `web/landing/public/downloads/`. It also refreshes the release manifest,
 checksums, SPDX SBOM, and provenance metadata used by `make
 pdf-editorial-check`.
+
+`make pdf-author` is a manual release-authoring step, not part of the default
+Go, web, or CI gates. It renders a reviewed candidate through
+`tools/pdfbuild/` and ADR-016's external authoring exception; publish the
+reviewed result through `make docs-pdf PDF_SRC_EN=... PDF_SRC_PT_BR=...`.
 
 `make pdf-publish` remains available for publishing a reviewed external PDF
 source when needed, but the normal release path is automated.

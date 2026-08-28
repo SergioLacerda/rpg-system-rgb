@@ -1,0 +1,5 @@
+# Pinned dependencies for the external PDF authoring step allowed by ADR-016.
+mkdocs==1.6.1
+mkdocs-material==9.5.34
+weasyprint==62.3
+pydyf==0.10.0

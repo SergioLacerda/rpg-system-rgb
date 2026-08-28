@@ -1,0 +1,61 @@
+site_name: RGB System
+docs_dir: docs
+site_dir: site
+use_directory_urls: false
+
+theme:
+  name: material
+  language: en
+  features: []
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: false
+      toc_depth: 3
+  - tables
+  - footnotes
+
+extra_css:
+  - styles/rgb-pdf.css
+
+plugins:
+  - search: null
+
+nav:
+  - Overview: README.md
+  - Quick Start: introduction/quick_start.md
+  - System Overview: introduction/system_overview.md
+  - One Page Rules: introduction/rgb_one_page_rules.md
+  - Core:
+      - Overview: core/README.md
+      - Attributes: core/attributes.md
+      - Character Creation: core/character_creation.md
+      - Progression: core/progression.md
+      - Skills and Abilities: core/skills_and_abilities.md
+  - Combat:
+      - Overview: combat/README.md
+      - Attack and Defense: combat/attack_and_defense.md
+      - Combat Decision Model: combat/combat_decision_model.md
+      - Damage Model: combat/damage_model.md
+      - Movement: combat/movement.md
+  - Equipment:
+      - Overview: equipment/README.md
+      - Armor: equipment/armor.md
+      - Gear: equipment/gear.md
+      - Shields: equipment/shields.md
+  - Weapons: weapons/README.md
+  - Reference:
+      - Overview: reference/README.md
+      - Character Sheet: reference/character_sheet.md
+      - Combat Example: reference/combat_example.md
+      - Combat Walkthrough: reference/combat_walkthrough.md
+      - Extra: reference/extra.md
+      - Gameplay Example: reference/gameplay_example.md
+      - Gameplay Loop: reference/gameplay_loop.md
+      - Damage Interaction Model: reference/rgb_damage_interaction_model.md
+      - Architecture Notes: reference/rgb_system_architecture_notes.md
+      - System Engine: reference/rgb_system_engine.md
+  - Glossary: glossary.md
