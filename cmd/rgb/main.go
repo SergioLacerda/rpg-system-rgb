@@ -173,7 +173,7 @@ func runRelease(args []string) error {
 		}
 		return app.CheckReleaseArtifacts(paths)
 	case "pdf-regression-check":
-		paths, err := parsePDFRegressionFlags("release pdf-regression-check", args[1:])
+		paths, err := parsePDFRegressionFlags(args[1:])
 		if err != nil {
 			return err
 		}
@@ -213,9 +213,9 @@ func parseReleaseFlags(name string, args []string) (app.ReleaseArtifactPaths, er
 	return paths, nil
 }
 
-func parsePDFRegressionFlags(name string, args []string) (app.PDFRegressionPaths, error) {
+func parsePDFRegressionFlags(args []string) (app.PDFRegressionPaths, error) {
 	var paths app.PDFRegressionPaths
-	flags := flag.NewFlagSet(name, flag.ContinueOnError)
+	flags := flag.NewFlagSet("release pdf-regression-check", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
 	flags.StringVar(&paths.BaselineDir, "baseline-dir", "", "directory containing baseline release PDFs")
 	flags.StringVar(&paths.CandidateDir, "candidate-dir", "", "directory containing candidate release PDFs (may equal baseline-dir)")
