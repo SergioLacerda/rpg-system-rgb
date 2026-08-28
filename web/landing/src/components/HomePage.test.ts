@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import HomePage from "./HomePage.astro";
 
 describe("HomePage", () => {
-  it("renders the Portuguese home with the default latest PDF link", async () => {
+  it("renders the Portuguese home with the latest PDF link", async () => {
     const container = await AstroContainer.create();
     const html = await container.renderToString(HomePage, {
       props: { lang: "pt-br" },
@@ -27,7 +27,7 @@ describe("HomePage", () => {
     }
   });
 
-  it("renders the English home copy and PDF link", async () => {
+  it("renders the English home copy and latest PDF link", async () => {
     const container = await AstroContainer.create();
     const html = await container.renderToString(HomePage, {
       props: { lang: "en" },

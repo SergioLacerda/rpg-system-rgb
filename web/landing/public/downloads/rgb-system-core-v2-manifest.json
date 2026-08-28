@@ -2,14 +2,14 @@
   "schema": "rgb-system-pdf-downloads/0.1",
   "latest": {
     "pt-br": {
-      "version": "v0.2",
+      "version": "v2.0",
       "path": "/downloads/rgb-system-core-v2-latest-pt-br.pdf",
-      "versioned_path": "/downloads/rgb-system-core-v2-v0.2-pt-br.pdf"
+      "versioned_path": "/downloads/rgb-system-core-v2-v2.0-pt-br.pdf"
     },
     "en": {
-      "version": "v0.2",
+      "version": "v2.0",
       "path": "/downloads/rgb-system-core-v2-latest-en.pdf",
-      "versioned_path": "/downloads/rgb-system-core-v2-v0.2-en.pdf"
+      "versioned_path": "/downloads/rgb-system-core-v2-v2.0-en.pdf"
     }
   },
   "source": {

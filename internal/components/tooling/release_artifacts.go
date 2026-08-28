@@ -448,7 +448,10 @@ func validateRasterImage(name string, imageData image.Image) error {
 	}
 
 	avg, readableRatio, veryLightRatio := rasterLuminanceStats(imageData)
-	if avg < 180 || veryLightRatio < 0.55 {
+	if isReadableDarkCover(name, avg, veryLightRatio) {
+		return nil
+	}
+	if isTooDarkForContent(avg, veryLightRatio) {
 		return fmt.Errorf("%s appears too dark for editorial PDF output", name)
 	}
 	if readableRatio < 0.003 {
@@ -460,6 +463,18 @@ func validateRasterImage(name string, imageData image.Image) error {
 		return fmt.Errorf("%s has excessive dark marks near page edges", name)
 	}
 	return nil
+}
+
+func isReadableDarkCover(name string, avg, veryLightRatio float64) bool {
+	return isCoverRaster(name) && avg < 80 && veryLightRatio >= 0.001
+}
+
+func isTooDarkForContent(avg, veryLightRatio float64) bool {
+	return avg < 180 || veryLightRatio < 0.55
+}
+
+func isCoverRaster(name string) bool {
+	return strings.HasSuffix(name, "-page-001.png")
 }
 
 func rasterLuminanceStats(imageData image.Image) (float64, float64, float64) {

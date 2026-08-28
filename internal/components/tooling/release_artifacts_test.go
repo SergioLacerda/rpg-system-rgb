@@ -96,6 +96,39 @@ func TestValidateRasterImageAcceptsReadableLightPage(t *testing.T) {
 	}
 }
 
+func TestValidateRasterImageAcceptsReadableDarkCover(t *testing.T) {
+	page := image.NewRGBA(image.Rect(0, 0, 200, 200))
+	fill(page, color.RGBA{R: 17, G: 17, B: 17, A: 255})
+	for y := 140; y < 170; y++ {
+		for x := 30; x < 130; x++ {
+			if x%2 == 0 || y%5 == 0 {
+				page.Set(x, y, color.RGBA{R: 244, G: 241, B: 232, A: 255})
+			}
+		}
+	}
+
+	if err := validateRasterImage("en-page-001.png", page); err != nil {
+		t.Fatalf("expected readable dark cover, got %v", err)
+	}
+}
+
+func TestValidateRasterImageRejectsDarkNonCoverPage(t *testing.T) {
+	page := image.NewRGBA(image.Rect(0, 0, 200, 200))
+	fill(page, color.RGBA{R: 17, G: 17, B: 17, A: 255})
+	for y := 140; y < 170; y++ {
+		for x := 30; x < 130; x++ {
+			if x%2 == 0 || y%5 == 0 {
+				page.Set(x, y, color.RGBA{R: 244, G: 241, B: 232, A: 255})
+			}
+		}
+	}
+
+	err := validateRasterImage("en-page-002.png", page)
+	if err == nil || !strings.Contains(err.Error(), "too dark") {
+		t.Fatalf("expected dark-page error, got %v", err)
+	}
+}
+
 func TestValidateRasterImageRejectsBlankPage(t *testing.T) {
 	page := image.NewRGBA(image.Rect(0, 0, 200, 200))
 	fill(page, color.RGBA{R: 255, G: 255, B: 255, A: 255})

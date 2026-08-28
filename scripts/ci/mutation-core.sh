@@ -24,13 +24,15 @@ run_mutation() {
   local file="$2"
   local from="$3"
   local to="$4"
-  local kill_suite="${5:-./internal/components/core ./tests/properties}"
+  local kill_suite_text="${5:-./internal/components/core ./tests/properties}"
+  local -a kill_suite
+  read -r -a kill_suite <<< "${kill_suite_text}"
   local worktree="${tmp_root}/${id}"
 
   copy_worktree "${worktree}"
   perl -0pi -e "s/${from}/${to}/" "${worktree}/${file}"
 
-  if (cd "${worktree}" && "${go_bin}" test ${kill_suite} >/tmp/rgb-mutation-"${id}".log 2>&1); then
+  if (cd "${worktree}" && "${go_bin}" test "${kill_suite[@]}" >/tmp/rgb-mutation-"${id}".log 2>&1); then
     printf 'mutation survived: %s (%s)\n' "${id}" "${file}" >&2
     sed -n '1,120p' /tmp/rgb-mutation-"${id}".log >&2
     return 1
