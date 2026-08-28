@@ -157,7 +157,7 @@ func parseDocsCheckFlags(args []string) (app.PublicationCheckOptions, error) {
 //nolint:gocyclo // Mirrors the top-level CLI dispatch shape for release subcommands.
 func runRelease(args []string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("missing release subcommand (want manifest|check|skill-manifest|skill-check)")
+		return fmt.Errorf("missing release subcommand (want manifest|check|pdf-regression-check|skill-manifest|skill-check)")
 	}
 	switch args[0] {
 	case "manifest":
@@ -172,6 +172,12 @@ func runRelease(args []string) error {
 			return err
 		}
 		return app.CheckReleaseArtifacts(paths)
+	case "pdf-regression-check":
+		paths, err := parsePDFRegressionFlags("release pdf-regression-check", args[1:])
+		if err != nil {
+			return err
+		}
+		return app.CheckPDFRegression(paths)
 	case "skill-manifest":
 		paths, err := parseSkillReleaseFlags("release skill-manifest", args[1:])
 		if err != nil {
@@ -185,7 +191,7 @@ func runRelease(args []string) error {
 		}
 		return app.CheckSkillManifest(paths)
 	default:
-		return fmt.Errorf("unknown release subcommand %q (want manifest|check|skill-manifest|skill-check)", args[0])
+		return fmt.Errorf("unknown release subcommand %q (want manifest|check|pdf-regression-check|skill-manifest|skill-check)", args[0])
 	}
 }
 
@@ -203,6 +209,23 @@ func parseReleaseFlags(name string, args []string) (app.ReleaseArtifactPaths, er
 	}
 	if flags.NArg() != 0 {
 		return app.ReleaseArtifactPaths{}, fmt.Errorf("unexpected release arguments: %v", flags.Args())
+	}
+	return paths, nil
+}
+
+func parsePDFRegressionFlags(name string, args []string) (app.PDFRegressionPaths, error) {
+	var paths app.PDFRegressionPaths
+	flags := flag.NewFlagSet(name, flag.ContinueOnError)
+	flags.SetOutput(io.Discard)
+	flags.StringVar(&paths.BaselineDir, "baseline-dir", "", "directory containing baseline release PDFs")
+	flags.StringVar(&paths.CandidateDir, "candidate-dir", "", "directory containing candidate release PDFs (may equal baseline-dir)")
+	flags.StringVar(&paths.Basename, "basename", "", "release artifact basename")
+	flags.StringVar(&paths.Version, "version", "", "release version")
+	if err := flags.Parse(args); err != nil {
+		return app.PDFRegressionPaths{}, err
+	}
+	if flags.NArg() != 0 {
+		return app.PDFRegressionPaths{}, fmt.Errorf("unexpected release arguments: %v", flags.Args())
 	}
 	return paths, nil
 }

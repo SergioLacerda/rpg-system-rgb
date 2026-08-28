@@ -1,6 +1,6 @@
 ##@ Release Artifacts (PDF/Skill)
 
-.PHONY: pdf-publish release-artifact-manifest release-artifact-check release-supply-chain release-supply-chain-check pdf-editorial-check release-skill-manifest release-skill-check
+.PHONY: pdf-publish release-artifact-manifest release-artifact-check pdf-regression-check release-supply-chain release-supply-chain-check pdf-editorial-check release-skill-manifest release-skill-check
 
 pdf-publish: FORCE ## Publish a provided PDF into landing downloads
 	@test -n "$(PDF_SRC)" || { echo "PDF_SRC is required"; exit 1; }
@@ -16,7 +16,10 @@ release-artifact-manifest: FORCE ## Write release PDF manifest and checksums
 	$(GOENV) $(GO) run ./cmd/rgb release manifest --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)" --manifest "$(RELEASE_MANIFEST)" --checksums "$(RELEASE_CHECKSUMS)"
 
 release-artifact-check: FORCE ## Validate release PDF manifest and checksums
-	$(GOENV) $(GO) run ./cmd/rgb release check --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)" --manifest "$(RELEASE_MANIFEST)" --checksums "$(RELEASE_CHECKSUMS)"
+	$(GOENV) $(GO) run ./cmd/rgb release check --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)"
+
+pdf-regression-check: FORCE ## Validate a candidate PDF renderer's output against the shipped baseline (manual — not part of check/release-check; see ADR-017)
+	$(GOENV) $(GO) run ./cmd/rgb release pdf-regression-check --baseline-dir "$(PDF_PUBLIC_DIR)" --candidate-dir "$(PDF_REGRESSION_CANDIDATE_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)"
 
 release-supply-chain: FORCE ## Write release SBOM and provenance metadata
 	scripts/ci/write-release-supply-chain.sh "$(PDF_PUBLIC_DIR)" "$(PDF_BASENAME)" "$(PDF_VERSION)" "$(RELEASE_MANIFEST)" "$(RELEASE_CHECKSUMS)" "$(RELEASE_SBOM)" "$(RELEASE_PROVENANCE)"
@@ -34,12 +37,13 @@ release-skill-check: FORCE ## Validate release skill .zip manifest and checksums
 	$(GOENV) $(GO) run ./cmd/rgb release skill-check --public-dir "$(PDF_PUBLIC_DIR)" --name "$(SKILL_NAME)" --version "$(SKILL_VERSION)" --manifest "$(SKILL_MANIFEST)" --checksums "$(SKILL_CHECKSUMS)"
 
 # --- Namespaced aliases (additive, non-breaking) ---
-.PHONY: release.pdf-publish release.artifact-manifest release.artifact-check \
+.PHONY: release.pdf-publish release.artifact-manifest release.artifact-check release.pdf-regression-check \
   release.supply-chain release.supply-chain-check release.pdf-editorial-check \
   release.skill-manifest release.skill-check
 release.pdf-publish: pdf-publish
 release.artifact-manifest: release-artifact-manifest
 release.artifact-check: release-artifact-check
+release.pdf-regression-check: pdf-regression-check
 release.supply-chain: release-supply-chain
 release.supply-chain-check: release-supply-chain-check
 release.pdf-editorial-check: pdf-editorial-check

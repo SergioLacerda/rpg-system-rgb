@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed.
+Accepted.
 
 ## Context
 
@@ -24,10 +24,11 @@ headers/footers, generated TOC, `@page` rules), and because the only
 Go-reachable alternative of comparable quality — headless Chromium — was the
 exact approach ADR-005 had already rejected.
 
-A Strategist evaluation mission on 2026-08-28
-(`.analysis/refined/20260828-pdf-python-toolchain-go-migration-evaluation/`)
-confirmed the Python toolchain at `tools/pdfbuild/` is real, current, and
-intentional, and surveyed the realistic Go-native alternatives:
+A Strategist evaluation mission on 2026-08-28 (mission
+`20260828-pdf-python-toolchain-go-migration-evaluation`, tracked in the
+project's internal analysis workspace, not part of this repository's public
+surface) confirmed the Python toolchain at `tools/pdfbuild/` is real, current,
+and intentional, and surveyed the realistic Go-native alternatives:
 
 | Route | What it is | Problem |
 |---|---|---|
@@ -44,67 +45,75 @@ dependency, it only swaps which external dependency exists.
 
 ## Decision
 
-**Not yet made.** This ADR is filed as `Proposed`, not `Accepted`, per the
-Strategist mission's own approved scope: drafting this document is
-documentation work; accepting it is a maintainer decision this mission does not
-make on its own.
+Route **(a)** is accepted, staged, and explicitly non-retroactive:
 
-The concrete question this ADR must resolve before it can move to `Accepted`
-is which route to commit to:
+1. **The v2.0 PDF delivery already produced by the Python/MkDocs/WeasyPrint
+   toolchain is not reworked or invalidated by this decision.** The
+   ADR-016 exception remains in force for the current release; nothing about
+   the already-shipped `rgb-system-core-v2-v2.0-*.pdf` assets or the
+   `tools/pdfbuild/` toolchain that produced them changes as a result of this
+   ADR by itself.
+2. **The forward-looking direction is a Go-native paginated CSS/HTML→PDF
+   renderer**, written in Go, to eliminate the project's last external,
+   non-Go authoring dependency and its long-term maintenance burden (pinned
+   Python interpreter, `.venv`, `pip`-installed MkDocs/WeasyPrint/pydyf
+   versions, OS-level rendering library prerequisites) — not to reach parity
+   with WeasyPrint by any means available, and specifically **not** routes
+   (b) (swapping WeasyPrint for `wkhtmltopdf`) or headless Chromium, both
+   rejected for the reasons in Context.
+3. **This is gated, not immediate**, by the companion Strategist mission
+   (`20260828-pdf-go-native-renderer-migration-planning`, same internal
+   workspace as above): the regression test harness (Stage 2 / T2) must exist
+   and pass against the
+   *current* WeasyPrint output before any Go-native renderer code (Stage 3 /
+   T3) is written, and the Python toolchain is only removed (Stage 4 / T4)
+   after the Go-native renderer reaches parity per that harness.
 
-- **(a) Write a Go-native paginated CSS layout engine from scratch** —
-  the only route that actually achieves ADR-005's zero-external-dependency
-  goal, at the cost of a substantial, open-ended engineering effort with
-  meaningful risk of never reaching WeasyPrint's current quality bar (TOC
-  pagination, running headers/footers, `@page`-driven cover/callout styling).
-- **(b) Accept a different external binary dependency** (e.g.
-  `wkhtmltopdf`) in place of the Python/WeasyPrint stack — smaller
-  engineering lift, but does not achieve zero-dependency; merely trades one
-  external authoring dependency for another, arguably a worse-maintained one.
-- **(c) Do not proceed** — leave the ADR-016 exception in place. Python
-  authoring stays external, non-Go, non-CI-blocking, exactly as scoped today.
+In short: **keep Python for what has already shipped; migrate to Go going
+forward to mitigate future maintenance risk**, not to redo work already
+delivered.
 
 ## Consequences
 
-### If (a) is chosen
+Positive:
 
-Positive: genuinely removes the last external-dependency exception in the
-project; PDF authoring becomes buildable/testable the same way as the rest of
-the Go module graph.
+- Removes the last external, non-Go authoring dependency once Stage 3/4
+  complete, satisfying ADR-005's zero-dependency goal in full rather than
+  trading one external dependency for another.
+- No rework of, or regression risk to, the already-delivered v2.0 PDFs —
+  this decision only governs future authoring, not the current release.
+- The regression harness (Stage 2) exists before renderer work starts,
+  directly bounding the risk of a quality regression during the transition.
 
-Accepted costs: open-ended implementation effort; regression risk during the
-transition (mitigated by the regression test harness scoped in the companion
-Strategist mission, `.analysis/refined/20260828-pdf-go-native-renderer-migration-planning/`,
-which must be green against the *current* WeasyPrint output before any
-renderer cutover); ongoing maintenance burden of an in-house layout engine.
+Accepted costs:
 
-### If (b) is chosen
-
-Positive: smaller, bounded engineering effort; Go owns the authoring
-orchestration even if not the rendering itself.
-
-Accepted costs: does not resolve the zero-dependency goal ADR-005 exists for;
-trades a well-maintained, actively-developed Python tool (WeasyPrint) for a
-less-maintained external binary; would need ADR-005's scope explicitly
-re-worded to permit this class of exception rather than only the current
-Python one.
-
-### If (c) is chosen
-
-No change. ADR-016 continues to govern PDF authoring. This ADR would be marked
-`Rejected` or `Withdrawn` and the companion regression-harness mission's Stage
-3/4 tasks (renderer implementation, Python toolchain removal) do not proceed.
+- Open-ended engineering effort to reach WeasyPrint's current quality bar
+  (TOC pagination, running headers/footers, `@page`-driven cover/callout
+  styling) in a from-scratch Go layout engine.
+- Until Stage 3/4 land, the project continues to carry the Python toolchain
+  exactly as ADR-016 scoped it — this ADR does not shrink that surface on
+  its own, only commits to eventually retiring it.
+- Real risk that the from-scratch engine never fully reaches parity; if that
+  risk materializes, the companion mission's Stage 3/4 tasks stall and the
+  ADR-016 exception remains the de facto steady state regardless of this
+  ADR's `Accepted` status.
 
 ## Non-Goals
 
 This ADR does not retroactively invalidate ADR-005's general zero-dependency
-posture for anything other than PDF authoring, and does not authorize any
-implementation work by itself — renderer code (Stage 3) and toolchain removal
-(Stage 4) in the companion planning mission are explicitly blocked on this ADR
-reaching `Accepted`, not merely `Proposed`.
+posture for anything other than PDF authoring, does not rework or invalidate
+the already-shipped v2.0 PDF release, and does not by itself authorize
+implementation work — renderer code (Stage 3) and toolchain removal (Stage 4)
+in the companion planning mission remain gated on the Stage 2 regression
+harness landing and passing first, and both stages are `implementation_handoff`
+work that a Strategist mission drafts and hands off but does not execute
+itself (see `05-approval-gate.md` / `06-execution.md`).
 
 ## Supersession
 
-If accepted with route (a) or (b), this ADR supersedes ADR-016 for PDF
-authoring. ADR-010's Go-owned publication decision (copy/validate/manifest/
-checksums) remains unchanged regardless of which route is chosen.
+This ADR supersedes ADR-016 for the *future* PDF authoring direction. It does
+not retroactively supersede ADR-016's authorization of the toolchain that
+produced the already-shipped v2.0 PDFs — that authorization stands until
+Stage 3/4 of the companion migration mission actually ship a validated
+replacement. ADR-010's Go-owned publication decision (copy/validate/manifest/
+checksums) remains unchanged.
