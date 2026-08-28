@@ -1,6 +1,7 @@
 package skillpkg
 
 import (
+	"archive/zip"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -10,7 +11,27 @@ import (
 
 func writeTestZip(t *testing.T, path, content string) {
 	t.Helper()
-	writeTestFile(t, path, content)
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	file, err := os.Create(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writer := zip.NewWriter(file)
+	entry, err := writer.Create("rgb-specialist/SKILL.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := entry.Write([]byte(content)); err != nil {
+		t.Fatal(err)
+	}
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := file.Close(); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func readTestFile(t *testing.T, path string) string {
@@ -129,6 +150,57 @@ func TestCheckManifestRejectsChecksumMismatch(t *testing.T) {
 	}
 }
 
+func TestCheckManifestRejectsEngineeringContentInZip(t *testing.T) {
+	dir := t.TempDir()
+	paths := ManifestPaths{
+		PublicDir: dir,
+		Name:      "rgb-specialist",
+		Version:   "v0.1",
+		Manifest:  filepath.Join(dir, "manifest.json"),
+		Checksums: filepath.Join(dir, "SHA256SUMS"),
+	}
+	for _, name := range expectedSkillArtifactFiles(paths.Name, paths.Version) {
+		writeTestZip(t, filepath.Join(dir, name), "See ADR-013 for packaging.")
+	}
+	if err := WriteManifest(paths); err != nil {
+		t.Fatalf("WriteManifest returned error: %v", err)
+	}
+
+	if err := CheckManifest(paths); err == nil {
+		t.Fatal("expected CheckManifest to reject engineering-only content")
+	}
+}
+
+func TestValidateSkillArchivePublicContentEdges(t *testing.T) {
+	dir := t.TempDir()
+	clean := filepath.Join(dir, "clean.zip")
+	writeZipEntries(t, clean, map[string]string{
+		"rgb-specialist/SKILL.md":        "# Skill\nPublic rules only.\n",
+		"rgb-specialist/references/a.md": "Reference text.\n",
+		"rgb-specialist/image.bin":       "ADR-016 in binary should not be scanned",
+	})
+	if err := validateSkillArchivePublicContent(clean); err != nil {
+		t.Fatalf("expected clean skill archive to pass: %v", err)
+	}
+
+	dirty := filepath.Join(dir, "dirty.zip")
+	writeZipEntries(t, dirty, map[string]string{
+		"rgb-specialist/SKILL.md": "Architecture Decisions\n",
+	})
+	if err := validateSkillArchivePublicContent(dirty); err == nil {
+		t.Fatal("expected public content validation to reject engineering marker")
+	}
+
+	invalid := filepath.Join(dir, "invalid.zip")
+	writeTestFile(t, invalid, "not a zip")
+	if err := validateSkillArchivePublicContent(invalid); err == nil {
+		t.Fatal("expected invalid zip to fail")
+	}
+	if !isPublicSkillTextFile("skill.yaml") || isPublicSkillTextFile("image.png") {
+		t.Fatal("unexpected public skill text file classification")
+	}
+}
+
 func TestCheckManifestRejectsMissingManifestFile(t *testing.T) {
 	dir := t.TempDir()
 	paths := ManifestPaths{
@@ -140,6 +212,33 @@ func TestCheckManifestRejectsMissingManifestFile(t *testing.T) {
 	}
 	if err := CheckManifest(paths); err == nil {
 		t.Fatal("expected CheckManifest to fail when the manifest file is missing")
+	}
+}
+
+func writeZipEntries(t *testing.T, path string, entries map[string]string) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	file, err := os.Create(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writer := zip.NewWriter(file)
+	for name, content := range entries {
+		entry, err := writer.Create(name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := entry.Write([]byte(content)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := file.Close(); err != nil {
+		t.Fatal(err)
 	}
 }
 

@@ -1,11 +1,13 @@
 package skillpkg
 
 import (
+	"archive/zip"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -87,7 +89,10 @@ func CheckManifest(paths ManifestPaths) error {
 	if err := validateManifestArtifacts(manifest, paths); err != nil {
 		return err
 	}
-	return validateChecksumFile(paths.Checksums, paths.PublicDir)
+	if err := validateChecksumFile(paths.Checksums, paths.PublicDir); err != nil {
+		return err
+	}
+	return validatePackagedSkillPublicContent(paths)
 }
 
 func validateManifestArtifacts(manifest skillManifest, paths ManifestPaths) error {
@@ -198,6 +203,68 @@ func validateChecksumLine(checksumFile, baseDir, line string) error {
 		return fmt.Errorf("checksum mismatch: %s", parts[1])
 	}
 	return nil
+}
+
+func validatePackagedSkillPublicContent(paths ManifestPaths) error {
+	for _, name := range expectedSkillArtifactFiles(paths.Name, paths.Version) {
+		if err := validateSkillArchivePublicContent(filepath.Join(paths.PublicDir, name)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateSkillArchivePublicContent(path string) error {
+	reader, err := zip.OpenReader(path)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = reader.Close()
+	}()
+	for _, file := range reader.File {
+		if !isPublicSkillTextFile(file.Name) {
+			continue
+		}
+		content, err := readZipText(file)
+		if err != nil {
+			return err
+		}
+		if containsSkillEngineeringContent(string(content)) {
+			return fmt.Errorf("%s contains engineering-only ADR content in %s", path, file.Name)
+		}
+	}
+	return nil
+}
+
+func containsSkillEngineeringContent(content string) bool {
+	for _, raw := range strings.Split(content, "\n") {
+		line := strings.TrimSpace(raw)
+		if containsADRReference(line) || packagedSkillEngineeringHeading.MatchString(line) {
+			return true
+		}
+	}
+	return false
+}
+
+func isPublicSkillTextFile(name string) bool {
+	switch strings.ToLower(filepath.Ext(name)) {
+	case ".md", ".yaml", ".yml", ".txt":
+		return true
+	default:
+		return false
+	}
+}
+
+func readZipText(file *zip.File) ([]byte, error) {
+	reader, err := file.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = reader.Close()
+	}()
+	return io.ReadAll(reader)
 }
 
 func expectedSkillArtifactFiles(name, version string) []string {

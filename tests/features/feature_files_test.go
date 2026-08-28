@@ -19,6 +19,12 @@ func readFeatureFile(t *testing.T, file string) string {
 
 // discoverFeatureFiles walks tests/features for every .feature file, so new
 // files are picked up without editing this test (structural review F2).
+//
+// The scenario taxonomy by domain area (design.md's Gherkin/BDD layer,
+// "add a scenario taxonomy by domain area") is this directory structure
+// itself, not a separate manifest: combat/, core/, damage/, encounters/,
+// equipment/, and fixtures/ (cross-cutting fixture-parity scenarios). A new
+// domain is added by creating a new top-level subdirectory here.
 func discoverFeatureFiles(t *testing.T) []string {
 	t.Helper()
 	files, err := filepath.Glob("*/*.feature")
