@@ -8,16 +8,25 @@
 </head>
 <body data-version="{{ version }}">
   <section class="pdf-cover">
+    <div class="pdf-cover__vectors" aria-hidden="true">
+      <span class="pdf-cover__vector pdf-cover__vector--r"></span>
+      <span class="pdf-cover__vector pdf-cover__vector--g"></span>
+      <span class="pdf-cover__vector pdf-cover__vector--b"></span>
+      <span class="pdf-cover__node"></span>
+    </div>
     <header class="pdf-cover__head">
       <div class="pdf-cover__swatches" aria-hidden="true"><i></i><i></i><i></i></div>
       <span class="pdf-cover__meta">{{ lang_code }} - A4</span>
     </header>
     <div class="pdf-cover__body">
       <p class="pdf-cover__kicker">{{ kicker }}</p>
-      <h1 class="pdf-cover__title">{{ title }}</h1>
+      <h1 class="pdf-cover__title"><span>RGB</span><span>System</span></h1>
       <p class="pdf-cover__subtitle">{{ subtitle }}</p>
       <hr class="pdf-cover__rule">
-      <p class="pdf-cover__meta">{{ version }} - {{ lang_name }} - {{ date }}<br>{{ license }} - {{ commit_sha }}</p>
+      <div class="pdf-cover__foot">
+        <p class="pdf-cover__meta">{{ version }} - {{ lang_name }}<br>{{ date }}</p>
+        <p class="pdf-cover__meta">{{ license }}<br>{{ commit_sha }}</p>
+      </div>
     </div>
   </section>
   <section class="pdf-colophon">
