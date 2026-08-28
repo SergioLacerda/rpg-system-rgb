@@ -52,6 +52,57 @@ func TestBuildLibraryRendersBilingualCoreDocs(t *testing.T) {
 	}
 }
 
+func TestBuildLibraryRemovesEngineeringADRContentFromPublicPages(t *testing.T) {
+	root := t.TempDir()
+	source := filepath.Join(root, "docs")
+	out := filepath.Join(root, "public", "library")
+	writeTestFile(t, filepath.Join(source, "core", "en", "README.md"), strings.Join([]string{
+		"# Core Overview",
+		"",
+		"Rules remain public.",
+		"",
+		"## Architecture Decisions",
+		"",
+		"Project-wide ADRs are maintained separately.",
+		"",
+		"- [ADR-002](../../adr/adr-002-rgb-core-v2-design-control.md)",
+		"",
+		"## Play",
+		"",
+		"See [the design decision](../../adr/adr-001-ai-first-documentation-authority.md) and keep playing.",
+	}, "\n"))
+	writeTestFile(t, filepath.Join(source, "core", "PT-br", "README.md"), strings.Join([]string{
+		"# Visao Core",
+		"",
+		"Regras continuam publicas.",
+		"",
+		"## Decisões de Arquitetura",
+		"",
+		"ADRs do projeto ficam fora da Library publica.",
+		"",
+		"- [ADR-002](../../adr/adr-002-rgb-core-v2-design-control.md)",
+		"",
+		"## Jogo",
+		"",
+		"Texto publico.",
+	}, "\n"))
+
+	if err := BuildLibrary(LibraryOptions{SourceDir: source, OutDir: out}); err != nil {
+		t.Fatalf("BuildLibrary returned error: %v", err)
+	}
+
+	for _, path := range []string{
+		filepath.Join(out, "core", "en", "index.html"),
+		filepath.Join(out, "core", "PT-br", "index.html"),
+		filepath.Join(out, "index.html"),
+	} {
+		got := readTestFile(t, path)
+		if strings.Contains(got, "ADR-") || strings.Contains(got, "Architecture Decisions") || strings.Contains(got, "Decisões de Arquitetura") || strings.Contains(got, "adr-") {
+			t.Fatalf("expected public Library page %s to omit ADR content, got:\n%s", path, got)
+		}
+	}
+}
+
 // The original 14-unit Core-V2-pilot subset the search-index projection
 // covered before .analysis/refined/20260827-html-library-search-refinement/
 // widened it to the full master semantic index (34 units) — a regression

@@ -6,24 +6,22 @@
  * that produced that PDF's typography, TOC pagination, and running
  * headers/footers.
  *
- * Currently unwired: the site configuration that once invoked this stylesheet was
- * deleted when ADR-010 retired the automated interpreter-backed
- * publication pipeline. Per ADR-016 (docs/adr/adr-016-pdf-external-
- * authoring-exception.md), this is the intended starting point for the
- * next PDF authoring pass's cover template and RGB-vector (R/G/B) rule
- * callout box styling — extend this file, don't replace it.
+ * This stylesheet is the external authoring surface for the next PDF
+ * pass's cover template and RGB-vector (R/G/B) rule callout box styling:
+ * extend this file, don't replace it.
  */
 
 :root {
+  --rgb-baseline: 15pt;
   --rgb-pdf-bg: #ffffff;
   --rgb-pdf-text: #151515;
   --rgb-pdf-muted: #444444;
   --rgb-pdf-border: #d8d8d8;
   --rgb-pdf-accent: #245da8;
   --rgb-pdf-code-bg: #f5f6f8;
-  --rgb-pdf-serif: Georgia, "Times New Roman", serif;
-  --rgb-pdf-sans: Arial, Helvetica, sans-serif;
-  --rgb-pdf-mono: "DejaVu Sans Mono", Consolas, monospace;
+  --rgb-pdf-serif: "Noto Serif", "DejaVu Serif", Georgia, serif;
+  --rgb-pdf-sans: "Source Sans 3", "Noto Sans", "DejaVu Sans", Arial, sans-serif;
+  --rgb-pdf-mono: "Noto Sans Mono", "DejaVu Sans Mono", Consolas, monospace;
   --rgb-r: #d4322c;
   --rgb-r-ink: #a02a25;
   --rgb-r-tint: #fbf3f2;
@@ -98,8 +96,10 @@ body {
   color: var(--rgb-pdf-text) !important;
   font-family: var(--rgb-pdf-sans);
   font-size: 10.5pt;
-  line-height: 15.5pt;
+  line-height: var(--rgb-baseline);
   hyphens: auto;
+  hyphenate-character: "-";
+  hyphenate-limit-chars: 6 3 3;
   orphans: 2;
   widows: 2;
 }
@@ -157,6 +157,7 @@ dd,
 td {
   font-family: var(--rgb-pdf-serif);
   text-align: justify;
+  text-align-last: left;
 }
 
 h1 {
@@ -228,6 +229,10 @@ table {
   width: 100%;
 }
 
+tr {
+  break-inside: avoid;
+}
+
 th,
 td {
   border: 0;
@@ -247,6 +252,28 @@ th {
 
 tbody tr:nth-child(even) {
   background: var(--rgb-paper-alt);
+}
+
+.value-table {
+  font-variant-numeric: tabular-nums;
+}
+
+.value-table--text {
+  margin: 3mm 0 5mm;
+}
+
+.value-table--text td:first-child,
+.value-table--text th:first-child {
+  font-family: var(--rgb-pdf-mono);
+  font-weight: 700;
+}
+
+.value-table__key {
+  color: var(--rgb-pdf-text) !important;
+  font-family: var(--rgb-pdf-mono);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
 }
 
 thead {
@@ -482,6 +509,8 @@ hr {
 }
 
 .toc ol {
+  column-count: 2;
+  column-gap: 12mm;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -489,15 +518,17 @@ hr {
 
 .toc li {
   border-bottom: 0.5pt solid var(--rgb-rule-soft);
-  margin: 0 0 2.4mm;
-  padding: 1.6mm 10mm 1.6mm 3mm;
+  break-inside: avoid;
+  margin: 0 0 1.2mm;
+  padding: 1mm 8mm 1mm 3mm;
   position: relative;
 }
 
 .toc__group {
-  margin-top: 4mm;
-  padding-bottom: 2.2mm;
-  padding-top: 2.2mm;
+  break-after: avoid;
+  margin-top: 2.4mm;
+  padding-bottom: 1.6mm;
+  padding-top: 1.6mm;
 }
 
 .toc__group a {
@@ -668,20 +699,23 @@ hr {
 
 .rule,
 .caution,
-.at-table {
+.at-table,
+.vector-box {
   break-inside: avoid;
   margin: 0 0 15.5pt;
   text-align: left;
 }
 
-.rule {
+.rule,
+.vector-box--rule {
   background: var(--rgb-paper-alt);
   border-left: 3pt solid var(--rgb-pdf-text);
   padding: 3.4mm 4.6mm 3.6mm;
 }
 
 .rule > .label,
-.caution > .label {
+.caution > .label,
+.vector-box__label {
   display: block;
   font-family: var(--rgb-pdf-sans);
   font-size: 9.5pt;
@@ -700,17 +734,20 @@ hr {
   margin-right: 2mm;
 }
 
-.rule.r {
+.rule.r,
+.vector-box--rule.vector-box--r {
   background: var(--rgb-r-tint);
   border-left-color: var(--rgb-r);
 }
 
-.rule.g {
+.rule.g,
+.vector-box--rule.vector-box--g {
   background: var(--rgb-g-tint);
   border-left-color: var(--rgb-g);
 }
 
-.rule.b {
+.rule.b,
+.vector-box--rule.vector-box--b {
   background: var(--rgb-b-tint);
   border-left-color: var(--rgb-b);
 }
@@ -718,15 +755,22 @@ hr {
 .rule.r > .label { color: var(--rgb-r-ink); }
 .rule.g > .label { color: var(--rgb-g-ink); }
 .rule.b > .label { color: var(--rgb-b-ink); }
+.vector-box--r > .vector-box__label { color: var(--rgb-r-ink); }
+.vector-box--g > .vector-box__label { color: var(--rgb-g-ink); }
+.vector-box--b > .vector-box__label { color: var(--rgb-b-ink); }
 .rule.r > .label::before { color: var(--rgb-r); content: "R"; }
 .rule.g > .label::before { color: var(--rgb-g); content: "G"; }
 .rule.b > .label::before { color: var(--rgb-b); content: "B"; }
 
-.caution {
+.caution,
+.vector-box--exception {
   background: var(--rgb-pdf-bg);
   border: 0.6pt solid var(--rgb-r-line);
   padding: 3.4mm 4.6mm 3.6mm;
 }
+
+.vector-box--exception.vector-box--g { border-color: var(--rgb-g-line); }
+.vector-box--exception.vector-box--b { border-color: var(--rgb-b-line); }
 
 .caution > .label {
   color: var(--rgb-r-ink);
@@ -737,7 +781,8 @@ hr {
   content: "R!";
 }
 
-.at-table {
+.at-table,
+.vector-box--example {
   border-bottom: 0.6pt solid var(--rgb-pdf-border);
   border-top: 0.6pt solid var(--rgb-pdf-border);
   color: #3a3833;
@@ -756,6 +801,137 @@ hr {
   letter-spacing: 0.14em;
   margin-bottom: 1.8mm;
   text-transform: uppercase;
+}
+
+.vector-box--example {
+  background: transparent;
+}
+
+.vector-box--example .vector-box__label {
+  color: var(--rgb-g);
+  font-size: 8pt;
+}
+
+.vector-box--marginal {
+  border-left: 2pt solid var(--rgb-g);
+  color: #4b4841;
+  font-size: 8.5pt;
+  line-height: 13pt;
+  margin-left: auto;
+  padding: 0 0 0 3mm;
+  width: 36%;
+}
+
+.vector-box--marginal .vector-box__label {
+  color: var(--rgb-g);
+  font-size: 8pt;
+  margin-bottom: 1mm;
+}
+
+.vector-box p {
+  margin-bottom: 0;
+  text-align: left;
+}
+
+.vector-box ul,
+.vector-box ol,
+.vector-box pre,
+.vector-box table {
+  margin-bottom: 0;
+}
+
+.reference-sheets {
+  break-before: page;
+}
+
+.reference-sheets h1 {
+  break-before: auto;
+  font-size: 28pt;
+  margin-top: 12mm;
+}
+
+.reference-sheets h2 {
+  font-size: 14pt;
+  margin-top: 7mm;
+}
+
+.reference-sheets__version {
+  color: #8a8780 !important;
+  font-family: var(--rgb-pdf-mono);
+  font-size: 8pt;
+  letter-spacing: 0.14em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.reference-flow {
+  counter-reset: reference-flow;
+  list-style: none;
+  margin: 0 0 6mm;
+  padding: 0;
+}
+
+.reference-flow li {
+  border-bottom: 0.5pt solid var(--rgb-rule-soft);
+  counter-increment: reference-flow;
+  font-family: var(--rgb-pdf-sans);
+  padding: 1.8mm 0 1.8mm 9mm;
+  position: relative;
+  text-align: left;
+}
+
+.reference-flow li::before {
+  color: var(--rgb-r);
+  content: counter(reference-flow, decimal-leading-zero);
+  font-family: var(--rgb-pdf-mono);
+  font-size: 8pt;
+  left: 0;
+  position: absolute;
+  top: 2mm;
+}
+
+.book-index {
+  break-before: page;
+}
+
+.book-index h1 {
+  break-before: auto;
+  font-size: 28pt;
+  margin-top: 12mm;
+}
+
+.book-index ol {
+  column-count: 2;
+  column-gap: 12mm;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.book-index li {
+  border-bottom: 0.5pt solid var(--rgb-rule-soft);
+  break-inside: avoid;
+  font-family: var(--rgb-pdf-serif);
+  font-size: 9.2pt;
+  padding: 1.1mm 7mm 1.1mm 0;
+  position: relative;
+  text-align: left;
+}
+
+.book-index a {
+  color: var(--rgb-pdf-text) !important;
+  display: block;
+  text-decoration: none;
+}
+
+.book-index a::after {
+  color: #8a8780;
+  content: target-counter(attr(href), page);
+  font-family: var(--rgb-pdf-mono);
+  font-size: 8pt;
+  position: absolute;
+  right: 0;
+  top: 1.2mm;
 }
 
 :lang(pt-BR) .at-table::before {
