@@ -31,12 +31,12 @@ func TestRunGoldenErrorText(t *testing.T) {
 		{
 			name: "missing release subcommand",
 			args: []string{"release"},
-			want: "missing release subcommand (want manifest|check|skill-manifest|skill-check)",
+			want: "missing release subcommand (want manifest|check|pdf-regression-check|skill-manifest|skill-check)",
 		},
 		{
 			name: "unknown release subcommand",
 			args: []string{"release", "bogus"},
-			want: `unknown release subcommand "bogus" (want manifest|check|skill-manifest|skill-check)`,
+			want: `unknown release subcommand "bogus" (want manifest|check|pdf-regression-check|skill-manifest|skill-check)`,
 		},
 	}
 

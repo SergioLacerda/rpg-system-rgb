@@ -173,6 +173,7 @@ func TestRunReleaseSubcommandsSurfaceComponentErrors(t *testing.T) {
 	cases := [][]string{
 		{"release", "manifest", "--public-dir", root + "/downloads", "--basename", "rgb", "--version", "v1"},
 		{"release", "check", "--public-dir", root + "/downloads", "--basename", "rgb", "--version", "v1"},
+		{"release", "pdf-regression-check", "--baseline-dir", root + "/downloads", "--candidate-dir", root + "/downloads", "--basename", "rgb", "--version", "v1"},
 		{"release", "skill-manifest", "--public-dir", root + "/downloads", "--name", "rgb-specialist", "--version", "v1"},
 		{"release", "skill-check", "--public-dir", root + "/downloads", "--name", "rgb-specialist", "--version", "v1"},
 	}
@@ -180,6 +181,27 @@ func TestRunReleaseSubcommandsSurfaceComponentErrors(t *testing.T) {
 		if err := run(args); err == nil {
 			t.Fatalf("expected %v to fail against incomplete fixtures", args)
 		}
+	}
+}
+
+func TestParsePDFRegressionFlagsAcceptsAllFieldsAndRejectsInvalidFlags(t *testing.T) {
+	paths, err := parsePDFRegressionFlags("release pdf-regression-check", []string{
+		"--baseline-dir", "baseline",
+		"--candidate-dir", "candidate",
+		"--basename", "rgb",
+		"--version", "v1",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if paths.BaselineDir != "baseline" || paths.CandidateDir != "candidate" || paths.Basename != "rgb" || paths.Version != "v1" {
+		t.Fatalf("unexpected pdf regression paths: %+v", paths)
+	}
+	if _, err := parsePDFRegressionFlags("release pdf-regression-check", []string{"--bad"}); err == nil {
+		t.Fatal("expected invalid pdf-regression-check flag to fail")
+	}
+	if _, err := parsePDFRegressionFlags("release pdf-regression-check", []string{"extra"}); err == nil {
+		t.Fatal("expected positional pdf-regression-check argument to be rejected")
 	}
 }
 
