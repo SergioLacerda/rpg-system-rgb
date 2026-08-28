@@ -227,7 +227,7 @@
       "id": "consumer.library.v0_1",
       "component": "Library",
       "status": "proposed",
-      "description": "Library consumes accepted source IDs and curated ordering to publish reader-facing pages.",
+      "description": "Library consumes accepted source IDs and curated ordering to publish reader-facing pages, and reads index (tags, retrieval_summary) and relationships to power client-side search and R/G/B vector filtering over the search_index projection.",
       "allowed_inputs": [
         "canonical_markdown_bridge",
         "canonical_semantic",
@@ -240,6 +240,7 @@
         "locale",
         "source_status",
         "title",
+        "relationships",
         "projection_paths",
         "index",
         "provenance"
@@ -266,7 +267,8 @@
       "validation_checks": [
         "Library pages reference source IDs",
         "Library output is marked as projection",
-        "curated ordering keeps provenance"
+        "curated ordering keeps provenance",
+        "search-index units expose retrieval_summary, relationships, and tags"
       ],
       "source_refs": [
         "docs/adr/adr-001-ai-first-documentation-authority.md",

@@ -5,11 +5,14 @@
   "owner": "tooling",
   "status": "proposed",
   "authority_type": "generated_artifact",
-  "description": "Search metadata over stable IDs, tags, retrieval summaries, relationships, and status.",
+  "description": "Search metadata over stable IDs, tags, retrieval summaries, relationships, and status. Widened 2026-08-27 from a 14-unit Core-V2-pilot subset to the full master semantic index, so the HTML Library's client-side search covers every published page, not just the pilot subset.",
   "generated_from": [
     "core.vector.r",
     "core.vector.g",
     "core.vector.b",
+    "core.action.press",
+    "core.action.reposition",
+    "core.action.sustain",
     "core.resource.health",
     "core.resource.shield",
     "core.combat.attack-margin",
@@ -20,7 +23,24 @@
     "core.damage.armor-reduction",
     "core.damage.shield-absorption",
     "core.ability.contract",
-    "core.example.combat-turn"
+    "core.term.impact-source",
+    "core.term.health",
+    "core.term.attack-margin",
+    "core.term.armor-reduction",
+    "core.term.shield-absorption",
+    "core.translation.pt-br.health",
+    "core.translation.pt-br.impact-source",
+    "core.translation.pt-br.attack-margin",
+    "core.translation.pt-br.armor-reduction",
+    "core.translation.pt-br.shield-absorption",
+    "core.example.combat-turn",
+    "core.progression.advancement",
+    "core.combat.movement",
+    "core.weapon.ranges",
+    "core.weapon.explosives",
+    "core.weapon.firearms",
+    "core.weapon.melee",
+    "core.equipment.gear"
   ],
   "source_index": "docs/core/semantic/core-v2.index.json",
   "semantic_source": "docs/core/semantic/source/core-v2-rules.v0.1.json",
@@ -138,6 +158,93 @@
         "decision_refs": [
           "docs/adr/adr-002-rgb-core-v2-design-control.md",
           "docs/adr/adr-002-rgb-core-v2-design-control.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.action.press",
+      "kind": "concept",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Press",
+      "retrieval_summary": "Press maps to R and changes the source of pressure.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/combat/combat_decision_model.md",
+        "markdown_pt_br": "docs/core/PT-br/combat/combat_decision_model.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.vector.r"
+        ]
+      },
+      "tags": [
+        "combat",
+        "decision",
+        "pressure"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/combat/combat_decision_model.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.action.reposition",
+      "kind": "concept",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Reposition",
+      "retrieval_summary": "Reposition maps to G and changes relation to pressure.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/combat/combat_decision_model.md",
+        "markdown_pt_br": "docs/core/PT-br/combat/combat_decision_model.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.vector.g"
+        ]
+      },
+      "tags": [
+        "combat",
+        "decision",
+        "positioning"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/combat/combat_decision_model.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.action.sustain",
+      "kind": "concept",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Sustain",
+      "retrieval_summary": "Sustain maps to B and preserves continuity under pressure.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/combat/combat_decision_model.md",
+        "markdown_pt_br": "docs/core/PT-br/combat/combat_decision_model.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.vector.b"
+        ]
+      },
+      "tags": [
+        "combat",
+        "decision",
+        "preservation"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/combat/combat_decision_model.md"
         ],
         "source_revision": "manual"
       }
@@ -500,6 +607,313 @@
       }
     },
     {
+      "id": "core.term.impact-source",
+      "kind": "term",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Impact Source",
+      "retrieval_summary": "Impact Source is the declared authority for damage before mitigation.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/combat/damage_model.md",
+        "markdown_pt_br": "docs/core/PT-br/combat/damage_model.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.damage.impact-source"
+        ],
+        "translated_by": [
+          "core.translation.pt-br.impact-source"
+        ]
+      },
+      "tags": [
+        "term",
+        "damage",
+        "translation"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/combat/damage_model.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.term.health",
+      "kind": "term",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Health",
+      "retrieval_summary": "Health names the character durability resource calculated from R and B.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/core/character_creation.md",
+        "markdown_pt_br": "docs/core/PT-br/core/character_creation.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.resource.health"
+        ],
+        "translated_by": [
+          "core.translation.pt-br.health"
+        ]
+      },
+      "tags": [
+        "term",
+        "character",
+        "health",
+        "translation"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/core/character_creation.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.term.attack-margin",
+      "kind": "term",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Attack Margin",
+      "retrieval_summary": "Attack Margin is the difference between attacker pressure and defender relation/evasion.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/combat/attack_and_defense.md",
+        "markdown_pt_br": "docs/core/PT-br/combat/attack_and_defense.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.combat.attack-margin"
+        ],
+        "translated_by": [
+          "core.translation.pt-br.attack-margin"
+        ]
+      },
+      "tags": [
+        "term",
+        "combat",
+        "translation"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/combat/attack_and_defense.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.term.armor-reduction",
+      "kind": "term",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Armor Reduction",
+      "retrieval_summary": "Armor Reduction names the per-hit mitigation layer after penetration.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/equipment/armor.md",
+        "markdown_pt_br": "docs/core/PT-br/equipment/armor.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.damage.armor-reduction"
+        ],
+        "translated_by": [
+          "core.translation.pt-br.armor-reduction"
+        ]
+      },
+      "tags": [
+        "term",
+        "armor",
+        "translation"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/equipment/armor.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.term.shield-absorption",
+      "kind": "term",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Shield Absorption",
+      "retrieval_summary": "Shield Absorption names the mitigation layer after armor reduction.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/equipment/shields.md",
+        "markdown_pt_br": "docs/core/PT-br/equipment/shields.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.damage.shield-absorption"
+        ],
+        "translated_by": [
+          "core.translation.pt-br.shield-absorption"
+        ]
+      },
+      "tags": [
+        "term",
+        "shield",
+        "translation"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/equipment/shields.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.translation.pt-br.health",
+      "kind": "translation",
+      "locale": "PT-br",
+      "authority_type": "translation",
+      "source_status": "canonical",
+      "title": "Vida",
+      "retrieval_summary": "PT-br translation for Health.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/core/character_creation.md",
+        "markdown_pt_br": "docs/core/PT-br/core/character_creation.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.term.health"
+        ]
+      },
+      "tags": [
+        "translation",
+        "pt-br",
+        "character",
+        "health"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/PT-br/core/character_creation.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.translation.pt-br.impact-source",
+      "kind": "translation",
+      "locale": "PT-br",
+      "authority_type": "translation",
+      "source_status": "canonical",
+      "title": "Fonte de Impacto",
+      "retrieval_summary": "PT-br translation for Impact Source.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/combat/damage_model.md",
+        "markdown_pt_br": "docs/core/PT-br/combat/damage_model.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.term.impact-source"
+        ]
+      },
+      "tags": [
+        "translation",
+        "pt-br",
+        "damage"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/PT-br/combat/damage_model.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.translation.pt-br.attack-margin",
+      "kind": "translation",
+      "locale": "PT-br",
+      "authority_type": "translation",
+      "source_status": "canonical",
+      "title": "Margem de Ataque",
+      "retrieval_summary": "PT-br translation for Attack Margin.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/combat/attack_and_defense.md",
+        "markdown_pt_br": "docs/core/PT-br/combat/attack_and_defense.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.term.attack-margin"
+        ]
+      },
+      "tags": [
+        "translation",
+        "pt-br",
+        "combat"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/PT-br/combat/attack_and_defense.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.translation.pt-br.armor-reduction",
+      "kind": "translation",
+      "locale": "PT-br",
+      "authority_type": "translation",
+      "source_status": "canonical",
+      "title": "Reducao por Armadura",
+      "retrieval_summary": "PT-br translation for Armor Reduction.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/equipment/armor.md",
+        "markdown_pt_br": "docs/core/PT-br/equipment/armor.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.term.armor-reduction"
+        ]
+      },
+      "tags": [
+        "translation",
+        "pt-br",
+        "armor"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/PT-br/equipment/armor.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.translation.pt-br.shield-absorption",
+      "kind": "translation",
+      "locale": "PT-br",
+      "authority_type": "translation",
+      "source_status": "canonical",
+      "title": "Absorcao por Escudo",
+      "retrieval_summary": "PT-br translation for Shield Absorption.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/equipment/shields.md",
+        "markdown_pt_br": "docs/core/PT-br/equipment/shields.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.term.shield-absorption"
+        ]
+      },
+      "tags": [
+        "translation",
+        "pt-br",
+        "shield"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/PT-br/equipment/shields.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
       "id": "core.example.combat-turn",
       "kind": "example",
       "locale": "en",
@@ -529,6 +943,218 @@
       "provenance": {
         "decision_refs": [
           "docs/core/en/reference/combat_example.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.progression.advancement",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Character Progression",
+      "retrieval_summary": "Characters advance on a fixed +2 vector points per level budget, spendable as raw vector growth or, with the Skills and Abilities module, as one alternative choice (new ability, ability improvement, specialization, new resource, new reaction, new state/maneuver access).",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/core/progression.md",
+        "markdown_pt_br": "docs/core/PT-br/core/progression.md"
+      },
+      "relationships": {
+        "depends_on": [
+          "core.ability.contract"
+        ]
+      },
+      "tags": [
+        "core",
+        "progression",
+        "advancement",
+        "leveling"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/core/progression.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.combat.movement",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Movement",
+      "retrieval_summary": "Movement distance is G x 2 meters per turn (same formula for aerial movement), a free allowance that does not consume the turn's Action or Minor Action; sprint is G x 3 meters with restrictions; terrain modifies base movement.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/combat/movement.md",
+        "markdown_pt_br": "docs/core/PT-br/combat/movement.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.action.reposition"
+        ],
+        "depends_on": [
+          "core.vector.g"
+        ]
+      },
+      "tags": [
+        "combat",
+        "movement",
+        "positioning",
+        "formula"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/combat/movement.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.weapon.ranges",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Weapon Ranges",
+      "retrieval_summary": "Ranged attacks apply a distance modifier to R (0 at short, -1 R at medium, -2 R at long, -4 R at extreme range) based on a per-weapon short/medium/long range table.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/weapons/mechanics/weapon_ranges.md",
+        "markdown_pt_br": "docs/core/PT-br/weapons/mechanics/weapon_ranges.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.combat.attack-margin"
+        ],
+        "depends_on": [
+          "core.vector.r"
+        ]
+      },
+      "tags": [
+        "weapons",
+        "range",
+        "modifier",
+        "formula"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/weapons/mechanics/weapon_ranges.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.weapon.explosives",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Explosives",
+      "retrieval_summary": "Explosives are area-effect weapons with a chosen detonation delay (immediate, short delay, delayed) and a per-type effect (e.g. explosive: area damage, electrical: damage plus disruption, sonic: rounds stunned).",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/weapons/categories/explosives.md",
+        "markdown_pt_br": "docs/core/PT-br/weapons/categories/explosives.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.damage.impact-source"
+        ]
+      },
+      "tags": [
+        "weapons",
+        "explosives",
+        "area-effect"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/weapons/categories/explosives.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.weapon.firearms",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Firearms",
+      "retrieval_summary": "Firearms do not add the user's R to damage; damage, magazine capacity, and reload action cost are fixed per weapon in a lookup table, unlike melee weapons.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/weapons/categories/firearms.md",
+        "markdown_pt_br": "docs/core/PT-br/weapons/categories/firearms.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.damage.impact-source"
+        ]
+      },
+      "tags": [
+        "weapons",
+        "firearms",
+        "ranged",
+        "damage"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/weapons/categories/firearms.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.weapon.melee",
+      "kind": "rule",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "Melee Weapons",
+      "retrieval_summary": "Melee weapon damage is R + weapon bonus, unlike firearms which use a fixed per-weapon damage value.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/weapons/categories/melee.md",
+        "markdown_pt_br": "docs/core/PT-br/weapons/categories/melee.md"
+      },
+      "relationships": {
+        "clarifies": [
+          "core.damage.impact-source"
+        ],
+        "depends_on": [
+          "core.vector.r"
+        ]
+      },
+      "tags": [
+        "weapons",
+        "melee",
+        "damage",
+        "formula"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/weapons/categories/melee.md"
+        ],
+        "source_revision": "manual"
+      }
+    },
+    {
+      "id": "core.equipment.gear",
+      "kind": "concept",
+      "locale": "en",
+      "authority_type": "canonical_markdown_bridge",
+      "source_status": "canonical",
+      "title": "General Equipment",
+      "retrieval_summary": "General equipment (tools, devices, tactical items) usually does not modify core vector values or damage calculations directly; it enables actions and provides situational advantages, distinct from weapons, armor, and shields.",
+      "projection_paths": {
+        "markdown_en": "docs/core/en/equipment/gear.md",
+        "markdown_pt_br": "docs/core/PT-br/equipment/gear.md"
+      },
+      "tags": [
+        "equipment",
+        "gear",
+        "tools"
+      ],
+      "provenance": {
+        "decision_refs": [
+          "docs/core/en/equipment/gear.md"
         ],
         "source_revision": "manual"
       }

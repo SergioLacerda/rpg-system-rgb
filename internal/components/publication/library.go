@@ -15,6 +15,12 @@ import (
 type LibraryOptions struct {
 	SourceDir string
 	OutDir    string
+	// SearchIndexFile is the path to the generated search-index projection
+	// (generated/search/core-v2.index.json by default — see
+	// docs/core/semantic/projection-manifest.v0.1.json's
+	// projection.search.core-index.v0_1 entry). Optional: when empty, no
+	// client-side search assets are written.
+	SearchIndexFile string
 }
 
 type docPage struct {
@@ -52,12 +58,20 @@ func BuildLibrary(options LibraryOptions) error {
 	if err := writeLibraryAssets(options.OutDir); err != nil {
 		return err
 	}
+	searchEntries, err := buildSearchEntries(options.SearchIndexFile)
+	if err != nil {
+		return err
+	}
+	if err := writeSearchAssets(options.OutDir, searchEntries); err != nil {
+		return err
+	}
+	hasSearch := len(searchEntries) > 0
 	for _, page := range pages {
-		if err := writePage(options.OutDir, page, pages); err != nil {
+		if err := writePage(options.OutDir, page, pages, hasSearch); err != nil {
 			return err
 		}
 	}
-	return writeLibraryIndex(options.OutDir, pages)
+	return writeLibraryIndex(options.OutDir, pages, hasSearch)
 }
 
 //nolint:gocyclo // WalkDir callback keeps discovery decisions close to path handling.
@@ -282,20 +296,34 @@ func slug(text string) string {
 }
 
 func writeLibraryAssets(outDir string) error {
-	css := `:root{color-scheme:dark;--bg:#111418;--panel:#181d23;--text:#f2eee7;--muted:#b5ada2;--accent:#df4f3d;--line:#343b45}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:#7dc7ff}header{border-bottom:1px solid var(--line);background:#0d1014;position:sticky;top:0}nav{max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}.brand{font-weight:700;color:var(--text);text-decoration:none}main{max-width:1180px;margin:0 auto;padding:28px 24px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:28px}aside{border-right:1px solid var(--line);padding-right:20px}aside a{display:block;padding:4px 0;color:var(--muted);text-decoration:none}aside a.active{color:var(--text);font-weight:700}article{min-width:0}h1,h2,h3{line-height:1.2}h1{font-size:34px}h2{margin-top:34px;border-top:1px solid var(--line);padding-top:22px}pre,code{background:#0c0f13;border:1px solid var(--line);border-radius:4px}code{padding:1px 4px}pre{padding:14px;overflow:auto}table{border-collapse:collapse;margin:12px 0;width:100%}td,th{border:1px solid var(--line);padding:6px 8px;vertical-align:top}.lang-switch{margin-left:auto}@media(max-width:820px){main{display:block}aside{border-right:0;border-bottom:1px solid var(--line);padding:0 0 18px;margin-bottom:22px}}`
+	css := `:root{color-scheme:dark;--bg:#111418;--panel:#181d23;--text:#f2eee7;--muted:#b5ada2;--accent:#df4f3d;--line:#343b45}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:#7dc7ff}header{border-bottom:1px solid var(--line);background:#0d1014;position:sticky;top:0}nav{max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}.brand{font-weight:700;color:var(--text);text-decoration:none}main{max-width:1180px;margin:0 auto;padding:28px 24px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:28px}aside{border-right:1px solid var(--line);padding-right:20px}aside a{display:block;padding:4px 0;color:var(--muted);text-decoration:none}aside a.active{color:var(--text);font-weight:700}article{min-width:0}h1,h2,h3{line-height:1.2}h1{font-size:34px}h2{margin-top:34px;border-top:1px solid var(--line);padding-top:22px}pre,code{background:#0c0f13;border:1px solid var(--line);border-radius:4px}code{padding:1px 4px}pre{padding:14px;overflow:auto}table{border-collapse:collapse;margin:12px 0;width:100%}td,th{border:1px solid var(--line);padding:6px 8px;vertical-align:top}.lang-switch{margin-left:auto}@media(max-width:820px){main{display:block}aside{border-right:0;border-bottom:1px solid var(--line);padding:0 0 18px;margin-bottom:22px}}
+.search{position:relative;margin-left:auto;display:flex;align-items:center;gap:8px}
+.search input[type=search]{background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--text);padding:6px 10px;font-size:14px;width:220px}
+.search-filters button{background:var(--panel);border:1px solid var(--line);border-radius:4px;color:var(--muted);font-size:12px;font-weight:700;padding:2px 8px;cursor:pointer;margin-left:4px}
+.search-filters button.active{color:var(--text);border-color:var(--accent)}
+.search-results{position:absolute;top:calc(100% + 6px);right:0;width:360px;max-height:70vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,.4);z-index:20}
+.search-results a{display:block;padding:10px 12px;border-bottom:1px solid var(--line);text-decoration:none;color:var(--text)}
+.search-results a:last-child{border-bottom:0}
+.search-results a:hover,.search-results a:focus{background:#20262e}
+.search-result-title{display:block;font-weight:700}
+.search-result-vector{display:inline-block;margin-left:6px;font-size:11px;color:var(--accent);font-weight:700}
+.search-result-summary{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.search-empty{padding:10px 12px;color:var(--muted);font-size:13px;margin:0}
+.search mark{background:var(--accent);color:#0d1014;border-radius:2px;padding:0 1px}
+@media(max-width:820px){.search{margin-left:0;width:100%}.search input[type=search]{flex:1;width:auto}.search-results{width:100%}}`
 	return os.WriteFile(filepath.Join(outDir, "styles.css"), []byte(css), 0o644) //nolint:gosec // G306: public static asset.
 }
 
-func writePage(outDir string, page docPage, pages []docPage) error {
+func writePage(outDir string, page docPage, pages []docPage, hasSearch bool) error {
 	path := outputFile(outDir, page.URLPath)
 	if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
 		return err
 	}
-	html := renderPage(page, pages)
+	html := renderPage(page, pages, hasSearch)
 	return os.WriteFile(path, []byte(html), 0o644) //nolint:gosec // G306: public static asset.
 }
 
-func renderPage(page docPage, pages []docPage) string {
+func renderPage(page docPage, pages []docPage, hasSearch bool) string {
 	var nav strings.Builder
 	for _, candidate := range pages {
 		if candidate.Lang != page.Lang {
@@ -312,6 +340,17 @@ func renderPage(page docPage, pages []docPage) string {
 	if brand == "" {
 		brand = "./"
 	}
+	searchHTML := ""
+	searchScript := ""
+	if hasSearch {
+		searchHTML = fmt.Sprintf(`<div class="search" data-search-index="%s">
+      <input type="search" data-search-input placeholder="Search (Ctrl+K or /)" aria-label="Search the RGB Library">
+      <span class="search-filters"><button type="button" data-vector="R">R</button><button type="button" data-vector="G">G</button><button type="button" data-vector="B">B</button></span>
+      <div data-search-results class="search-results" hidden></div>
+    </div>`, relHref(page.URLPath, "/search-index.json"))
+		searchScript = fmt.Sprintf(`  <script src="%s" defer></script>
+`, relHref(page.URLPath, "/search.js"))
+	}
 	return fmt.Sprintf(`<!doctype html>
 <html lang="%s">
 <head>
@@ -321,20 +360,20 @@ func renderPage(page docPage, pages []docPage) string {
   <link rel="stylesheet" href="%s">
 </head>
 <body>
-  <header><nav><a class="home" href="%s">Home</a><a class="brand" href="%s">RGB System Library</a><a href="%s">English</a><a href="%s">Portuguese</a></nav></header>
+  <header><nav><a class="home" href="%s">Home</a><a class="brand" href="%s">RGB System Library</a><a href="%s">English</a><a href="%s">Portuguese</a>%s</nav></header>
   <main>
     <aside>%s</aside>
     <article>%s</article>
   </main>
-</body>
+%s</body>
 </html>
-`, page.Lang, html.EscapeString(page.Title), relHref(page.URLPath, "/styles.css"), homeHref(page.URLPath), brand, relHref(page.URLPath, "/core/en/"), relHref(page.URLPath, "/core/PT-br/"), nav.String(), page.Body)
+`, page.Lang, html.EscapeString(page.Title), relHref(page.URLPath, "/styles.css"), homeHref(page.URLPath), brand, relHref(page.URLPath, "/core/en/"), relHref(page.URLPath, "/core/PT-br/"), searchHTML, nav.String(), page.Body, searchScript)
 }
 
 // writeLibraryIndex renders the Library root as the pt-BR Core Overview page,
 // so the default entry point is pt-BR content directly, not a language chooser.
 // The English and pt-BR trees remain reachable via the header's language links.
-func writeLibraryIndex(outDir string, pages []docPage) error {
+func writeLibraryIndex(outDir string, pages []docPage, hasSearch bool) error {
 	var root *docPage
 	for i := range pages {
 		if pages[i].Lang != "pt-br" {
@@ -358,7 +397,7 @@ func writeLibraryIndex(outDir string, pages []docPage) error {
 	// the same physical pages instead of one directory too shallow.
 	page.Body = prefixRelativeHrefs(page.Body, strings.TrimPrefix(root.URLPath, "/"))
 	page.URLPath = "/"
-	return os.WriteFile(filepath.Join(outDir, "index.html"), []byte(renderPage(page, pages)), 0o644) //nolint:gosec // G306: public static asset.
+	return os.WriteFile(filepath.Join(outDir, "index.html"), []byte(renderPage(page, pages, hasSearch)), 0o644) //nolint:gosec // G306: public static asset.
 }
 
 var hrefAttrPattern = regexp.MustCompile(`href="([^"]*)"`)

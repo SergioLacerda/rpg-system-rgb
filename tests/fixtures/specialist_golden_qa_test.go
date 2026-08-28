@@ -9,16 +9,36 @@ import (
 )
 
 type goldenQAEntry struct {
-	id             string
-	category       string
-	semanticIDs    []string
-	ambiguityNote  string
-	hasSemanticIDs bool // distinguishes "semantic_ids: []" (present, empty) from missing
+	id              string
+	category        string
+	semanticIDs     []string
+	answerTraits    []string
+	ambiguityNote   string
+	hasSemanticIDs  bool // distinguishes "semantic_ids: []" (present, empty) from missing
+	hasAnswerTraits bool // distinguishes "expected_answer_traits: []" (present, empty) from missing
 }
 
 var (
 	goldenQAField = regexp.MustCompile(`(?m)^    (\w+):\s*(.*)$`)
 )
+
+// parseBracketList parses a flow-style YAML list such as `[a, b]` or
+// `["a", "b"]` into its trimmed, unquoted elements. Returns nil for an
+// empty or absent list.
+func parseBracketList(raw string) []string {
+	inner := strings.TrimSuffix(strings.TrimPrefix(raw, "["), "]")
+	inner = strings.TrimSpace(inner)
+	if inner == "" {
+		return nil
+	}
+	var items []string
+	for _, part := range strings.Split(inner, ",") {
+		item := strings.TrimSpace(part)
+		item = strings.Trim(item, `"`)
+		items = append(items, item)
+	}
+	return items
+}
 
 // parseGoldenQA reads benchmark/golden-qa.yaml from the skills/specialist
 // package and extracts each entry. Line-oriented reader, not a full YAML
@@ -47,23 +67,16 @@ func parseGoldenQA(t *testing.T) []goldenQAEntry {
 		id = strings.TrimSpace(id)
 
 		rawIDs, hasIDs := fields["semantic_ids"]
-		var semanticIDs []string
-		if hasIDs {
-			inner := strings.TrimSuffix(strings.TrimPrefix(rawIDs, "["), "]")
-			inner = strings.TrimSpace(inner)
-			if inner != "" {
-				for _, part := range strings.Split(inner, ",") {
-					semanticIDs = append(semanticIDs, strings.TrimSpace(part))
-				}
-			}
-		}
+		rawTraits, hasTraits := fields["expected_answer_traits"]
 
 		entries = append(entries, goldenQAEntry{
-			id:             id,
-			category:       fields["category"],
-			semanticIDs:    semanticIDs,
-			ambiguityNote:  fields["ambiguity_note"],
-			hasSemanticIDs: hasIDs,
+			id:              id,
+			category:        fields["category"],
+			semanticIDs:     parseBracketList(rawIDs),
+			answerTraits:    parseBracketList(rawTraits),
+			ambiguityNote:   fields["ambiguity_note"],
+			hasSemanticIDs:  hasIDs,
+			hasAnswerTraits: hasTraits,
 		})
 	}
 	return entries
@@ -139,5 +152,34 @@ func TestGoldenQANormativeEntriesCiteRealSemanticIDs(t *testing.T) {
 		if !seenCategories[category] {
 			t.Errorf("golden-qa.yaml has no entry for required category %q", category)
 		}
+	}
+}
+
+// mirrors: skills/specialist/benchmark/golden-qa.yaml
+// TestGoldenQANormativeEntriesHaveExpectedAnswerTraits is the golden-layer
+// placeholder oracle for design.md's "expected answer traits": every
+// normative entry (outside category "ambiguous") must declare at least one
+// short keyword/phrase fragment a correct answer must contain, ahead of
+// any runtime Specialist answer to check the traits against.
+func TestGoldenQANormativeEntriesHaveExpectedAnswerTraits(t *testing.T) {
+	entries := parseGoldenQA(t)
+	if len(entries) == 0 {
+		t.Fatal("no entries parsed from golden-qa.yaml")
+	}
+
+	for _, entry := range entries {
+		t.Run(entry.id, func(t *testing.T) {
+			if entry.category == "ambiguous" {
+				return
+			}
+			if !entry.hasAnswerTraits || len(entry.answerTraits) == 0 {
+				t.Fatalf("%s: category=%s is normative and must declare at least one expected_answer_traits entry", entry.id, entry.category)
+			}
+			for _, trait := range entry.answerTraits {
+				if strings.TrimSpace(trait) == "" {
+					t.Fatalf("%s: expected_answer_traits contains an empty entry", entry.id)
+				}
+			}
+		})
 	}
 }

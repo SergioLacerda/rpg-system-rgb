@@ -11,6 +11,11 @@ conflict report), and [`examples/`](examples/) for a worked example.
 This package does not yet run — it should not be presented as an available
 product until a runtime implementation exists.
 
+**Runtime architecture:** the LLM-instruction vs. Go-component split for
+Maker's eventual runtime is decided in
+[ADR-015](../../docs/adr/adr-015-skill-runtime-split.md). Read that decision
+before starting the runtime implementation, rather than re-deriving the split.
+
 **Sequencing:** per the internal `specialist-first-skill-roadmap` planning
 analysis, Maker's *runtime* work is deferred until
 [`../specialist/`](../specialist/) has a

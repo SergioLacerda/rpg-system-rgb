@@ -1,6 +1,6 @@
 ##@ Go
 
-.PHONY: fmt fmt-check test test-arch cover cover-check vet lint lint-fix vuln-go validate generate bundle go-file-size-report mutation-core
+.PHONY: fmt fmt-check test test-arch cover cover-check vet lint lint-fix vuln-go validate generate bundle go-file-size-report mutation-core coverage-inventory
 
 fmt: FORCE ## Format Go code
 	$(GOENV) $(GO) fmt ./...
@@ -40,6 +40,9 @@ cover-check: FORCE ## Enforce per-package Go coverage floors
 
 mutation-core: FORCE ## Run mutation smoke checks for internal/components/core
 	GO="$(GO)" GOCACHE="$(GOCACHE)" scripts/ci/mutation-core.sh
+
+coverage-inventory: FORCE ## Report advanced coverage counts (mutation, golden, BDD, mirrors)
+	scripts/ci/coverage-inventory.sh
 
 vet: FORCE ## Run go vet
 	$(GOENV) $(GO) vet ./...
@@ -86,7 +89,7 @@ go-file-size-report: FORCE ## Report large non-test Go source files
 # --- Namespaced aliases (additive, non-breaking) ---
 .PHONY: go.fmt go.fmt-check go.test go.test-arch go.cover go.cover-check \
   go.vet go.lint go.lint-fix go.vuln go.validate go.generate go.bundle \
-  go.file-size-report go.mutation
+  go.file-size-report go.mutation go.coverage-inventory
 go.fmt: fmt
 go.fmt-check: fmt-check
 go.test: test
@@ -102,3 +105,4 @@ go.generate: generate
 go.bundle: bundle
 go.file-size-report: go-file-size-report
 go.mutation: mutation-core
+go.coverage-inventory: coverage-inventory

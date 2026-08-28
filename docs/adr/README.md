@@ -15,3 +15,5 @@ This directory contains project-wide architecture decisions for RGB System.
 - [ADR-011: Split License Model](adr-011-split-license-model.md)
 - [ADR-012: MIT-Only License](adr-012-mit-only-license.md)
 - [ADR-013: Skill Distribution Via The Existing Publication Pipeline](adr-013-skill-distribution-via-existing-publication-pipeline.md)
+- [ADR-015: Skill Runtime Split — LLM Instruction Layer vs. Go Component Layer](adr-015-skill-runtime-split.md)
+- [ADR-016: Reinstate A Narrow External PDF Authoring Exception](adr-016-pdf-external-authoring-exception.md)

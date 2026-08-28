@@ -1,3 +1,19 @@
+/*
+ * Print stylesheet behind the currently shipped RGB System Core PDF
+ * (web/landing/public/downloads/rgb-system-core-v2-*.pdf, Producer:
+ * WeasyPrint 62.3). Not dead code: it is byte-identical to the copy
+ * embedded in the old MkDocs build output and is the real, working CSS
+ * that produced that PDF's typography, TOC pagination, and running
+ * headers/footers.
+ *
+ * Currently unwired: the mkdocs.yml that once invoked this stylesheet was
+ * deleted when ADR-010 retired the automated interpreter-backed
+ * publication pipeline. Per ADR-016 (docs/adr/adr-016-pdf-external-
+ * authoring-exception.md), this is the intended starting point for the
+ * next PDF authoring pass's cover template and RGB-vector (R/G/B) rule
+ * callout box styling — extend this file, don't replace it.
+ */
+
 :root {
   --rgb-pdf-bg: #ffffff;
   --rgb-pdf-text: #151515;
