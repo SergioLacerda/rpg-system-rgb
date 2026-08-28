@@ -92,6 +92,7 @@ func parseLibraryFlags(args []string) (app.LibraryOptions, error) {
 	flags.SetOutput(io.Discard)
 	flags.StringVar(&options.SourceDir, "source", "docs", "documentation source directory")
 	flags.StringVar(&options.OutDir, "out", "web/landing/public/library", "public Library output directory")
+	flags.StringVar(&options.SearchIndexFile, "search-index", "generated/search/core-v2.index.json", "generated search-index projection to power client-side search (empty to disable)")
 	if err := flags.Parse(args); err != nil {
 		return app.LibraryOptions{}, err
 	}

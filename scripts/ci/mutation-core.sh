@@ -24,12 +24,13 @@ run_mutation() {
   local file="$2"
   local from="$3"
   local to="$4"
+  local kill_suite="${5:-./internal/components/core ./tests/properties}"
   local worktree="${tmp_root}/${id}"
 
   copy_worktree "${worktree}"
   perl -0pi -e "s/${from}/${to}/" "${worktree}/${file}"
 
-  if (cd "${worktree}" && "${go_bin}" test ./internal/components/core ./tests/properties >/tmp/rgb-mutation-"${id}".log 2>&1); then
+  if (cd "${worktree}" && "${go_bin}" test ${kill_suite} >/tmp/rgb-mutation-"${id}".log 2>&1); then
     printf 'mutation survived: %s (%s)\n' "${id}" "${file}" >&2
     sed -n '1,120p' /tmp/rgb-mutation-"${id}".log >&2
     return 1
@@ -39,6 +40,8 @@ run_mutation() {
 }
 
 cd "${repo_root}"
+
+# --- Core resolution ---
 run_mutation "damage-penetration-direction" "internal/components/core/damage.go" \
   "target\\.Resources\\.Armor-input\\.Penetration" \
   "target.Resources.Armor+input.Penetration"
@@ -48,3 +51,45 @@ run_mutation "shield-derivation" "internal/components/core/resources.go" \
 run_mutation "strong-success-boundary" "internal/components/core/resolution.go" \
   "margin >= 3" \
   "margin > 3"
+run_mutation "success-with-cost-dropped" "internal/components/core/resolution.go" \
+  "outcome == OutcomeStrongSuccess \\|\\| outcome == OutcomeSuccess \\|\\| outcome == OutcomeSuccessWithCost" \
+  "outcome == OutcomeStrongSuccess || outcome == OutcomeSuccess" \
+  "./internal/components/core ./tests/properties ./tests/core_behavior"
+run_mutation "resolve-modifier-sign" "internal/components/core/resolution.go" \
+  "actingValue \\+ modifier - opposingValue" \
+  "actingValue - modifier - opposingValue" \
+  "./internal/components/core ./tests/properties ./tests/core_behavior"
+
+# --- Damage ---
+run_mutation "damage-shield-pre-armor" "internal/components/core/damage.go" \
+  "shieldAbsorbed := min\\(target\\.Resources\\.CurrentShield, afterArmor\\)" \
+  "shieldAbsorbed := min(target.Resources.CurrentShield, input.Impact)" \
+  "./internal/components/core ./tests/core_behavior ./tests/properties"
+run_mutation "damage-injure-on-zero" "internal/components/core/damage.go" \
+  "else if healthDamage > 0" \
+  "else if healthDamage >= 0" \
+  "./internal/components/core ./tests/core_behavior ./tests/properties"
+
+# --- Resources ---
+run_mutation "health-derivation" "internal/components/core/resources.go" \
+  "health := 4 \\+ vectors\\.R \\+ vectors\\.B" \
+  "health := 4 + vectors.R - vectors.B" \
+  "./internal/components/core ./tests/fixtures ./tests/core_behavior ./tests/properties"
+run_mutation "resources-isdown-boundary" "internal/components/core/resources.go" \
+  "resources\\.CurrentHealth <= 0" \
+  "resources.CurrentHealth < 0" \
+  "./internal/components/core ./tests/fixtures"
+
+# --- Encounter flow ---
+run_mutation "objective-failure-round" "internal/components/core/encounter.go" \
+  "outcome\\.ResolvedRound = max\\(currentRound, objective\\.DeadlineRounds\\)" \
+  "outcome.ResolvedRound = min(currentRound, objective.DeadlineRounds)" \
+  "./internal/components/core ./tests/core_behavior ./tests/simulation"
+run_mutation "action-declared-order" "internal/components/core/encounter.go" \
+  "for _, action := range encounter\\.Actions \\{" \
+  "for i := len(encounter.Actions) - 1; i >= 0; i-- {\n\t\taction := encounter.Actions[i]" \
+  "./internal/components/core ./tests/core_behavior ./tests/simulation ./tests/properties"
+run_mutation "surprise-priority-inverted" "internal/components/core/initiative.go" \
+  "return sorted\\[i\\]\\.Surprise" \
+  "return sorted[j].Surprise" \
+  "./internal/components/core ./tests/core_behavior"

@@ -162,9 +162,11 @@ golden Q/A dataset covering rule lookup, action classification, ambiguous
 questions, example validation, and EN/PT-br parity. Every entry outside
 the `ambiguous` category must carry at least one `semantic_ids` entry that
 actually exists in `docs/core/semantic/core-v2.index.json` — this is the
-dataset-level enforcement of "no normative answer without a source id."
-`tests/fixtures/specialist_golden_qa_test.go` checks this structurally
-today, ahead of any runtime Specialist implementation to check it
+dataset-level enforcement of "no normative answer without a source id" —
+and at least one `expected_answer_traits` entry: a short keyword/phrase
+fragment a correct answer must contain.
+`tests/fixtures/specialist_golden_qa_test.go` checks both structurally
+today, ahead of any runtime Specialist implementation to check them
 behaviorally.
 
 ## Installation

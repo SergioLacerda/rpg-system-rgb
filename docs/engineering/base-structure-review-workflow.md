@@ -80,6 +80,27 @@ make go-file-size-report    # informational: non-test .go files over 200 lines
 `make review-structure` remains as the legacy base-structure gate and is covered
 by `make check-fast`.
 
+## Advanced Evidence Layers
+
+The repository uses three higher-signal test layers on top of statement
+coverage:
+
+- Mutation smoke checks live in `scripts/ci/mutation-core.sh`. Each named
+  mutation represents a plausible rules defect and must be killed by the
+  focused Go suites before it belongs in `check-fast`.
+- Golden coverage should focus on canonical documentation, semantic fixtures,
+  generated artifacts, and the Specialist benchmark. Use structured or
+  normalized assertions first; reserve exact snapshots for output that is
+  intentionally public and stable.
+- Gherkin/BDD coverage currently uses `.feature` files as readable domain
+  specifications and Go tests as executable mirrors. Every scenario must have a
+  `// mirrors: tests/features/<area>/<file>.feature#<scenario>` anchor enforced
+  by `tests/features/sync_test.go`.
+
+Do not add a Gherkin runner by default. Keep the current mirror-anchor model
+until a runner demonstrably reduces drift more than it adds dependency, glue
+code, and maintenance cost.
+
 ## Required Gate By Context
 
 | Context | Required gate |
