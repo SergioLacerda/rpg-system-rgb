@@ -40,7 +40,8 @@ def page_title(path: Path) -> str:
     match = TITLE_RE.search(text)
     if not match:
         return path.stem
-    return " ".join(match.group("title").split())
+    title = " ".join(match.group("title").split())
+    return re.sub(r"\s+-\s+RGB System$", "", title)
 
 
 def html_path_for_markdown(site_dir: Path, markdown_path: str) -> Path:
@@ -111,11 +112,16 @@ def main() -> int:
     print(f'<body lang="{lang}" data-version="{version}">')
     print(extract_body(cover))
     print('<nav class="toc">')
-    print("  <h2>Contents</h2>")
+    print('  <div class="toc__head">')
+    print("    <h2>Contents</h2>")
+    print(f'    <span class="toc__version">{version}</span>')
+    print("  </div>")
     print("  <ol>")
-    for page in pages:
+    vector_classes = ("b", "r", "g", "b")
+    for index, page in enumerate(pages):
         anchor = page_anchor(site, page)
-        print(f'    <li class="lvl-1"><a href="#{anchor}">{page_title(page)}</a></li>')
+        vector = vector_classes[index % len(vector_classes)]
+        print(f'    <li class="lvl-1 vector-{vector}"><a href="#{anchor}">{page_title(page)}</a></li>')
     print("  </ol>")
     print("</nav>")
     for page in pages:
