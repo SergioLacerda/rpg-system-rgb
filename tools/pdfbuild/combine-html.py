@@ -142,7 +142,7 @@ def normalize_text_table_lines(code: str) -> list[str]:
         line = unescape(line).strip()
         if not line:
             continue
-        glued = re.search(r"-{3,}:?(?P<row>[^\s-].*)$", line)
+        glued = re.search(r"-{2,}:?(?P<row>[^\s-].*)$", line)
         if glued:
             lines.append(line[: glued.start("row")].strip())
             lines.append(glued.group("row").strip())

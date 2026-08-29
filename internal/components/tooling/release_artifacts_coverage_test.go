@@ -264,11 +264,13 @@ func TestCheckReleaseArtifactsWithFakePDFTools(t *testing.T) {
 		switch name {
 		case "pdfinfo":
 			return []byte("Title: RGB\nSubject: Core\nProducer: Test\nMetadata Stream: yes\nTagged:          yes\nPages: 4\n"), nil
+		case "pdffonts":
+			return premiumPDFFontsOutput(), nil
 		case "pdftotext":
 			if len(args) == 0 {
 				return nil, fmt.Errorf("missing pdftotext args")
 			}
-			return nil, os.WriteFile(args[len(args)-1], []byte("Table of contents\n1\n2\n3\n"), 0o644)
+			return nil, os.WriteFile(args[len(args)-1], []byte("Table of contents\n1\n2\n3\n\fIndex\nCombat, 2\nDamage, 3\n"), 0o644)
 		case "pdftohtml":
 			if len(args) == 0 {
 				return nil, fmt.Errorf("missing pdftohtml args")
@@ -321,6 +323,8 @@ func TestCheckReleaseArtifactsFailureStages(t *testing.T) {
 		switch name {
 		case "pdfinfo":
 			return []byte("Title: RGB\nSubject: Core\nProducer: Test\nMetadata Stream: yes\nTagged:          yes\nPages: 4\n"), nil
+		case "pdffonts":
+			return premiumPDFFontsOutput(), nil
 		default:
 			return nil, fmt.Errorf("unexpected command %s", name)
 		}
@@ -349,6 +353,8 @@ func TestCheckReleaseArtifactsFailureStages(t *testing.T) {
 			return nil, os.WriteFile(args[len(args)-1]+".xml", []byte(`<page><a href="#x">x</a></page>`), 0o644)
 		case "pdfinfo":
 			return []byte("Title: RGB\nSubject: Core\nProducer: Test\nMetadata Stream: yes\nTagged:          yes\nPages: 1\n"), nil
+		case "pdffonts":
+			return premiumPDFFontsOutput(), nil
 		case "pdftoppm":
 			return nil, nil
 		default:
@@ -427,6 +433,34 @@ func TestChapterOpenersMustStartOnRectoPages(t *testing.T) {
 	if err := validateChapterOpenersRecto("doc.pdf", ptChapter); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestPremiumPDFFontsAreRequired(t *testing.T) {
+	if err := validatePDFFonts("doc.pdf", premiumPDFFontsOutput()); err != nil {
+		t.Fatal(err)
+	}
+	if err := validatePDFFonts("doc.pdf", []byte("Noto-Serif\nSource-Sans-3\n")); err == nil {
+		t.Fatal("expected missing premium PDF font to fail")
+	}
+}
+
+func TestBookIndexRejectsMissingAndOrphanedEntries(t *testing.T) {
+	if err := validateBookIndexReferences("doc.pdf", "Contents\nCombat, 2\n", 3); err == nil {
+		t.Fatal("expected missing generated book index to fail")
+	}
+	if err := validateBookIndexReferences("doc.pdf", "\fIndex\nCombat, 0\n", 3); err == nil {
+		t.Fatal("expected page-zero book-index reference to fail")
+	}
+	if err := validateBookIndexReferences("doc.pdf", "\fIndex\nCombat, 4\n", 3); err == nil {
+		t.Fatal("expected out-of-range book-index reference to fail")
+	}
+	if err := validateBookIndexReferences("doc.pdf", "\fIndex\nCombat, 2\nDamage, 3\n", 3); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func premiumPDFFontsOutput() []byte {
+	return []byte("KNAFFE+JetBrains-Mono\nFAFHLH+Source-Serif-4\nGXWCZR+Space-Grotesk\n")
 }
 
 func writeReadablePNG(t *testing.T, path string) {

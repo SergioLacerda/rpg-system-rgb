@@ -37,6 +37,12 @@ var rasterPageRE = regexp.MustCompile(`-(\d+)\.png$`)
 var indexPageNumberRE = regexp.MustCompile(`\b\d+\b`)
 var alphaRE = regexp.MustCompile(`[[:alpha:]]`)
 
+var premiumPDFFontFamilies = []string{
+	"JetBrains-Mono",
+	"Source-Serif-4",
+	"Space-Grotesk",
+}
+
 // ReleaseArtifactPaths identifies the PDF artifacts and metadata files used by
 // the public release surface.
 type ReleaseArtifactPaths struct {
@@ -180,7 +186,7 @@ func validateReleaseArtifactMetadata(paths ReleaseArtifactPaths) error {
 }
 
 func validateRequiredPDFTools() error {
-	for _, tool := range []string{"pdfinfo", "pdftotext", "pdftohtml", "pdftoppm"} {
+	for _, tool := range []string{"pdfinfo", "pdffonts", "pdftotext", "pdftohtml", "pdftoppm"} {
 		if _, err := lookPath(tool); err != nil {
 			return fmt.Errorf("::error::%s is required for PDF editorial checks", tool)
 		}
@@ -249,14 +255,14 @@ func validatePDFArtifact(pdf string) error {
 	if err := validatePDFMetadata(pdf, output); err != nil {
 		return err
 	}
-	pages, err := parsePDFPages(output)
+	fonts, err := runCommand("pdffonts", pdf)
 	if err != nil {
 		return err
 	}
-	if pages < 3 {
-		return fmt.Errorf("::error::%s has too few pages (%d)", pdf, pages)
+	if err := validatePDFFonts(pdf, fonts); err != nil {
+		return err
 	}
-	return nil
+	return validatePDFPageCount(pdf, output)
 }
 
 func validatePDFHeader(pdf string) error {
@@ -282,6 +288,27 @@ func validatePDFMetadata(pdf string, output []byte) error {
 		if !regexp.MustCompile(`(?m)^` + regexp.QuoteMeta(field)).Match(output) {
 			name := strings.TrimSuffix(strings.ToLower(field), ":")
 			return fmt.Errorf("::error::%s is missing PDF %s metadata", pdf, name)
+		}
+	}
+	return nil
+}
+
+func validatePDFPageCount(pdf string, output []byte) error {
+	pages, err := parsePDFPages(output)
+	if err != nil {
+		return err
+	}
+	if pages < 3 {
+		return fmt.Errorf("::error::%s has too few pages (%d)", pdf, pages)
+	}
+	return nil
+}
+
+func validatePDFFonts(pdf string, output []byte) error {
+	fontReport := string(output)
+	for _, family := range premiumPDFFontFamilies {
+		if !strings.Contains(fontReport, family) {
+			return fmt.Errorf("::error::%s is missing premium PDF font family %s", pdf, family)
 		}
 	}
 	return nil
@@ -485,15 +512,25 @@ func validateBookIndexReferences(pdf, text string, pageCount int) error {
 			continue
 		}
 		entries++
-		for _, match := range indexPageNumberRE.FindAllString(line, -1) {
-			page, err := strconv.Atoi(match)
-			if err != nil || page < 1 || page > pageCount {
-				return fmt.Errorf("::error::%s contains an orphaned book-index reference to page %s", pdf, match)
-			}
+		if err := validateBookIndexEntryPageNumbers(pdf, line, pageCount); err != nil {
+			return err
 		}
 	}
 	if entries == 0 {
 		return fmt.Errorf("::error::%s has no extractable book-index entries", pdf)
+	}
+	return nil
+}
+
+// validateBookIndexEntryPageNumbers checks that every page-number reference
+// on one book-index entry line points inside the document, per
+// validateBookIndexReferences's contract.
+func validateBookIndexEntryPageNumbers(pdf, line string, pageCount int) error {
+	for _, match := range indexPageNumberRE.FindAllString(line, -1) {
+		page, err := strconv.Atoi(match)
+		if err != nil || page < 1 || page > pageCount {
+			return fmt.Errorf("::error::%s contains an orphaned book-index reference to page %s", pdf, match)
+		}
 	}
 	return nil
 }

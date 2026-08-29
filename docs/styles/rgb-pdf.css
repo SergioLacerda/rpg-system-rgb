@@ -11,6 +11,74 @@
  * extend this file, don't replace it.
  */
 
+/*
+ * Premium typefaces (pdf_premium.txt T-01/T-02/T-03): vendored locally under
+ * tools/pdfbuild/fonts/ (see that directory's README for version/license per
+ * family), loaded via relative, non-CDN url()s (P-03). build-pdf.sh copies
+ * both styles/ and fonts/ into the same paged-media build root, so these
+ * paths are relative to where this stylesheet itself ends up at build time.
+ */
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/source-serif-4/SourceSerif4-Regular.ttf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/source-serif-4/SourceSerif4-Bold.ttf");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/source-serif-4/SourceSerif4-Italic.ttf");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/source-serif-4/SourceSerif4-BoldItalic.ttf");
+  font-weight: 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("../fonts/space-grotesk/SpaceGrotesk-Regular.ttf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("../fonts/space-grotesk/SpaceGrotesk-Bold.ttf");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/jetbrains-mono/JetBrainsMono-Regular.ttf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/jetbrains-mono/JetBrainsMono-Bold.ttf");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/jetbrains-mono/JetBrainsMono-Italic.ttf");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/jetbrains-mono/JetBrainsMono-BoldItalic.ttf");
+  font-weight: 700;
+  font-style: italic;
+}
+
 :root {
   --rgb-baseline: 15pt;
   --rgb-pdf-bg: #ffffff;
@@ -19,9 +87,9 @@
   --rgb-pdf-border: #d8d8d8;
   --rgb-pdf-accent: #245da8;
   --rgb-pdf-code-bg: #f5f6f8;
-  --rgb-pdf-serif: "Noto Serif", "DejaVu Serif", Georgia, serif;
-  --rgb-pdf-sans: "Source Sans 3", "Noto Sans", "DejaVu Sans", Arial, sans-serif;
-  --rgb-pdf-mono: "Noto Sans Mono", "DejaVu Sans Mono", Consolas, monospace;
+  --rgb-pdf-serif: "Source Serif 4", "Noto Serif", "DejaVu Serif", Georgia, serif;
+  --rgb-pdf-sans: "Space Grotesk", "Source Sans 3", "Noto Sans", "DejaVu Sans", Arial, sans-serif;
+  --rgb-pdf-mono: "JetBrains Mono", "Noto Sans Mono", "DejaVu Sans Mono", Consolas, monospace;
   --rgb-r: #d4322c;
   --rgb-r-ink: #a02a25;
   --rgb-r-tint: #fbf3f2;
@@ -88,6 +156,11 @@
   @top-left { content: none; }
   @top-right { content: none; }
   @bottom-right { content: counter(page, lower-roman); }
+}
+
+@page chapter-opener {
+  @top-left { content: none; }
+  @top-right { content: none; }
 }
 
 html,
@@ -237,7 +310,7 @@ th,
 td {
   border: 0;
   border-bottom: 0.5pt solid var(--rgb-rule-soft);
-  padding: 2mm 0;
+  padding: 2mm 3mm 2mm 0;
   vertical-align: top;
 }
 
@@ -591,7 +664,7 @@ hr {
 .chapter-opener {
   break-before: recto;
   min-height: 235mm;
-  page: frontmatter;
+  page: chapter-opener;
   position: relative;
 }
 

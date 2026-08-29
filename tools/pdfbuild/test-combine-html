@@ -88,6 +88,19 @@ B        Blue     shields
         self.assertIn("<td>B</td><td>Blue</td><td>shields</td>", got)
         self.assertNotIn("------", got)
 
+    def test_converts_spaced_table_with_short_glued_separator(self) -> None:
+        html = """<pre><code class="language-text">Weapon             Short   Medium   Long
+-----------------  -----   ------   --Compact Pistol     10      20       35
+Pistol             15      30       50
+</code></pre>"""
+
+        got = combine_html.convert_text_tables(html)
+
+        self.assertIn("<th>Weapon</th><th>Short</th><th>Medium</th><th>Long</th>", got)
+        self.assertIn("<td>Compact Pistol</td><td>10</td><td>20</td><td>35</td>", got)
+        self.assertIn("<td>Pistol</td><td>15</td><td>30</td><td>50</td>", got)
+        self.assertNotIn("<pre><code", got)
+
     def test_keeps_formulas_and_flows_as_text_blocks(self) -> None:
         html = """<pre><code class="language-text">Health = 4 + R + B
 Shield = B x 3

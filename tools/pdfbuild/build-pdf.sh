@@ -44,19 +44,21 @@ venv_dir="${script_dir}/.venv"
 stamp="$(date -u +%Y-%m-%d)"
 commit_sha="$(git -C "${repo_root}" rev-parse --short HEAD)"
 
-mkdir -p "${work_dir}/docs" "${work_dir}/styles" "${out_dir}"
+mkdir -p "${work_dir}/docs" "${work_dir}/styles" "${work_dir}/fonts" "${out_dir}"
 rm -rf "${work_dir}/docs" "${work_dir}/site"
 mkdir -p "${work_dir}/docs" "${work_dir}/styles"
 
 cp -R "${repo_root}/docs/core/${source_lang}/." "${work_dir}/docs/"
 python3 "${script_dir}/strip-public-engineering-markdown.py" "${work_dir}/docs"
 cp "${repo_root}/docs/styles/rgb-pdf.css" "${work_dir}/styles/rgb-pdf.css"
+rm -rf "${work_dir}/fonts"
+cp -R "${script_dir}/fonts" "${work_dir}/fonts"
 cp "${script_dir}/mkdocs.pdf.yml" "${work_dir}/mkdocs.yml"
 
 python3 -m venv "${venv_dir}"
 # shellcheck disable=SC1091
 source "${venv_dir}/bin/activate"
-python -m pip install --quiet -r "${script_dir}/requirements.txt"
+python -m pip install --quiet --require-hashes -r "${script_dir}/requirements.txt"
 
 mkdocs build --strict --config-file "${work_dir}/mkdocs.yml"
 
