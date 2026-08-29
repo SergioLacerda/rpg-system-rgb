@@ -181,10 +181,24 @@ def text_table_html(code: str) -> str | None:
     if column_count < 2 or any(len(row) != column_count for row in rows):
         return None
 
-    head = "".join(f"<th>{escape(cell)}</th>" for cell in rows[0])
+    numeric_cell_re = re.compile(r"[−+-]?\d+(\.\d+)?(\s?[A-Za-z])?$")
+    body_rows = rows[1:]
+    numeric_columns = {
+        col
+        for col in range(1, column_count)
+        if all(numeric_cell_re.fullmatch(row[col]) for row in body_rows)
+    }
+
+    def cell(tag: str, col: int, value: str) -> str:
+        attr = ' style="text-align: right"' if col in numeric_columns else ""
+        return f"<{tag}{attr}>{escape(value)}</{tag}>"
+
+    head = "".join(cell("th", col, value) for col, value in enumerate(rows[0]))
     body = "\n".join(
-        "    <tr>" + "".join(f"<td>{escape(cell)}</td>" for cell in row) + "</tr>"
-        for row in rows[1:]
+        "    <tr>"
+        + "".join(cell("td", col, value) for col, value in enumerate(row))
+        + "</tr>"
+        for row in body_rows
     )
     return f'<table class="value-table value-table--text"><thead><tr>{head}</tr></thead><tbody>\n{body}\n  </tbody></table>'
 
@@ -360,6 +374,28 @@ def in_section_label(lang: str) -> str:
     return "Nesta seção" if lang.lower().startswith("pt") else "In this section"
 
 
+def chapter_epigraph(lang: str, index: int) -> str:
+    pt = lang.lower().startswith("pt")
+    epigraphs_en = {
+        1: "Three numbers. Every outcome the table will ever need.",
+        2: "Red presses. Green answers. Blue endures.",
+        3: "A fight is a question asked in pressure, answered in cost.",
+        4: "Nothing here changes who you are. Only what you can do next.",
+        5: "A weapon is Red given a shape.",
+        6: "For the table, mid-session, under pressure.",
+    }
+    epigraphs_pt = {
+        1: "Três números. Tudo que a mesa vai precisar.",
+        2: "Vermelho pressiona. Verde responde. Azul resiste.",
+        3: "Uma luta é uma pergunta feita em pressão, respondida em custo.",
+        4: "Nada aqui muda quem você é. Só o que você pode fazer a seguir.",
+        5: "Uma arma é o Vermelho com uma forma.",
+        6: "Para a mesa, no meio da sessão, sob pressão.",
+    }
+    table = epigraphs_pt if pt else epigraphs_en
+    return table.get(index, "")
+
+
 def reference_sheet_label(lang: str) -> str:
     return "Folhas de referência" if lang.lower().startswith("pt") else "Reference Sheets"
 
@@ -476,6 +512,7 @@ def main() -> int:
     print(f"  <meta name=\"subject\" content=\"RGB System Core Rules - {version}\">")
     print(f"  <meta name=\"description\" content=\"RGB System Core Rules - {version}\">")
     print("  <meta name=\"generator\" content=\"MkDocs + WeasyPrint\">")
+    print(f"  <meta name=\"version\" content=\"{version}\">")
     print("</head>")
     print(f'<body lang="{lang}" data-version="{version}">')
     print(extract_body(cover))
@@ -514,6 +551,9 @@ def main() -> int:
             print(f'  <div class="chapter-opener__rule"></div>')
             print(f'  <p class="chapter-opener__label">{chapter_label(lang, current_group_index)}</p>')
             print(f'  <h1>{escape(group_label)}</h1>')
+            epigraph = chapter_epigraph(lang, current_group_index)
+            if epigraph:
+                print(f'  <p class="chapter-opener__epigraph">{escape(epigraph)}</p>')
             print('  <div class="chapter-opener__contents">')
             print(f"    <p>{in_section_label(lang)}</p>")
             print("    <ol>")
