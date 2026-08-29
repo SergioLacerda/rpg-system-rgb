@@ -1,0 +1,8 @@
+# Source of truth for tools/pdfbuild/requirements.txt (P-02: pinned versions
+# and hashes). Regenerate with:
+#   source .venv/bin/activate && pip install pip-tools && \
+#   pip-compile --generate-hashes --no-index --output-file=requirements.txt requirements.in
+mkdocs==1.6.1
+mkdocs-material==9.5.34
+weasyprint==62.3
+pydyf==0.10.0

@@ -89,7 +89,7 @@ A grapple action succeeds when:
 Attacker (G) ≥ Target (G)
 Attacker (R) ≥ Target (R)
 
-The attacker may use meta‑abilities.
+The attacker may use meta-abilities.
 The target may use pre-declared bonuses.
 ```
 
@@ -111,7 +111,7 @@ If an attack deals damage, use the damage model.
 ### Magical Attack during combat
 
 ```text
-Each turn points are recovered to use spells or meta‑abilities.
+Each turn points are recovered to use spells or meta-abilities.
 
 Regeneration = 1 B point per level
 ```
