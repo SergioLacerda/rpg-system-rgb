@@ -8,6 +8,9 @@ These rules represent the loss of precision and effectiveness as the target move
 
 Attacks with ranged weapons receive modifiers depending on the distance to the target.
 
+Distance-modifier table.
+{: .table-caption}
+
 ```text
 Distance   Modifier
 ---------  --------Short      0

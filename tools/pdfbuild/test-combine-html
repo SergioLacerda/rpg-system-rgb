@@ -96,10 +96,44 @@ Pistol             15      30       50
 
         got = combine_html.convert_text_tables(html)
 
-        self.assertIn("<th>Weapon</th><th>Short</th><th>Medium</th><th>Long</th>", got)
-        self.assertIn("<td>Compact Pistol</td><td>10</td><td>20</td><td>35</td>", got)
-        self.assertIn("<td>Pistol</td><td>15</td><td>30</td><td>50</td>", got)
+        self.assertIn(
+            '<th>Weapon</th><th style="text-align: right">Short</th>'
+            '<th style="text-align: right">Medium</th>'
+            '<th style="text-align: right">Long</th>',
+            got,
+        )
+        self.assertIn(
+            '<td>Compact Pistol</td><td style="text-align: right">10</td>'
+            '<td style="text-align: right">20</td>'
+            '<td style="text-align: right">35</td>',
+            got,
+        )
+        self.assertIn(
+            '<td>Pistol</td><td style="text-align: right">15</td>'
+            '<td style="text-align: right">30</td>'
+            '<td style="text-align: right">50</td>',
+            got,
+        )
         self.assertNotIn("<pre><code", got)
+
+    def test_keeps_non_numeric_columns_unaligned(self) -> None:
+        html = """<pre><code class="language-text">Distance   Modifier
+---------  --------Short      0
+Medium     -1 R
+Long       -2 R
+</code></pre>"""
+
+        got = combine_html.convert_text_tables(html)
+
+        self.assertIn(
+            '<th>Distance</th><th style="text-align: right">Modifier</th>', got
+        )
+        self.assertIn(
+            '<td>Short</td><td style="text-align: right">0</td>', got
+        )
+        self.assertIn(
+            '<td>Medium</td><td style="text-align: right">-1 R</td>', got
+        )
 
     def test_keeps_formulas_and_flows_as_text_blocks(self) -> None:
         html = """<pre><code class="language-text">Health = 4 + R + B

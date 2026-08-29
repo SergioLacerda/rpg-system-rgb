@@ -8,6 +8,9 @@ Essas regras permitem representar perda de precisão e eficiência conforme o al
 
 Ataques com armas de fogo recebem modificadores dependendo da distância ao alvo.
 
+Tabela de modificadores por distância.
+{: .table-caption}
+
 ```text
 Distância   Modificador
 ---------   --------Curto       0
