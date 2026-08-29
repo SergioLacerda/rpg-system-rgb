@@ -152,13 +152,22 @@ const searchJS = `(function () {
   var entries = [];
   var activeIndex = -1;
 
-  fetch(root.getAttribute("data-search-index"))
+  var indexPath = root.getAttribute("data-search-index") || "search-index.json";
+  var libraryRoot = indexPath.replace(/search-index\.json(?:[?#].*)?$/, "");
+
+  fetch(indexPath)
     .then(function (res) { return res.json(); })
     .then(function (data) { entries = data || []; })
     .catch(function () { entries = []; });
 
   function entryURL(entry) {
-    return (lang === "pt-br" && entry.url_pt_br) ? entry.url_pt_br : (entry.url_en || entry.url_pt_br || "");
+    var url = (lang === "pt-br" && entry.url_pt_br) ? entry.url_pt_br : (entry.url_en || entry.url_pt_br || "");
+    return scopedLibraryURL(url);
+  }
+
+  function scopedLibraryURL(url) {
+    if (!url || url.charAt(0) !== "/" || /^(?:[a-z]+:)?\/\//i.test(url)) return url || "";
+    return libraryRoot + url.replace(/^\/+/, "");
   }
 
   function matchesVectorFilter(entry) {

@@ -215,6 +215,18 @@ func TestSearchAssetsStayUnderSizeBudget(t *testing.T) {
 	}
 }
 
+func TestSearchScriptScopesResultLinksToLibraryRoot(t *testing.T) {
+	if !strings.Contains(searchJS, `libraryRoot = indexPath.replace(/search-index\.json`) {
+		t.Fatalf("expected search.js to derive the Library root from the search-index asset path")
+	}
+	if !strings.Contains(searchJS, `return libraryRoot + url.replace(/^\/+/, "")`) {
+		t.Fatalf("expected search.js to rewrite root-relative index URLs under the Library root")
+	}
+	if !strings.Contains(searchJS, `fetch(indexPath)`) {
+		t.Fatalf("expected search.js to fetch the same indexPath used for URL scoping")
+	}
+}
+
 func repoRoot(t *testing.T) string {
 	t.Helper()
 	dir, err := os.Getwd()
