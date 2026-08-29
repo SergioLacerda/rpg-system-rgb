@@ -80,7 +80,7 @@
 }
 
 :root {
-  --rgb-baseline: 15pt;
+  --rgb-baseline: 15.5pt;
   --rgb-pdf-bg: #ffffff;
   --rgb-pdf-text: #151515;
   --rgb-pdf-muted: #444444;
@@ -275,6 +275,16 @@ blockquote {
   margin-bottom: 4mm;
 }
 
+p {
+  margin-top: 0;
+  text-indent: 0;
+}
+
+p + p {
+  margin-top: -4mm;
+  text-indent: 5mm;
+}
+
 a,
 a:visited {
   color: var(--rgb-pdf-accent) !important;
@@ -292,6 +302,21 @@ blockquote {
   color: var(--rgb-pdf-text) !important;
   margin-left: 0;
   padding: 3mm 4mm;
+}
+
+.table-caption {
+  break-after: avoid;
+  color: var(--rgb-pdf-muted) !important;
+  font-family: var(--rgb-pdf-sans);
+  font-size: 8pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  margin-bottom: 1.5mm;
+  text-transform: uppercase;
+}
+
+.table-caption + table {
+  margin-top: 0;
 }
 
 table {
@@ -331,6 +356,12 @@ tbody tr:nth-child(even) {
   font-variant-numeric: tabular-nums;
 }
 
+td[style*="text-align: right"],
+th[style*="text-align: right"] {
+  font-family: var(--rgb-pdf-mono);
+  font-variant-numeric: tabular-nums;
+}
+
 .value-table--text {
   margin: 3mm 0 5mm;
 }
@@ -367,13 +398,13 @@ code {
 }
 
 pre {
-  border: 1px solid var(--rgb-pdf-border);
-  border-radius: 3px;
+  border: 0;
+  border-left: 3pt solid var(--rgb-pdf-border);
   break-inside: avoid;
   font-size: 8.5pt;
   line-height: 1.35;
   overflow-wrap: anywhere;
-  padding: 3mm;
+  padding: 3mm 3mm 3mm 4.6mm;
   white-space: pre-wrap;
 }
 
@@ -638,8 +669,9 @@ hr {
 .toc .vector-b::before { background: var(--rgb-b); }
 
 .toc a {
+  align-items: baseline;
   color: var(--rgb-pdf-text) !important;
-  display: block;
+  display: flex;
   font-family: var(--rgb-pdf-sans);
   font-size: 10.5pt;
   font-weight: 700;
@@ -647,14 +679,15 @@ hr {
 }
 
 .toc a::after {
+  border-bottom: 0.75pt dotted #b8b5ac;
   content: target-counter(attr(href), page);
+  flex: 1 0 auto;
   font-family: var(--rgb-pdf-mono);
   font-size: 8.5pt;
   font-weight: 400;
-  position: absolute;
-  right: 0;
+  margin-left: 2mm;
+  padding-left: 2mm;
   text-align: right;
-  top: 1.8mm;
 }
 
 .pdf-page-source {
@@ -696,6 +729,15 @@ hr {
   line-height: 0.98;
   margin: 0;
   max-width: 11ch;
+}
+
+.chapter-opener__epigraph {
+  color: var(--rgb-pdf-muted) !important;
+  font-family: var(--rgb-pdf-serif);
+  font-size: 11.5pt;
+  font-style: italic;
+  margin: 8mm 0 0;
+  max-width: 60mm;
 }
 
 .chapter-opener__contents {
