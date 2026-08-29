@@ -5,7 +5,7 @@
 docs-build: FORCE ## Build documentation Library with Go
 	$(GOENV) $(GO) run ./cmd/rgb docs library --source "$(DOCS_SOURCE)" --out "$(LIBRARY_DIR)"
 
-docs-check: FORCE ## Validate generated public documentation artifacts
+docs-check: docs-build FORCE ## Validate generated public documentation artifacts
 	$(GOENV) $(GO) run ./cmd/rgb docs check --library "$(LIBRARY_DIR)" --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)"
 
 docs-pdf: FORCE ## Build and publish latest PDF downloads locally
