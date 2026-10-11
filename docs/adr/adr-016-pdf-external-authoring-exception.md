@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted.
+Accepted. Location-specific parts (`web/landing/**` paths) superseded by
+[ADR-018](adr-018-remove-in-repo-landing-and-relocate-publication-staging.md).
 
 ## Context
 

@@ -30,7 +30,17 @@ Run the release gate before publishing downloads:
 make release-check
 ```
 
-`check-fast` runs:
+`check-fast` is the union of four gate groups. Each group is self-sufficient and
+can run on its own; CI runs one job per group, so no gate runs twice:
+
+| Group | Command | CI job | Covers |
+| --- | --- | --- | --- |
+| Go | `make check-go` | `lint` | format, vet, lint, tests, architecture, semantic docs, coverage, mutation |
+| Public artifacts | `make public-artifact-check` | `docs` | Library build, PDF/skill manifests and supply-chain checks (needs poppler) |
+| Generated drift | `make check-generated-drift` | `generated-drift` | `make generate` leaves tracked artifacts clean |
+| Hygiene | `make check-hygiene` | `governance-files` | retired runtime terms (needs ripgrep) and required OSS governance files |
+
+`make check-go` runs:
 
 | Gate | Command | Verifies |
 | --- | --- | --- |
@@ -49,7 +59,6 @@ make release-check
 | --- | --- | --- |
 | Workflow lint | `make lint-yaml` | GitHub Actions workflow syntax via actionlint |
 | Shell lint | `make lint-shell` | CI shell scripts via shellcheck |
-| Generated drift | `make check-generated-drift` | `make generate` leaves tracked generated artifacts clean |
 
 `release-check` adds:
 
