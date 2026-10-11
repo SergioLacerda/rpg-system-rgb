@@ -17,3 +17,5 @@ This directory contains project-wide architecture decisions for RGB System.
 - [ADR-013: Skill Distribution Via The Existing Publication Pipeline](adr-013-skill-distribution-via-existing-publication-pipeline.md)
 - [ADR-015: Skill Runtime Split — LLM Instruction Layer vs. Go Component Layer](adr-015-skill-runtime-split.md)
 - [ADR-016: Reinstate A Narrow External PDF Authoring Exception](adr-016-pdf-external-authoring-exception.md)
+- [ADR-017: Go-Native PDF Authoring, Superseding The WeasyPrint Exception](adr-017-go-native-pdf-authoring-superseding-weasyprint.md)
+- [ADR-018: Remove The In-Repository Landing Page And Relocate Publication Staging To `build/`](adr-018-remove-in-repo-landing-and-relocate-publication-staging.md)

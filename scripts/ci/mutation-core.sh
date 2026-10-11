@@ -13,9 +13,6 @@ copy_worktree() {
   mkdir -p "${target}"
   find . \
     -path './.git' -prune -o \
-    -path './web/landing/node_modules' -prune -o \
-    -path './web/landing/dist' -prune -o \
-    -path './web/landing/coverage' -prune -o \
     -type f -print | tar -cf - -T - | tar -xf - -C "${target}"
 }
 

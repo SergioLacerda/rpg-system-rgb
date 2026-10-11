@@ -6,7 +6,7 @@ on:
   pull_request:
 
 env:
-  GOLANGCI_LINT_VERSION: "v2.8.0"
+  GOLANGCI_LINT_VERSION: "v2.11.4"
 
 jobs:
   lint:
@@ -41,11 +41,11 @@ jobs:
       - run: make pdf-editorial-check
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: landing-pdfs
+          name: release-pdfs
           path: |
-            web/landing/public/downloads/*.pdf
-            web/landing/public/downloads/*.json
-            web/landing/public/downloads/SHA256SUMS
+            build/downloads/*.pdf
+            build/downloads/*.json
+            build/downloads/SHA256SUMS
           retention-days: 7
 
   skill-package:
@@ -59,11 +59,11 @@ jobs:
       - run: make release-skill-check
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: landing-skills
+          name: release-skills
           path: |
-            web/landing/public/downloads/*.zip
-            web/landing/public/downloads/*-skill-manifest.json
-            web/landing/public/downloads/*-SHA256SUMS
+            build/downloads/*.zip
+            build/downloads/*-skill-manifest.json
+            build/downloads/*-SHA256SUMS
           retention-days: 7
 
   generated-drift:
@@ -74,28 +74,6 @@ jobs:
         with:
           go-version-file: go.mod
       - run: make check-generated-drift
-
-  lint-web:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "26"
-          cache: npm
-          cache-dependency-path: web/landing/package-lock.json
-      - run: make lint-web
-
-  test-web:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "26"
-          cache: npm
-          cache-dependency-path: web/landing/package-lock.json
-      - run: make test-web
 
   lint-yaml:
     runs-on: ubuntu-latest
@@ -116,7 +94,7 @@ jobs:
       - run: make check-governance-files
 
   deploy:
-    needs: [lint, docs, docs-pdf, skill-package, generated-drift, lint-web, test-web, lint-yaml, lint-shell, governance-files]
+    needs: [lint, docs, docs-pdf, skill-package, generated-drift, lint-yaml, lint-shell, governance-files]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     concurrency:
@@ -137,11 +115,11 @@ jobs:
           go-version-file: go.mod
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: landing-pdfs
+          name: release-pdfs
           path: ${{ runner.temp }}/rgb-artifacts/pdfs
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: landing-skills
+          name: release-skills
           path: ${{ runner.temp }}/rgb-artifacts/skills
       # Presentation surface comes from an immutable ILLUSIONISTA release (no Astro here);
       # Library, PDFs and Skills stay RGB-owned. See scripts/ci/compose-site.sh.

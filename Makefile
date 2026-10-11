@@ -10,16 +10,12 @@ TOOLS_DIR ?= /tmp/rgb-system-tools
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 ACTIONLINT ?= $(TOOLS_BIN_DIR)/actionlint
 SHELLCHECK ?= $(TOOLS_BIN_DIR)/shellcheck
-NPM ?= npm
-LANDING_DIR ?= web/landing
-LANDING_HOST ?= 127.0.0.1
-LANDING_PORT ?= 4324
-LANDING_BASE ?= /rpg-system-rgb
+BUILD_DIR ?= build
 DOCS_SOURCE ?= docs
-LIBRARY_DIR ?= $(LANDING_DIR)/public/library
+LIBRARY_DIR ?= $(BUILD_DIR)/library
 PDF_BASENAME ?= rgb-system-core-v2
 PDF_LOCALE ?= pt-br
-PDF_PUBLIC_DIR ?= $(LANDING_DIR)/public/downloads
+PDF_PUBLIC_DIR ?= $(BUILD_DIR)/downloads
 PDF_REGRESSION_CANDIDATE_DIR ?= $(PDF_PUBLIC_DIR)
 RELEASE_MANIFEST ?= $(PDF_PUBLIC_DIR)/$(PDF_BASENAME)-release-manifest.json
 RELEASE_CHECKSUMS ?= $(PDF_PUBLIC_DIR)/SHA256SUMS
@@ -61,11 +57,10 @@ help: FORCE ## List available targets
 	  /^[a-zA-Z0-9_.-]+:.*?## / { printf "  \033[36m%-28s\033[0m %s\n", $$1, $$2 }' \
 	  $(MAKEFILE_LIST)
 
-install: landing-install FORCE ## Install local development dependencies
+install: tools-install FORCE ## Install pinned local validation tools
 
 include make/go.mk
 include make/docs.mk
-include make/web.mk
 include make/release.mk
 include make/governance.mk
 
@@ -80,7 +75,7 @@ public-artifact-check: pdf-author-unit-test docs-check pdf-editorial-check relea
 check-fast: fmt-check vet lint test test-arch validate check-generated-drift cover-check mutation-core coverage-inventory public-artifact-check check-publication-runtime check-governance-files FORCE ## Run the fast local and PR gate
 	@echo "check-fast: all gates passed"
 
-check: check-fast lint-web test-web landing-build lint-yaml lint-shell FORCE ## Run the full development and main gate
+check: check-fast lint-yaml lint-shell FORCE ## Run the full development and main gate
 	@echo "check: all gates passed"
 
 release-check: check docs-pdf pdf-editorial-check skill-package release-skill-check FORCE ## Run the full release gate

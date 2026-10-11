@@ -16,8 +16,6 @@
 [![Code Size](https://img.shields.io/github/languages/code-size/SergioLacerda/rpg-system-rgb)](https://github.com/SergioLacerda/rpg-system-rgb)
 [![Top Language](https://img.shields.io/github/languages/top/SergioLacerda/rpg-system-rgb)](https://github.com/SergioLacerda/rpg-system-rgb)
 ![Go](https://img.shields.io/badge/go-1.24-00ADD8)
-![Node](https://img.shields.io/badge/node-26.x-339933)
-![npm](https://img.shields.io/badge/npm-11.x-CB3837)
 ![RPG](https://img.shields.io/badge/RPG-RGB%20Core%20V2-orange)
 
 RGB System is a lightweight tabletop role-playing system focused on simple
@@ -51,12 +49,12 @@ rules, tactical combat, modular design, and adaptable worlds.
 
 ## Development
 
-**Prerequisites:** Go 1.24.x, Node 26.x, npm 11.x.
+**Prerequisites:** Go 1.24.x.
 
 ```bash
 git clone https://github.com/SergioLacerda/rpg-system-rgb.git
 cd rpg-system-rgb
-make install        # installs landing page npm dependencies
+make install        # installs pinned local validation tools (actionlint, shellcheck)
 ```
 
 Then run the gate locally before opening a PR:
