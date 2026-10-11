@@ -28,8 +28,7 @@ check-publication-runtime: FORCE ## Reject retired publication runtime terms in 
 		--glob '!.strategist/**' \
 		--glob '!docs/adr/**' \
 		--glob '!docs/plans/**' \
-		--glob '!tools/pdfbuild/**' \
-		--glob '!web/landing/package-lock.json'; then \
+		--glob '!tools/pdfbuild/**'; then \
 		echo "retired publication runtime reference found"; \
 		exit 1; \
 	fi

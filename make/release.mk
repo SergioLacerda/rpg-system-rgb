@@ -2,7 +2,7 @@
 
 .PHONY: pdf-publish release-artifact-manifest release-artifact-check pdf-regression-check release-supply-chain release-supply-chain-check pdf-editorial-check release-skill-manifest release-skill-check
 
-pdf-publish: FORCE ## Publish a provided PDF into landing downloads
+pdf-publish: FORCE ## Publish a provided PDF into the downloads directory
 	@test -n "$(PDF_SRC)" || { echo "PDF_SRC is required"; exit 1; }
 	@test -f "$(PDF_SRC)" || { echo "PDF_SRC not found: $(PDF_SRC)"; exit 1; }
 	@test "$(PDF_LOCALE)" = "pt-br" -o "$(PDF_LOCALE)" = "en" || { echo "PDF_LOCALE must be pt-br or en"; exit 1; }

@@ -26,7 +26,7 @@ func TestBuildLibraryRendersBilingualCoreDocs(t *testing.T) {
 		t.Fatalf("expected index to render the pt-BR root page by default, got:\n%s", index)
 	}
 	if !strings.Contains(index, `<a class="home" href="../">Home</a>`) {
-		t.Fatalf("expected index to link back to the landing home, got:\n%s", index)
+		t.Fatalf("expected index to link back to the site home, got:\n%s", index)
 	}
 	if !strings.Contains(index, `href="core/en/"`) {
 		t.Fatalf("expected index to keep the English tree reachable, got:\n%s", index)
@@ -48,7 +48,7 @@ func TestBuildLibraryRendersBilingualCoreDocs(t *testing.T) {
 		t.Fatalf("expected rewritten markdown link, got:\n%s", page)
 	}
 	if !strings.Contains(page, `<a class="home" href="../../../">Home</a>`) {
-		t.Fatalf("expected content page to link back to the landing home, got:\n%s", page)
+		t.Fatalf("expected content page to link back to the site home, got:\n%s", page)
 	}
 }
 

@@ -47,9 +47,6 @@ make release-check
 
 | Gate | Command | Verifies |
 | --- | --- | --- |
-| Landing lint | `make lint-web` | Astro/TypeScript checks |
-| Landing tests | `make test-web` | landing unit tests and coverage |
-| Landing build | `make landing-build` | Go Library build and Astro static output |
 | Workflow lint | `make lint-yaml` | GitHub Actions workflow syntax via actionlint |
 | Shell lint | `make lint-shell` | CI shell scripts via shellcheck |
 | Generated drift | `make check-generated-drift` | `make generate` leaves tracked generated artifacts clean |
@@ -118,16 +115,13 @@ otherwise float:
 - CI installs `golangci-lint` through `GOLANGCI_LINT_VERSION`.
 - `actionlint` and `shellcheck` are installed through pinned Makefile
   versions into `TOOLS_DIR` when they are not already present there.
-- Node uses an explicit major version and npm dependencies are governed by
-  `web/landing/package-lock.json`.
 - GitHub Marketplace actions are pinned to full commit SHAs in CI. The adjacent
   comments preserve the major tag used for Dependabot review context.
 - PDF editorial checks require Poppler command line tools (`pdfinfo`,
   `pdftotext`, `pdftohtml`, and `pdftoppm`). CI installs them through
   `poppler-utils`; manifest/checksum/raster validation is implemented in Go.
 
-Dependabot owns update PRs for GitHub Actions, Go modules, and the landing npm
-workspace.
+Dependabot owns update PRs for GitHub Actions and Go modules.
 
 Release candidates must use a git tag matching `PDF_VERSION` (for example
 `v0.2`). The supply-chain provenance records whether that tag exists for the

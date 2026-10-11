@@ -28,7 +28,7 @@ C4Component
 
 The retired `compiler` and `library` packages are no longer part of this
 boundary. Active public publication now runs through the `publication`
-component and Astro packaging.
+component.
 
 This diagram matches, not just illustrates, what
 `tests/architecture/architecture_test.go` mechanically enforces

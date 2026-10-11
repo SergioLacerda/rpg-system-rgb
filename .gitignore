@@ -2,7 +2,7 @@
 .strategist/.compiled/
 .strategist
 generated/
-web/landing/coverage/
+build/library/
 .pdfbuild/
 tools/pdfbuild/.venv/
 tools/pdfbuild/out/
