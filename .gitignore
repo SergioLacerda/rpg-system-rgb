@@ -1,8 +1,8 @@
 #Runtime
 .strategist/.compiled/
 .strategist
-generated/
-build/library/
+build/
+generated/client/
 .pdfbuild/
 tools/pdfbuild/.venv/
 tools/pdfbuild/out/

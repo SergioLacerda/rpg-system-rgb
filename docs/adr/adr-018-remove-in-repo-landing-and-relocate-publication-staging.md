@@ -15,6 +15,11 @@ Supersedes the location-specific parts of
 Amended by [ADR-019](adr-019-consume-illusionista-surface-and-retire-landing-consumer.md), which resolves the `landing` consumer left open under
 Consequences and records the contract for consuming the external surface.
 
+Amended by [ADR-020](adr-020-separate-generated-and-build-outputs.md): the tracked
+baseline lives in `generated/downloads` and the disposable HTML Library in
+`build/site/library`. Decisions 1 and 2 below describe the layout as first
+accepted.
+
 ## Context
 
 The landing page is now published from an immutable external ILLUSIONISTA
