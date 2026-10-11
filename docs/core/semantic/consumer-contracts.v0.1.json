@@ -1,7 +1,7 @@
 {
   "schema": "rgb-docs-consumer-contracts/0.1",
   "source_index": "docs/core/semantic/core-v2.index.json",
-  "description": "Public AI-first documentation consumer contracts for Core, Maker, Specialist, tooling, Library, PDF, landing, and bundles.",
+  "description": "Public AI-first documentation consumer contracts for Core, Maker, Specialist, tooling, Library, PDF, and bundles.",
   "contracts": [
     {
       "id": "consumer.core.v0_1",
@@ -195,7 +195,6 @@
         "markdown_pt_br",
         "library",
         "pdf",
-        "landing",
         "bundle",
         "ai_context_pack",
         "search_index"
@@ -317,54 +316,6 @@
         "PDF release manifests include source IDs",
         "release metadata includes source revision",
         "PDF output is marked as projection"
-      ],
-      "source_refs": [
-        "docs/adr/adr-001-ai-first-documentation-authority.md",
-        "docs/adr/adr-001-ai-first-documentation-authority.md"
-      ]
-    },
-    {
-      "id": "consumer.landing.v0_1",
-      "component": "landing",
-      "status": "proposed",
-      "description": "Landing consumes curated summaries, entry points, titles, tags, and source IDs for onboarding and navigation.",
-      "allowed_inputs": [
-        "canonical_markdown_bridge",
-        "canonical_semantic",
-        "translation",
-        "projection"
-      ],
-      "required_unit_fields": [
-        "id",
-        "kind",
-        "locale",
-        "source_status",
-        "title",
-        "index",
-        "provenance"
-      ],
-      "allowed_projection_surfaces": [
-        "markdown_en",
-        "markdown_pt_br",
-        "landing",
-        "search_index"
-      ],
-      "forbidden_authority_types": [
-        "generated_artifact"
-      ],
-      "required_disclosures": [
-        "draft",
-        "stale",
-        "needs_review"
-      ],
-      "outputs": [
-        "landing summaries",
-        "navigation entry points"
-      ],
-      "validation_checks": [
-        "landing summaries reference source IDs",
-        "landing content is marked as projection",
-        "rules authority is not assigned to landing output"
       ],
       "source_refs": [
         "docs/adr/adr-001-ai-first-documentation-authority.md",

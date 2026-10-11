@@ -12,6 +12,9 @@ Supersedes the location-specific parts of
 [ADR-016](adr-016-pdf-external-authoring-exception.md) that name `web/` or
 `web/landing/public/**`. Their other decisions are unchanged.
 
+Amended by [ADR-019](adr-019-consume-illusionista-surface-and-retire-landing-consumer.md), which resolves the `landing` consumer left open under
+Consequences and records the contract for consuming the external surface.
+
 ## Context
 
 The landing page is now published from an immutable external ILLUSIONISTA
@@ -54,7 +57,7 @@ parity. Deleting `web/` therefore required relocating that role first.
   instead; this is a breaking change recorded in the CHANGELOG.
 - The semantic vocabulary still lists `landing` as a consumer
   (`docs/core/semantic/consumer-contracts.v0.1.json`). It is canonical
-  documentation authority (ADR-001) and is left for a separate decision.
+  documentation authority (ADR-001); ADR-019 retires it.
 - Required status checks named `lint-web` and `test-web` must be removed from
   branch protection before merging the CI change.
 - Historical ADRs and plans keep their original `web/landing` paths as records.

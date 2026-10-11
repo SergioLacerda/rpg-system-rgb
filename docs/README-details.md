@@ -43,7 +43,7 @@ This project documentation is available in multiple languages.
 | Bundle output | Experimental | `make bundle` produces a minimal semantic bundle; ADR-007 records the current consumer-contract limits. |
 | Library HTML | Implemented | `cmd/rgb docs library` builds the public Library into `build/library/`; `scripts/ci/compose-site.sh` mounts it into the published site. |
 | PDF downloads | Implemented | `make docs-pdf` publishes latest and versioned PDFs with manifest, checksums, and editorial smoke checks. |
-| Landing | Implemented | Hosted outside this repository: the Pages site is composed from a pinned external ILLUSIONISTA surface by `scripts/ci/compose-site.sh`. |
+| Landing | Implemented | Hosted outside this repository: the Pages site is composed from a pinned external ILLUSIONISTA surface by `scripts/ci/compose-site.sh`. See [ADR-019](adr/adr-019-consume-illusionista-surface-and-retire-landing-consumer.md). |
 | Maker | Contract defined | Contract, schemas, templates, prompts, and examples exist; runtime behavior is not implemented. |
 | Specialist | Contract defined | Contract, procedures, terminology, examples, and benchmark scaffolding exist; runtime behavior is not implemented. |
 | PDF/UA tagging | Deferred | Full accessibility tagging is outside the first editorial PDF quality gate. |
@@ -221,8 +221,8 @@ source when needed, but the normal release path is automated.
 ### Full gate
 
 ```bash
-make check-fast       # fast Go, architecture, semantic, and coverage gate
-make check            # check-fast + web, docs, generated drift, workflow, shell, governance files
+make check-fast       # Go, architecture, semantic, coverage, public artifacts, generated drift, hygiene
+make check            # check-fast + workflow and shell lint
 make release-check    # check + PDF build and editorial artifact gate
 ```
 

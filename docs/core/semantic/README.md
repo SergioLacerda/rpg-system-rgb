@@ -23,8 +23,10 @@ During the pilot:
 - the semantic index maps identity, source authority, and retrieval metadata;
 - accepted source files under `docs/core/semantic/source/**` are canonical only for
   their promoted source IDs;
-- generated surfaces such as Library, PDF, landing, bundles, search data, and
-  AI context packs remain derived artifacts.
+- generated surfaces such as Library, PDF, bundles, search data, and AI context
+  packs remain derived artifacts. The landing is an external ILUSIONISTA
+  release that consumes no Core V2 projection
+  ([ADR-019](../../adr/adr-019-consume-illusionista-surface-and-retire-landing-consumer.md)).
 
 Validate the pilot with:
 

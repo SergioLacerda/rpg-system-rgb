@@ -2,7 +2,9 @@
 
 ## Status
 
-Accepted.
+Accepted. Location-specific parts (`web/landing/public/**` and the Astro/Node
+landing packaging) superseded by [ADR-018](adr-018-remove-in-repo-landing-and-relocate-publication-staging.md). The landing is consumed as an
+external surface per [ADR-019](adr-019-consume-illusionista-surface-and-retire-landing-consumer.md).
 
 ## Context
 
