@@ -49,7 +49,7 @@ rules, tactical combat, modular design, and adaptable worlds.
 
 ## Development
 
-**Prerequisites:** Go 1.24.x.
+**Prerequisites:** Go 1.27.x.
 
 ```bash
 git clone https://github.com/SergioLacerda/rpg-system-rgb.git

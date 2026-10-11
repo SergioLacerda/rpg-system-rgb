@@ -9,6 +9,8 @@ tools/pdfbuild/out/
 __pycache__/
 .analysis
 .sdd
+.providence
+.agents
 
 #Seeds
 .claude
@@ -24,3 +26,4 @@ __pycache__/
 AGENTS.md
 CLAUDE.md
 GEMINI.md
+.cursor
