@@ -68,3 +68,7 @@ make release-check
 See [docs/README-details.md](docs/README-details.md) for project structure,
 documentation links, compatibility details, publication commands, contributing
 notes, and licensing details.
+
+# RGB System
+
+S
