@@ -46,9 +46,9 @@ jobs:
         with:
           name: release-pdfs
           path: |
-            build/downloads/*.pdf
-            build/downloads/*.json
-            build/downloads/SHA256SUMS
+            generated/downloads/*.pdf
+            generated/downloads/*.json
+            generated/downloads/SHA256SUMS
           retention-days: 7
 
   skill-package:
@@ -64,9 +64,9 @@ jobs:
         with:
           name: release-skills
           path: |
-            build/downloads/*.zip
-            build/downloads/*-skill-manifest.json
-            build/downloads/*-SHA256SUMS
+            generated/downloads/*.zip
+            generated/downloads/*-skill-manifest.json
+            generated/downloads/*-SHA256SUMS
           retention-days: 7
 
   generated-drift:

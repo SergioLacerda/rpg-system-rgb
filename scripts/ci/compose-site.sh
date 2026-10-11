@@ -16,7 +16,7 @@ version="${ILLUSIONIST_RGB_VERSION:?}"
 artifact="${ILLUSIONIST_RGB_ARTIFACT:?}"
 checksum="${ILLUSIONIST_RGB_CHECKSUM:?}"
 expected_sha256="${ILLUSIONIST_RGB_SHA256:?}"
-tracked_downloads="build/downloads"
+tracked_downloads="generated/downloads"
 
 fail() {
   printf '::error::%s\n' "$1"

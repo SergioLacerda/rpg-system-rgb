@@ -91,7 +91,7 @@ func parseLibraryFlags(args []string) (app.LibraryOptions, error) {
 	flags := flag.NewFlagSet("docs library", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
 	flags.StringVar(&options.SourceDir, "source", "docs", "documentation source directory")
-	flags.StringVar(&options.OutDir, "out", "build/library", "public Library output directory")
+	flags.StringVar(&options.OutDir, "out", "build/site/library", "public Library output directory")
 	flags.StringVar(&options.SearchIndexFile, "search-index", "generated/search/core-v2.index.json", "generated search-index projection to power client-side search (empty to disable)")
 	if err := flags.Parse(args); err != nil {
 		return app.LibraryOptions{}, err
@@ -106,7 +106,7 @@ func parsePDFFlags(args []string) (app.PDFOptions, error) {
 	var options app.PDFOptions
 	flags := flag.NewFlagSet("docs pdf", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
-	flags.StringVar(&options.PublicDir, "public-dir", "build/downloads", "public downloads directory")
+	flags.StringVar(&options.PublicDir, "public-dir", "generated/downloads", "public downloads directory")
 	flags.StringVar(&options.Basename, "basename", "rgb-system-core-v2", "release artifact basename")
 	flags.StringVar(&options.Version, "version", "v2.0", "release version")
 	flags.StringVar(&options.SourceEN, "source-en", "", "reviewed English PDF source")
@@ -125,7 +125,7 @@ func parseSkillFlags(args []string) (app.SkillOptions, error) {
 	flags := flag.NewFlagSet("docs skill", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
 	flags.StringVar(&options.SourceDir, "source", "", "skill package source directory")
-	flags.StringVar(&options.OutDir, "out", "build/downloads", "public downloads directory")
+	flags.StringVar(&options.OutDir, "out", "generated/downloads", "public downloads directory")
 	flags.StringVar(&options.Name, "name", "", "skill package name")
 	flags.StringVar(&options.Version, "version", "", "skill package version")
 	if err := flags.Parse(args); err != nil {
@@ -141,8 +141,8 @@ func parseDocsCheckFlags(args []string) (app.PublicationCheckOptions, error) {
 	var options app.PublicationCheckOptions
 	flags := flag.NewFlagSet("docs check", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
-	flags.StringVar(&options.LibraryDir, "library", "build/library", "public Library directory")
-	flags.StringVar(&options.PublicDir, "public-dir", "build/downloads", "public downloads directory")
+	flags.StringVar(&options.LibraryDir, "library", "build/site/library", "public Library directory")
+	flags.StringVar(&options.PublicDir, "public-dir", "generated/downloads", "public downloads directory")
 	flags.StringVar(&options.Basename, "basename", "rgb-system-core-v2", "release artifact basename")
 	flags.StringVar(&options.Version, "version", "v2.0", "release version")
 	if err := flags.Parse(args); err != nil {

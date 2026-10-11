@@ -41,7 +41,7 @@ This project documentation is available in multiple languages.
 | RGB Core V2 | Implemented | Playable rules, examples, Go rule-engine tests, and semantic docs validation exist. |
 | Semantic tooling | Implemented | `make validate` and `make generate` validate and produce indexed projections from `docs/core/semantic/**`. |
 | Bundle output | Experimental | `make bundle` produces a minimal semantic bundle; ADR-007 records the current consumer-contract limits. |
-| Library HTML | Implemented | `cmd/rgb docs library` builds the public Library into `build/library/`; `scripts/ci/compose-site.sh` mounts it into the published site. |
+| Library HTML | Implemented | `cmd/rgb docs library` builds the public Library into `build/site/library/`; `scripts/ci/compose-site.sh` mounts it into the published site. |
 | PDF downloads | Implemented | `make docs-pdf` publishes latest and versioned PDFs with manifest, checksums, and editorial smoke checks. |
 | Landing | Implemented | Hosted outside this repository: the Pages site is composed from a pinned external ILLUSIONISTA surface by `scripts/ci/compose-site.sh`. See [ADR-019](adr/adr-019-consume-illusionista-surface-and-retire-landing-consumer.md). |
 | Maker | Contract defined | Contract, schemas, templates, prompts, and examples exist; runtime behavior is not implemented. |
@@ -150,11 +150,11 @@ skills/
    maker/            RGB Maker skill contract; runtime not implemented
    specialist/       RGB Specialist skill contract; runtime not implemented
 
-build/                publication staging root
-   library/          generated HTML Library (ignored by git)
-   downloads/        tracked release baseline: PDFs, manifests, checksums, skill packages
+build/                disposable output, ignored by git
+   site/library/     generated HTML Library
 
-generated/            derived artifacts only, never edited by hand
+generated/            tracked derived artifacts, never edited by hand
+   downloads/        release baseline: PDFs, manifests, checksums, skill packages
    ai-context/       AI context packs
    bundles/          consolidated projection bundle
    library/          core-v2-rules.json semantic projection (make generate)
@@ -200,13 +200,13 @@ Go is the publication path for the HTML Library and PDF downloads. The
 published site itself is composed in CI by `scripts/ci/compose-site.sh`.
 
 ```bash
-make docs-build  # build the Go-rendered Library into build/library
+make docs-build  # build the Go-rendered Library into build/site/library
 make docs-pdf    # publish latest and versioned PDF downloads through Go
 make pdf-author  # manually author a reviewed PDF candidate with ADR-016 tooling
 ```
 
 `make docs-pdf` writes latest aliases and versioned PDFs under
-`build/downloads/`. It also refreshes the release manifest,
+`generated/downloads/`. It also refreshes the release manifest,
 checksums, SPDX SBOM, and provenance metadata used by `make
 pdf-editorial-check`.
 

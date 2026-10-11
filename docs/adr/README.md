@@ -21,3 +21,4 @@ This directory contains project-wide architecture decisions for RGB System.
 - [ADR-017: Go-Native PDF Authoring, Superseding The WeasyPrint Exception](adr-017-go-native-pdf-authoring-superseding-weasyprint.md)
 - [ADR-018: Remove The In-Repository Landing Page And Relocate Publication Staging To `build/`](adr-018-remove-in-repo-landing-and-relocate-publication-staging.md)
 - [ADR-019: Consume The RGB Landing As A Pinned ILUSIONISTA Surface And Retire The `landing` Consumer](adr-019-consume-illusionista-surface-and-retire-landing-consumer.md)
+- [ADR-020: Keep Tracked Output Under `generated/` And Disposable Output Under `build/`](adr-020-separate-generated-and-build-outputs.md)

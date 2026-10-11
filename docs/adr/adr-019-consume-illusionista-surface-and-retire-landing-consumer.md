@@ -60,7 +60,7 @@ from the Core V2 semantic index.
    - collision guard: the archive must not carry non-empty `library/` or
      `downloads/`; the deploy fails instead of overwriting;
    - RGB mounts its generated Library at `library/` and its release downloads
-     at `downloads/`, and every tracked file under `build/downloads/` must
+     at `downloads/`, and every tracked file under `generated/downloads/` must
      still be published (baseline parity);
    - the surface is compiled for the base `/rpg-system-rgb` on
      `https://sergiolacerda.github.io`; serving it under another base needs a

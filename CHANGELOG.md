@@ -10,6 +10,11 @@ All notable project-level changes should be recorded here.
   `cmd/rgb docs library|pdf|skill|check` and `cmd/rgb release` changed, and the
   `landing-*`, `lint-web`, `test-web`, `audit-web`, `preview` and `web.*` make
   targets were removed. See ADR-018.
+- Split output by lifecycle: the tracked release baseline moved to
+  `generated/downloads`, and the disposable HTML Library is written to
+  `build/site/library` (`build/` is fully ignored). **Breaking:** default output
+  paths of `cmd/rgb docs library|pdf|skill|check` and `cmd/rgb release` changed
+  again. See ADR-020.
 - Recorded ADR-019: the landing is consumed as a pinned external ILUSIONISTA
   surface; the `landing` consumer contract and projection surface were retired
   from the semantic vocabulary.
