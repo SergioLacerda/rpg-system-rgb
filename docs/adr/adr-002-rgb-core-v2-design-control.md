@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted.
+Accepted. Amended by [ADR-019](adr-019-consume-illusionista-surface-and-retire-landing-consumer.md): `landing` is no longer a downstream
+consumer of Core V2; the references to landing below are historical.
 
 ## Context
 

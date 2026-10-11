@@ -2,7 +2,7 @@
   "schema": "rgb-docs-projection-manifest/0.1",
   "source_index": "docs/core/semantic/core-v2.index.json",
   "consumer_contracts": "docs/core/semantic/consumer-contracts.v0.1.json",
-  "description": "Pilot derived projection manifest for Library, PDF, landing, bundles, AI context packs, and search indexes.",
+  "description": "Pilot derived projection manifest for Library, PDF, bundles, AI context packs, and search indexes.",
   "projections": [
     {
       "id": "projection.library.core-rules.v0_1",
@@ -77,39 +77,6 @@
         "source units exist",
         "owner contract allows pdf surface",
         "release metadata includes source revision"
-      ]
-    },
-    {
-      "id": "projection.landing.core-summary.v0_1",
-      "surface": "landing",
-      "owner": "landing",
-      "status": "proposed",
-      "description": "Onboarding summary and entry-point metadata for Core V2.",
-      "source_units": [
-        "core.vector.r",
-        "core.vector.g",
-        "core.vector.b",
-        "core.combat.attack-margin",
-        "core.damage.flow",
-        "core.ability.contract"
-      ],
-      "output_path": "web/landing/generated/core-v2-summary.json",
-      "provenance": {
-        "source_revision": "manual",
-        "decision_refs": [
-          "docs/adr/adr-001-ai-first-documentation-authority.md",
-          "docs/adr/adr-001-ai-first-documentation-authority.md"
-        ]
-      },
-      "required_disclosures": [
-        "navigation_only",
-        "not_rules_authority",
-        "bridge_markdown_authority"
-      ],
-      "generation_gate": [
-        "source units exist",
-        "owner contract allows landing surface",
-        "landing output is not marked canonical"
       ]
     },
     {

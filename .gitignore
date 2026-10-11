@@ -2,13 +2,15 @@
 .strategist/.compiled/
 .strategist
 generated/
-web/landing/coverage/
+build/library/
 .pdfbuild/
 tools/pdfbuild/.venv/
 tools/pdfbuild/out/
 __pycache__/
 .analysis
 .sdd
+.providence
+.agents
 
 #Seeds
 .claude
@@ -24,3 +26,4 @@ __pycache__/
 AGENTS.md
 CLAUDE.md
 GEMINI.md
+.cursor

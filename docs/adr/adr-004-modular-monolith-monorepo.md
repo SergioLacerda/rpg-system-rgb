@@ -2,7 +2,9 @@
 
 ## Status
 
-Proposed.
+Proposed. Location-specific parts superseded by [ADR-018](adr-018-remove-in-repo-landing-and-relocate-publication-staging.md): `web/` and the Astro
+landing no longer exist in this repository. The landing is consumed as an
+external surface per [ADR-019](adr-019-consume-illusionista-surface-and-retire-landing-consumer.md).
 
 ## Context
 

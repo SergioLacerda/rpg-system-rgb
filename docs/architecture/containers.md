@@ -11,8 +11,8 @@ C4Container
         Container(semantic, "docs/core/semantic/**", "JSON", "Stable IDs, l10n manifest, projection manifest, consumer contracts")
         Container(rgb_cli, "cmd/rgb", "Go binary", "Unified CLI: status, validate, generate, bundle, docs (see ADR-006 and ADR-010)")
         Container(tooling, "cmd/rgb-tooling", "Go binary", "Deprecated compatibility path for validate/generate/bundle (ADR-006)")
-        Container(publication, "Go Publication + Astro", "Go + Node", "HTML Library + PDF publication path")
-        Container(generated, "generated/**", "JSON", "Derived: bundles, ai-context, landing summary, semantic projections, search")
+        Container(publication, "Go Publication", "Go", "HTML Library + PDF publication path")
+        Container(generated, "generated/**", "JSON", "Derived: bundles, ai-context, semantic projections, search")
     }
 
     Rel(gm, docs, "Reads")
@@ -37,7 +37,7 @@ consumption of docs at runtime is still absent.
 `cmd/rgb-tooling` is deprecated, not removed — see
 [ADR-006](../adr/adr-006-unified-cli-topology.md) for the compatibility
 decision and M006 removal requirement. The former Go-rendered HTML/print/PDF
-pipeline is no longer the public publication path. `cmd/rgb docs ...` and
-Astro now own HTML Library and PDF publication.
+pipeline is no longer the public publication path. `cmd/rgb docs ...` now
+owns HTML Library and PDF publication.
 
 ← [Back to Architecture Index](README.md)

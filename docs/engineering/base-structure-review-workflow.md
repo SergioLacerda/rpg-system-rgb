@@ -30,7 +30,17 @@ Run the release gate before publishing downloads:
 make release-check
 ```
 
-`check-fast` runs:
+`check-fast` is the union of four gate groups. Each group is self-sufficient and
+can run on its own; CI runs one job per group, so no gate runs twice:
+
+| Group | Command | CI job | Covers |
+| --- | --- | --- | --- |
+| Go | `make check-go` | `lint` | format, vet, lint, tests, architecture, semantic docs, coverage, mutation |
+| Public artifacts | `make public-artifact-check` | `docs` | Library build, PDF/skill manifests and supply-chain checks (needs poppler) |
+| Generated drift | `make check-generated-drift` | `generated-drift` | `make generate` leaves tracked artifacts clean |
+| Hygiene | `make check-hygiene` | `governance-files` | retired runtime terms (needs ripgrep) and required OSS governance files |
+
+`make check-go` runs:
 
 | Gate | Command | Verifies |
 | --- | --- | --- |
@@ -47,12 +57,8 @@ make release-check
 
 | Gate | Command | Verifies |
 | --- | --- | --- |
-| Landing lint | `make lint-web` | Astro/TypeScript checks |
-| Landing tests | `make test-web` | landing unit tests and coverage |
-| Landing build | `make landing-build` | Go Library build and Astro static output |
 | Workflow lint | `make lint-yaml` | GitHub Actions workflow syntax via actionlint |
 | Shell lint | `make lint-shell` | CI shell scripts via shellcheck |
-| Generated drift | `make check-generated-drift` | `make generate` leaves tracked generated artifacts clean |
 
 `release-check` adds:
 
@@ -118,16 +124,13 @@ otherwise float:
 - CI installs `golangci-lint` through `GOLANGCI_LINT_VERSION`.
 - `actionlint` and `shellcheck` are installed through pinned Makefile
   versions into `TOOLS_DIR` when they are not already present there.
-- Node uses an explicit major version and npm dependencies are governed by
-  `web/landing/package-lock.json`.
 - GitHub Marketplace actions are pinned to full commit SHAs in CI. The adjacent
   comments preserve the major tag used for Dependabot review context.
 - PDF editorial checks require Poppler command line tools (`pdfinfo`,
   `pdftotext`, `pdftohtml`, and `pdftoppm`). CI installs them through
   `poppler-utils`; manifest/checksum/raster validation is implemented in Go.
 
-Dependabot owns update PRs for GitHub Actions, Go modules, and the landing npm
-workspace.
+Dependabot owns update PRs for GitHub Actions and Go modules.
 
 Release candidates must use a git tag matching `PDF_VERSION` (for example
 `v0.2`). The supply-chain provenance records whether that tag exists for the

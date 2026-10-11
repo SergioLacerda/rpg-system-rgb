@@ -20,18 +20,23 @@ check-generated-drift: FORCE ## Regenerate versioned artifacts and fail on drift
 	scripts/ci/check-generated-drift.sh
 
 check-publication-runtime: FORCE ## Reject retired publication runtime terms in active surfaces
+	@command -v rg >/dev/null 2>&1 || { echo "ripgrep (rg) is required for check-publication-runtime"; exit 1; }
 	@p1='[Pp]yth'"on"; p2='[Mm]k[Dd]ocs'; p3='setup-py'"thon"; p4='requirements-'"docs"; p5='package-ecosystem: "p'"ip\""; \
 	pattern="$$p1|$$p2|$$p3|$$p4|$$p5"; \
-	if rg -n "$$pattern" . \
+	status=0; \
+	rg -n "$$pattern" . \
 		--glob '!.analysis/**' \
 		--glob '!.sdd/**' \
 		--glob '!.strategist/**' \
 		--glob '!docs/adr/**' \
 		--glob '!docs/plans/**' \
-		--glob '!tools/pdfbuild/**' \
-		--glob '!web/landing/package-lock.json'; then \
+		--glob '!tools/pdfbuild/**' || status=$$?; \
+	if [ "$$status" -eq 0 ]; then \
 		echo "retired publication runtime reference found"; \
 		exit 1; \
+	elif [ "$$status" -ne 1 ]; then \
+		echo "ripgrep failed with exit code $$status"; \
+		exit "$$status"; \
 	fi
 
 check-governance-files: FORCE ## Validate required public OSS governance files exist

@@ -448,7 +448,7 @@ func prefixRelativeHrefs(bodyHTML, prefix string) string {
 }
 
 // homeHref points one directory level above the Library root, where the
-// Library is always mounted (see Makefile LIBRARY_DIR / landing public dir).
+// Library is always mounted (see Makefile LIBRARY_DIR, one level below the site root).
 func homeHref(urlPath string) string {
 	return relHref(urlPath, "/") + "../"
 }

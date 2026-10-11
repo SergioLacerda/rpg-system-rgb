@@ -41,9 +41,9 @@ This project documentation is available in multiple languages.
 | RGB Core V2 | Implemented | Playable rules, examples, Go rule-engine tests, and semantic docs validation exist. |
 | Semantic tooling | Implemented | `make validate` and `make generate` validate and produce indexed projections from `docs/core/semantic/**`. |
 | Bundle output | Experimental | `make bundle` produces a minimal semantic bundle; ADR-007 records the current consumer-contract limits. |
-| Library HTML | Implemented | `cmd/rgb docs library` builds the public Library into `web/landing/public/library/`; Astro packages it into the landing build. |
+| Library HTML | Implemented | `cmd/rgb docs library` builds the public Library into `build/library/`; `scripts/ci/compose-site.sh` mounts it into the published site. |
 | PDF downloads | Implemented | `make docs-pdf` publishes latest and versioned PDFs with manifest, checksums, and editorial smoke checks. |
-| Landing | Implemented | Astro routes, bilingual UI, Library links, PDF links, tests, and static builds exist. |
+| Landing | Implemented | Hosted outside this repository: the Pages site is composed from a pinned external ILLUSIONISTA surface by `scripts/ci/compose-site.sh`. See [ADR-019](adr/adr-019-consume-illusionista-surface-and-retire-landing-consumer.md). |
 | Maker | Contract defined | Contract, schemas, templates, prompts, and examples exist; runtime behavior is not implemented. |
 | Specialist | Contract defined | Contract, procedures, terminology, examples, and benchmark scaffolding exist; runtime behavior is not implemented. |
 | PDF/UA tagging | Deferred | Full accessibility tagging is outside the first editorial PDF quality gate. |
@@ -53,8 +53,6 @@ This project documentation is available in multiple languages.
 | Surface | Runtime | Supported version | Source |
 | --- | --- | --- | --- |
 | Go CLI, components, tests, and release tooling | Go | 1.24.x | `go.mod` |
-| Landing and Library publication shell | Node.js | 24.x | `web/landing/package.json` `engines.node` |
-| Landing package manager | npm | 11.x | `web/landing/package.json` `engines.npm` |
 
 ## Core Concept
 
@@ -152,13 +150,13 @@ skills/
    maker/            RGB Maker skill contract; runtime not implemented
    specialist/       RGB Specialist skill contract; runtime not implemented
 
-web/
-   landing/          implemented Astro landing page, Library shell, and PDF download surface
+build/                publication staging root
+   library/          generated HTML Library (ignored by git)
+   downloads/        tracked release baseline: PDFs, manifests, checksums, skill packages
 
 generated/            derived artifacts only, never edited by hand
    ai-context/       AI context packs
    bundles/          consolidated projection bundle
-   landing/          landing page summary data
    library/          core-v2-rules.json semantic projection (make generate)
    pdf/              core-v2-rules.manifest.json PDF export manifest (make generate)
    search/           search index
@@ -198,18 +196,17 @@ make generate    # regenerate the semantic projection JSON artifacts
 
 ### HTML site and PDF
 
-Go + Astro is the current publication path for the HTML Library and PDF
-downloads.
+Go is the publication path for the HTML Library and PDF downloads. The
+published site itself is composed in CI by `scripts/ci/compose-site.sh`.
 
 ```bash
-make docs-build  # build the Go-rendered Library into web/landing/public/library
-make landing-build # embed the Library into the Astro static site
+make docs-build  # build the Go-rendered Library into build/library
 make docs-pdf    # publish latest and versioned PDF downloads through Go
 make pdf-author  # manually author a reviewed PDF candidate with ADR-016 tooling
 ```
 
 `make docs-pdf` writes latest aliases and versioned PDFs under
-`web/landing/public/downloads/`. It also refreshes the release manifest,
+`build/downloads/`. It also refreshes the release manifest,
 checksums, SPDX SBOM, and provenance metadata used by `make
 pdf-editorial-check`.
 
@@ -224,8 +221,8 @@ source when needed, but the normal release path is automated.
 ### Full gate
 
 ```bash
-make check-fast       # fast Go, architecture, semantic, and coverage gate
-make check            # check-fast + web, docs, generated drift, workflow, shell, governance files
+make check-fast       # Go, architecture, semantic, coverage, public artifacts, generated drift, hygiene
+make check            # check-fast + workflow and shell lint
 make release-check    # check + PDF build and editorial artifact gate
 ```
 

@@ -4,14 +4,13 @@ set -euo pipefail
 generate_output="$(make generate)"
 echo "$generate_output"
 
-if ! git diff --exit-code -- generated docs/core/semantic web/landing/generated skills/specialist/references; then
+if ! git diff --exit-code -- generated docs/core/semantic skills/specialist/references; then
   echo "::error::generated artifacts drifted; run 'make generate' and review the diff"
   exit 1
 fi
 
 # git diff is blind to gitignored-but-untracked files, so a declared
-# projection output that was never `git add -f`'d (like
-# web/landing/generated/core-v2-summary.json once was) passes silently
+# projection output that was never `git add -f`'d passes silently
 # here even though a fresh checkout is missing it. Cross-check every
 # path `make generate` reports against the git index.
 missing=0

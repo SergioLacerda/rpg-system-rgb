@@ -22,7 +22,7 @@ documented as available products.
 2. Keep changes scoped to one concern.
 3. Run the relevant gate before handoff:
    - `make check-fast` for Go or semantic-doc changes.
-   - `make check` for public docs, landing, generated artifacts, or CI changes.
+   - `make check` for public docs, generated artifacts, or CI changes.
    - `make release-check` for PDF or release-asset changes.
 4. Do not edit generated files by hand; run `make generate` or the documented
    publication target instead.
