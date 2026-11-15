@@ -89,8 +89,8 @@ Materiais auxiliares e exemplos práticos.
 
 ADRs do projeto são mantidos separadamente das regras do sistema.
 
-- [ADR-001: Autoridade da Documentação AI-First](../../adr/adr-001-ai-first-documentation-authority.md)
-- [ADR-002: Controle de Design do RGB Core V2](../../adr/adr-002-rgb-core-v2-design-control.md)
+- [ADR-001: Autoridade da Documentação AI-First](https://github.com/SergioLacerda/rpg-system-rgb/blob/main/docs/adr/adr-001-ai-first-documentation-authority.md)
+- [ADR-002: Controle de Design do RGB Core V2](https://github.com/SergioLacerda/rpg-system-rgb/blob/main/docs/adr/adr-002-rgb-core-v2-design-control.md)
 
 ## Estrutura da Documentação
 

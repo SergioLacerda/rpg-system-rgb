@@ -27,7 +27,7 @@ rules, tactical combat, modular design, and adaptable worlds.
 | --- | --- |
 | Published site | <https://sergiolacerda.github.io/rpg-system-rgb/> |
 | Library | <https://sergiolacerda.github.io/rpg-system-rgb/en/library/> |
-| Portuguese Library | <https://sergiolacerda.github.io/rpg-system-rgb/pt-br/library/> |
+| Portuguese Library | <https://sergiolacerda.github.io/rpg-system-rgb/library/> |
 | Detailed README | [docs/README-details.md](docs/README-details.md) |
 | English rules | [docs/core/en/](docs/core/en/) |
 | Portuguese rules | [docs/core/PT-br/](docs/core/PT-br/) |

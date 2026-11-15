@@ -2,11 +2,13 @@
 
 .PHONY: docs-build docs-check docs-pdf docs-preview pdf-author pdf-author-unit-test skill-package
 
-docs-build: FORCE ## Build documentation Library with Go
-	$(GOENV) $(GO) run ./cmd/rgb docs library --source "$(DOCS_SOURCE)" --out "$(LIBRARY_DIR)"
+docs-build: FORCE ## Build the site with the pinned Illusionist kit into an empty directory
+	bash scripts/ci/build-illusionist-site.sh "$(LIBRARY_DIR)"
 
-docs-check: docs-build FORCE ## Validate generated public documentation artifacts
-	$(GOENV) $(GO) run ./cmd/rgb docs check --library "$(LIBRARY_DIR)" --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)"
+docs-check: FORCE ## Build and validate Illusionist site and RGB downloads
+	@tmp=$$(mktemp -d); trap 'rm -rf "$$tmp"' EXIT; \
+	  bash scripts/ci/build-illusionist-site.sh "$$tmp/site" && \
+	  $(GOENV) $(GO) run ./cmd/rgb docs check --library "$$tmp/site" --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)"
 
 docs-pdf: FORCE ## Build and publish latest PDF downloads locally
 	$(GOENV) $(GO) run ./cmd/rgb docs pdf --public-dir "$(PDF_PUBLIC_DIR)" --basename "$(PDF_BASENAME)" --version "$(PDF_VERSION)" --source-en "$(PDF_SRC_EN)" --source-pt-br "$(PDF_SRC_PT_BR)"
@@ -25,7 +27,7 @@ skill-package: FORCE ## Build and publish the RGB Specialist skill .zip (ADR-013
 
 docs-preview: FORCE ## Serve documentation locally
 	$(MAKE) docs-build
-	@printf '%s\n' "Library built at $(LIBRARY_DIR)/index.html"
+	@printf '%s\n' "Site built at $(LIBRARY_DIR)/index.html"
 
 # --- Namespaced aliases (additive, non-breaking) ---
 .PHONY: docs.build docs.check docs.pdf docs.preview docs.pdf-author docs.pdf-author-unit-test docs.skill-package

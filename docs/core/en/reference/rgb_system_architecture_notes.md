@@ -62,7 +62,7 @@ This layer explains **how players interact with the system during play**.
 
 Typical flow:
 
-``````text
+```text
 Character Creation
 ↓
 Exploration

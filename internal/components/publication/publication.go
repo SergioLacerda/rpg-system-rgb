@@ -1,4 +1,4 @@
-// Package publication owns Go-based public documentation publication.
+// Package publication owns RGB download publication.
 package publication
 
 import "github.com/SergioLacerda/rpg-system-rgb/internal/components"
@@ -8,6 +8,6 @@ func Descriptor() components.Component {
 	return components.Component{
 		ID:          "publication",
 		Name:        "RGB Publication",
-		Description: "Go-owned HTML Library and PDF publication boundary.",
+		Description: "PDF publication boundary.",
 	}
 }

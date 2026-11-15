@@ -31,6 +31,14 @@ jobs:
           go-version-file: go.mod
       - run: sudo apt-get update && sudo apt-get install -y poppler-utils
       - run: make public-artifact-check
+        env:
+          GH_TOKEN: ${{ secrets.ILLUSIONIST_RELEASE_TOKEN }}
+      - name: Validate the Illusionist site against RGB documents
+        run: |
+          mkdir -p "${RUNNER_TEMP}/rgb-artifacts/pdfs" "${RUNNER_TEMP}/rgb-artifacts/skills"
+          bash scripts/ci/compose-site.sh "${RUNNER_TEMP}/rgb-site" "${RUNNER_TEMP}/rgb-artifacts"
+        env:
+          GH_TOKEN: ${{ secrets.ILLUSIONIST_RELEASE_TOKEN }}
 
   docs-pdf:
     runs-on: ubuntu-latest
@@ -126,17 +134,11 @@ jobs:
         with:
           name: release-skills
           path: ${{ runner.temp }}/rgb-artifacts/skills
-      # Presentation surface comes from an immutable ILLUSIONISTA release (no Astro here);
-      # Library, PDFs and Skills stay RGB-owned. See scripts/ci/compose-site.sh.
-      - name: Compose site from ILLUSIONISTA surface
+      # The pinned ILLUSIONISTA kit builds the landing and Library from RGB docs.
+      - name: Compose site from ILLUSIONISTA kit
         run: bash scripts/ci/compose-site.sh "${RUNNER_TEMP}/rgb-site" "${RUNNER_TEMP}/rgb-artifacts"
         env:
           GH_TOKEN: ${{ secrets.ILLUSIONIST_RELEASE_TOKEN }}
-          ILLUSIONIST_REPOSITORY: SergioLacerda/illusionist-web
-          ILLUSIONIST_RGB_VERSION: rgb-v0.1.0
-          ILLUSIONIST_RGB_ARTIFACT: illusionist-rgb-surface-v0.1.0.tar.gz
-          ILLUSIONIST_RGB_CHECKSUM: illusionist-rgb-surface-v0.1.0.tar.gz.sha256
-          ILLUSIONIST_RGB_SHA256: 02eab6cd01e4d6a06e6e73aa3b2fe788f0dd8f3eede71a376768e9593ae688cc
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

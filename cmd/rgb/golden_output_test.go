@@ -21,12 +21,12 @@ func TestRunGoldenErrorText(t *testing.T) {
 		{
 			name: "missing docs subcommand",
 			args: []string{"docs"},
-			want: "missing docs subcommand (want library|pdf|skill|check)",
+			want: "missing docs subcommand (want pdf|skill|check)",
 		},
 		{
 			name: "unknown docs subcommand",
 			args: []string{"docs", "bogus"},
-			want: `unknown docs subcommand "bogus" (want library|pdf|skill|check)`,
+			want: `unknown docs subcommand "bogus" (want pdf|skill|check)`,
 		},
 		{
 			name: "missing release subcommand",
@@ -37,11 +37,6 @@ func TestRunGoldenErrorText(t *testing.T) {
 			name: "unknown release subcommand",
 			args: []string{"release", "bogus"},
 			want: `unknown release subcommand "bogus" (want manifest|check|pdf-regression-check|skill-manifest|skill-check)`,
-		},
-		{
-			name: "unknown flag on docs library",
-			args: []string{"docs", "library", "--bogus"},
-			want: "flag provided but not defined: -bogus",
 		},
 		{
 			name: "unknown flag on docs pdf",
