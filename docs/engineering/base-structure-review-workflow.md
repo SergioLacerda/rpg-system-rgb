@@ -81,6 +81,7 @@ make cover                  # test coverage summary
 make mutation-core          # mutation smoke checks for core formulas
 make fmt                    # normalize formatting
 make go-file-size-report    # informational: non-test .go files over 200 lines
+make go-file-size-report GO_FILE_SIZE_LIMIT=300 # override the reporting limit
 ```
 
 `make review-structure` remains as the legacy base-structure gate and is covered

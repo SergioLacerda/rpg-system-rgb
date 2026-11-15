@@ -2,6 +2,7 @@ GO ?= go
 GOCACHE ?= /tmp/go-cache
 GOENV := GOCACHE=$(GOCACHE)
 GOLANGCI_VERSION ?= v2.14.0
+GO_FILE_SIZE_LIMIT ?= 200
 GOLANGCI ?= $(shell command -v golangci-lint 2>/dev/null || echo $(HOME)/go/bin/golangci-lint)
 GOVULNCHECK_VERSION ?= v1.9.0
 ACTIONLINT_VERSION ?= 1.7.12

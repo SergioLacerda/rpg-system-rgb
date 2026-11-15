@@ -51,7 +51,7 @@ lint: FORCE ## Run golangci-lint, falling back to go vet when unavailable
 	@if [ -x "$(GOLANGCI)" ]; then \
 		$(GOENV) "$(GOLANGCI)" run ./...; \
 	else \
-		echo "golangci-lint not found; falling back to go vet"; \
+		echo "lint not verified: golangci-lint not found; running go vet only"; \
 		echo "install: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_VERSION)"; \
 		$(GOENV) $(GO) vet ./...; \
 	fi
@@ -76,15 +76,9 @@ generate: FORCE ## Generate RGB content artifacts
 bundle: FORCE ## Bundle RGB content artifacts
 	$(GOENV) $(GO) run ./cmd/rgb bundle
 
-# go-file-size-report lists non-test .go files under cmd/ and internal/
-# over 200 lines. Informational only — does not fail the build.
-go-file-size-report: FORCE ## Report large non-test Go source files
-	@files=$$(find cmd internal -type f -name '*.go' ! -name '*_test.go' | sort); \
-	results=$$(for f in $$files; do \
-		lines=$$(wc -l < "$$f" | tr -d ' '); \
-		if [ "$$lines" -gt 200 ]; then printf "%s %s\n" "$$f" "$$lines"; fi; \
-	done | sort -k2,2nr -k1,1); \
-	if [ -n "$$results" ]; then printf "%s\n" "$$results"; else echo "none"; fi
+# Informational report; execution and input errors still fail the target.
+go-file-size-report: FORCE ## Report non-test Go files over GO_FILE_SIZE_LIMIT lines
+	@bash scripts/ci/go-file-size-report.sh "$(GO_FILE_SIZE_LIMIT)"
 
 # --- Namespaced aliases (additive, non-breaking) ---
 .PHONY: go.fmt go.fmt-check go.test go.test-arch go.cover go.cover-check \
