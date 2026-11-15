@@ -53,6 +53,11 @@ from the Core V2 semantic index.
    `ILLUSIONIST_*` values in `.github/workflows/ci.yml`:
    - the version is an exact release tag; `latest`, `main`, a commit and a
      workflow run are rejected;
+   - because ILUSIONISTA is private, GitHub CLI downloads the assets using the
+     RGB repository's `ILLUSIONIST_RELEASE_TOKEN` Actions secret. Configure it
+     with a fine-grained token granting read-only Contents access to
+     `SergioLacerda/illusionist-web`; the RGB workflow token cannot read the
+     other private repository;
    - integrity is pinned twice: the release `.sha256` asset must verify, and
      the archive digest must equal `ILLUSIONIST_RGB_SHA256` committed in
      `ci.yml`;
