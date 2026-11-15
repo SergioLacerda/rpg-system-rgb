@@ -131,6 +131,7 @@ jobs:
       - name: Compose site from ILLUSIONISTA surface
         run: bash scripts/ci/compose-site.sh "${RUNNER_TEMP}/rgb-site" "${RUNNER_TEMP}/rgb-artifacts"
         env:
+          GH_TOKEN: ${{ secrets.ILLUSIONIST_RELEASE_TOKEN }}
           ILLUSIONIST_REPOSITORY: SergioLacerda/illusionist-web
           ILLUSIONIST_RGB_VERSION: rgb-v0.1.0
           ILLUSIONIST_RGB_ARTIFACT: illusionist-rgb-surface-v0.1.0.tar.gz
