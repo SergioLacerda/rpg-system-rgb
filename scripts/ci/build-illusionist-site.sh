@@ -5,7 +5,8 @@ set -euo pipefail
 out="${1:?usage: build-illusionist-site.sh <empty-output-directory>}"
 archive=illusionist-rgb-site-v1.0.0.tar.gz
 digest=acbdb7175b8b7da15918f4ad6884d9aba90bab880bced96e48a69a91a1c80eb1
-url="https://github.com/SergioLacerda/illusionist-web/releases/download/rgb-site-v1.0.0"
+repo=SergioLacerda/illusionist-web
+version=rgb-site-v1.0.0
 
 if [ -e "$out" ] && [ -n "$(ls -A "$out")" ]; then
   echo "output directory is not empty: $out" >&2
@@ -16,8 +17,9 @@ trap 'rm -rf "$work"' EXIT
 if [ -n "${ILLUSIONIST_KIT_DIR:-}" ]; then
   cp "$ILLUSIONIST_KIT_DIR/$archive" "$ILLUSIONIST_KIT_DIR/$archive.sha256" "$work/"
 else
-  curl -fsSL "$url/$archive" -o "$work/$archive"
-  curl -fsSL "$url/$archive.sha256" -o "$work/$archive.sha256"
+  [ -n "${GH_TOKEN:-}" ] || { echo 'GH_TOKEN is required to download the Illusionist kit' >&2; exit 1; }
+  gh release download "$version" --repo "$repo" \
+    --pattern "$archive" --pattern "$archive.sha256" --dir "$work"
 fi
 (cd "$work" && sha256sum -c "$archive.sha256")
 printf '%s  %s\n' "$digest" "$work/$archive" | sha256sum -c -
