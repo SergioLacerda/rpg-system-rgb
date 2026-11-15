@@ -6,7 +6,7 @@
 #                  <artifacts_dir>/pdfs and <artifacts_dir>/skills
 # Required env: ILLUSIONIST_REPOSITORY, ILLUSIONIST_RGB_VERSION,
 #               ILLUSIONIST_RGB_ARTIFACT, ILLUSIONIST_RGB_CHECKSUM,
-#               ILLUSIONIST_RGB_SHA256
+#               ILLUSIONIST_RGB_SHA256, GH_TOKEN
 set -euo pipefail
 
 site_dir="${1:?usage: compose-site.sh <site_dir> <artifacts_dir>}"
@@ -23,6 +23,8 @@ fail() {
   exit 1
 }
 
+[ -n "${GH_TOKEN:-}" ] || fail "GH_TOKEN is required to download the private ILUSIONISTA release"
+
 case "${version}" in
   latest | main | "") fail "ILLUSIONIST_RGB_VERSION must be an exact tag, got '${version}'" ;;
 esac
@@ -35,10 +37,9 @@ mkdir -p "${site_dir}"
 download_dir="$(mktemp -d)"
 trap 'rm -rf "${download_dir}"' EXIT
 
-base_url="https://github.com/${repo}/releases/download/${version}"
-echo "downloading ${base_url}/${artifact}"
-curl -fsSL -o "${download_dir}/${artifact}" "${base_url}/${artifact}"
-curl -fsSL -o "${download_dir}/${checksum}" "${base_url}/${checksum}"
+echo "downloading ${repo} release ${version}"
+gh release download "${version}" --repo "${repo}" \
+  --pattern "${artifact}" --pattern "${checksum}" --dir "${download_dir}"
 
 # Integrity: the release checksum asset and the digest pinned in ci.yml must both match.
 (cd "${download_dir}" && sha256sum -c "${checksum}")
