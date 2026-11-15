@@ -22,3 +22,4 @@ This directory contains project-wide architecture decisions for RGB System.
 - [ADR-018: Remove The In-Repository Landing Page And Relocate Publication Staging To `build/`](adr-018-remove-in-repo-landing-and-relocate-publication-staging.md)
 - [ADR-019: Consume The RGB Landing As A Pinned ILUSIONISTA Surface And Retire The `landing` Consumer](adr-019-consume-illusionista-surface-and-retire-landing-consumer.md)
 - [ADR-020: Keep Tracked Output Under `generated/` And Disposable Output Under `build/`](adr-020-separate-generated-and-build-outputs.md)
+- [ADR-021: Consume The Illusionist Site Kit](adr-021-consume-illusionist-site-kit.md)

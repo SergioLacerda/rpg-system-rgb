@@ -3,7 +3,6 @@ package publication
 import (
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 )
 
@@ -11,61 +10,6 @@ func TestDescriptor(t *testing.T) {
 	descriptor := Descriptor()
 	if descriptor.ID != "publication" || descriptor.Name == "" || descriptor.Description == "" {
 		t.Fatalf("unexpected descriptor: %+v", descriptor)
-	}
-}
-
-func TestBuildLibraryValidationAndMarkdownEdges(t *testing.T) {
-	if err := BuildLibrary(LibraryOptions{}); err == nil {
-		t.Fatal("expected missing source/out options to fail")
-	}
-	root := t.TempDir()
-	if err := BuildLibrary(LibraryOptions{SourceDir: filepath.Join(root, "missing"), OutDir: filepath.Join(root, "out")}); err == nil {
-		t.Fatal("expected missing docs/core source to fail")
-	}
-	source := filepath.Join(root, "docs")
-	out := filepath.Join(root, "public", "library")
-	writeTestFile(t, filepath.Join(source, "core", "misc", "ignored.md"), "# Ignored\n")
-	if err := BuildLibrary(LibraryOptions{SourceDir: source, OutDir: out}); err == nil {
-		t.Fatal("expected no locale pages to fail")
-	}
-
-	writeTestFile(t, filepath.Join(source, "core", "en", "guide.md"), strings.Join([]string{
-		"# Guide",
-		"",
-		"Text with **bold**, `code`, [external](https://example.com), [anchor](#local), and [doc](next.md#part).",
-		"",
-		"| Name | Value |",
-		"| --- | --- |",
-		"| R | Red |",
-		"",
-		"```",
-		"<unsafe>",
-		"```",
-		"",
-		"####### Too Deep",
-	}, "\n"))
-	writeTestFile(t, filepath.Join(source, "core", "PT-br", "sem-titulo.md"), "Sem titulo.\n")
-	if err := BuildLibrary(LibraryOptions{SourceDir: source, OutDir: out}); err != nil {
-		t.Fatal(err)
-	}
-	page := readTestFile(t, filepath.Join(out, "core", "en", "guide", "index.html"))
-	for _, expected := range []string{
-		"<strong>bold</strong>",
-		"<code>code</code>",
-		`href="https://example.com"`,
-		`href="#local"`,
-		`href="next/#part"`,
-		"<td>Name</td>",
-		"&lt;unsafe&gt;",
-		"<h6",
-	} {
-		if !strings.Contains(page, expected) {
-			t.Fatalf("rendered page missing %q:\n%s", expected, page)
-		}
-	}
-	ptPage := readTestFile(t, filepath.Join(out, "core", "PT-br", "sem-titulo", "index.html"))
-	if !strings.Contains(ptPage, "<title>sem-titulo</title>") {
-		t.Fatalf("fallback title not rendered:\n%s", ptPage)
 	}
 }
 
@@ -82,8 +26,8 @@ func TestCheckValidatesRequiredArtifacts(t *testing.T) {
 	}
 	for _, path := range []string{
 		filepath.Join(library, "index.html"),
-		filepath.Join(library, "core", "en", "index.html"),
-		filepath.Join(library, "core", "PT-br", "index.html"),
+		filepath.Join(library, "en", "library", "index.html"),
+		filepath.Join(library, "library", "index.html"),
 		filepath.Join(public, "rgb-latest-en.pdf"),
 		filepath.Join(public, "rgb-v1-en.pdf"),
 		filepath.Join(public, "rgb-latest-pt-br.pdf"),
@@ -141,24 +85,6 @@ func TestRequireFileRejectsDirectories(t *testing.T) {
 	}
 }
 
-func TestOutputHelpers(t *testing.T) {
-	if outputURL("core/en/README.md") != "/core/en/" {
-		t.Fatal("README URL should collapse to directory")
-	}
-	if outputFile("/out", "/") != filepath.Join("/out", "index.html") {
-		t.Fatal("root output file should be index.html")
-	}
-	if relHref("/core/en/guide/", "/core/PT-br/") != "../../../core/PT-br/" {
-		t.Fatalf("unexpected relative href: %s", relHref("/core/en/guide/", "/core/PT-br/"))
-	}
-	if headingLevel("plain") != 1 {
-		t.Fatal("non-heading line should clamp to h1")
-	}
-	if slug("  RGB: Core V2!  ") != "rgb-core-v2" {
-		t.Fatalf("unexpected slug: %s", slug("  RGB: Core V2!  "))
-	}
-}
-
 func TestCopyFileReadErrors(t *testing.T) {
 	if err := copyFile(filepath.Join(t.TempDir(), "missing.pdf"), filepath.Join(t.TempDir(), "out.pdf")); err == nil {
 		t.Fatal("expected missing source to fail")
@@ -172,7 +98,7 @@ func TestCheckRejectsDirectoryArtifact(t *testing.T) {
 	options := CheckOptions{LibraryDir: library, PublicDir: public, Basename: "rgb", Version: "v1"}
 	for _, path := range []string{
 		filepath.Join(library, "index.html"),
-		filepath.Join(library, "core", "PT-br", "index.html"),
+		filepath.Join(library, "library", "index.html"),
 		filepath.Join(public, "rgb-latest-en.pdf"),
 		filepath.Join(public, "rgb-v1-en.pdf"),
 		filepath.Join(public, "rgb-latest-pt-br.pdf"),
@@ -180,33 +106,10 @@ func TestCheckRejectsDirectoryArtifact(t *testing.T) {
 	} {
 		writeTestFile(t, path, "content")
 	}
-	if err := os.MkdirAll(filepath.Join(library, "core", "en", "index.html"), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Join(library, "en", "library", "index.html"), 0o755); err != nil {
 		t.Fatal(err)
 	}
 	if err := Check(options); err == nil {
 		t.Fatal("expected directory artifact to fail")
-	}
-}
-
-func TestCheckRejectsEngineeringContentInLibrary(t *testing.T) {
-	root := t.TempDir()
-	library := filepath.Join(root, "library")
-	public := filepath.Join(root, "downloads")
-	options := CheckOptions{LibraryDir: library, PublicDir: public, Basename: "rgb", Version: "v1"}
-	for _, path := range []string{
-		filepath.Join(library, "index.html"),
-		filepath.Join(library, "core", "en", "index.html"),
-		filepath.Join(library, "core", "PT-br", "index.html"),
-		filepath.Join(public, "rgb-latest-en.pdf"),
-		filepath.Join(public, "rgb-v1-en.pdf"),
-		filepath.Join(public, "rgb-latest-pt-br.pdf"),
-		filepath.Join(public, "rgb-v1-pt-br.pdf"),
-	} {
-		writeTestFile(t, path, "content")
-	}
-	writeTestFile(t, filepath.Join(library, "core", "en", "index.html"), "See ADR-016.")
-
-	if err := Check(options); err == nil {
-		t.Fatal("expected engineering-only Library content to fail")
 	}
 }

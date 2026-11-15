@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted.
+Accepted. Amended by [ADR-021](adr-021-consume-illusionist-site-kit.md) for
+the site and Library ownership and release artifact.
 
 Amends [ADR-001](adr-001-ai-first-documentation-authority.md) and
 [ADR-002](adr-002-rgb-core-v2-design-control.md) only where they name `landing`

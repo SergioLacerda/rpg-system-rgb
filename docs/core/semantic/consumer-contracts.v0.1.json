@@ -226,7 +226,7 @@
       "id": "consumer.library.v0_1",
       "component": "Library",
       "status": "proposed",
-      "description": "Library consumes accepted source IDs and curated ordering to publish reader-facing pages, and reads index (tags, retrieval_summary) and relationships to power client-side search and R/G/B vector filtering over the search_index projection.",
+      "description": "Reserved semantic Library projection consumer. The Illusionist Docs tab consumes Markdown directly and does not consume this proposed contract or the search_index projection.",
       "allowed_inputs": [
         "canonical_markdown_bridge",
         "canonical_semantic",

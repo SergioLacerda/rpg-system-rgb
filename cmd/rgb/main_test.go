@@ -63,7 +63,6 @@ func TestRunRejectsMissingDocsSubcommand(t *testing.T) {
 func TestRunDocsSubcommandsSurfaceComponentErrors(t *testing.T) {
 	root := t.TempDir()
 	cases := [][]string{
-		{"docs", "library", "--source", root, "--out", root + "/out"},
 		{"docs", "pdf", "--public-dir", root + "/downloads", "--basename", "rgb", "--version", "v1"},
 		{"docs", "skill", "--source", root + "/missing-skill", "--out", root + "/downloads", "--name", "rgb-specialist", "--version", "v1"},
 		{"docs", "check", "--library", root + "/library", "--public-dir", root + "/downloads", "--basename", "rgb", "--version", "v1"},
@@ -76,13 +75,6 @@ func TestRunDocsSubcommandsSurfaceComponentErrors(t *testing.T) {
 }
 
 func TestParseDocsFlags(t *testing.T) {
-	library, err := parseLibraryFlags([]string{"--source", "src", "--out", "out"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if library.SourceDir != "src" || library.OutDir != "out" {
-		t.Fatalf("unexpected library options: %+v", library)
-	}
 	pdf, err := parsePDFFlags([]string{
 		"--public-dir", "public",
 		"--basename", "rgb",
@@ -106,9 +98,6 @@ func TestParseDocsFlags(t *testing.T) {
 }
 
 func TestParseDocsFlagsRejectInvalidAndPositionalArgs(t *testing.T) {
-	if _, err := parseLibraryFlags([]string{"--bad"}); err == nil {
-		t.Fatal("expected invalid library flag to fail")
-	}
 	if _, err := parsePDFFlags([]string{"--bad"}); err == nil {
 		t.Fatal("expected invalid pdf flag to fail")
 	}
@@ -141,13 +130,6 @@ func TestParseSkillFlags(t *testing.T) {
 	}
 	if options.SourceDir != "skills/specialist" || options.OutDir != "downloads" || options.Name != "rgb-specialist" || options.Version != "v0.1" {
 		t.Fatalf("unexpected skill options: %+v", options)
-	}
-}
-
-func TestParseLibraryFlagsRejectsPositionalArgs(t *testing.T) {
-	_, err := parseLibraryFlags([]string{"extra"})
-	if err == nil {
-		t.Fatal("expected positional docs library argument to be rejected")
 	}
 }
 

@@ -12,7 +12,7 @@ C4Component
         Component(contract, "internal/components (root)", "Go package", "Shared contract types; stdlib-only leaf")
         Component(core, "core", "Go package", "RGB rule engine: characters, actions, combat, states")
         Component(tooling_c, "tooling", "Go package", "Semantic-docs validators + projection generator")
-        Component(publication_c, "publication", "Go package", "HTML Library + PDF publication")
+        Component(publication_c, "publication", "Go package", "PDF publication and site checks")
         Component(maker_c, "maker", "Go package", "Campaign/content structuring (stub: boundary only, no behavior)")
         Component(specialist_c, "specialist", "Go package", "Rule consultation and validation (stub: boundary only, no behavior)")
         Component(bundles_c, "bundles", "Go package", "Semantic index projection to generated/bundle/rgb.bundle.json (implemented, minimal — see ADR-007)")
@@ -27,7 +27,7 @@ C4Component
 ```
 
 The retired `compiler` and `library` packages are no longer part of this
-boundary. Active public publication now runs through the `publication`
+boundary. RGB download publication and site checks run through the `publication`
 component.
 
 This diagram matches, not just illustrates, what

@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted.
+Accepted. Amended by [ADR-021](adr-021-consume-illusionist-site-kit.md) for
+the site and Library build owner.
 
 Amends decisions 1 and 2 of
 [ADR-018](adr-018-remove-in-repo-landing-and-relocate-publication-staging.md),

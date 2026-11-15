@@ -11,7 +11,8 @@ C4Container
         Container(semantic, "docs/core/semantic/**", "JSON", "Stable IDs, l10n manifest, projection manifest, consumer contracts")
         Container(rgb_cli, "cmd/rgb", "Go binary", "Unified CLI: status, validate, generate, bundle, docs (see ADR-006 and ADR-010)")
         Container(tooling, "cmd/rgb-tooling", "Go binary", "Deprecated compatibility path for validate/generate/bundle (ADR-006)")
-        Container(publication, "Go Publication", "Go", "HTML Library + PDF publication path")
+        Container(publication, "Go Publication", "Go", "PDF publication and site checks")
+        Container(illusionist, "Illusionist site kit", "External executable", "Landing and Docs from RGB Markdown")
         Container(generated, "generated/**", "JSON", "Derived: bundles, ai-context, semantic projections, search")
     }
 
@@ -22,8 +23,9 @@ C4Container
     Rel(rgb_cli, generated, "Generates projections and bundle into")
     Rel(tooling, docs, "Validates (deprecated path)")
     Rel(tooling, semantic, "Reads and writes (deprecated path)")
-    Rel(publication, docs, "Renders")
-    Rel(gm, publication, "Reads published Library / downloads PDF")
+    Rel(illusionist, docs, "Renders")
+    Rel(gm, illusionist, "Reads published Docs")
+    Rel(gm, publication, "Downloads PDF")
 ```
 
 `cmd/rgb` does not yet consume `docs/core/**` at runtime for rule
@@ -37,7 +39,7 @@ consumption of docs at runtime is still absent.
 `cmd/rgb-tooling` is deprecated, not removed — see
 [ADR-006](../adr/adr-006-unified-cli-topology.md) for the compatibility
 decision and M006 removal requirement. The former Go-rendered HTML/print/PDF
-pipeline is no longer the public publication path. `cmd/rgb docs ...` now
-owns HTML Library and PDF publication.
+pipeline is no longer the public publication path. The Illusionist kit owns
+the Docs tab; `cmd/rgb docs ...` retains PDF and skill publication and checks.
 
 ← [Back to Architecture Index](README.md)

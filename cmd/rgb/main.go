@@ -54,15 +54,9 @@ func optionalRepoRoot(args []string) string {
 //nolint:gocyclo // Mirrors the top-level CLI dispatch shape for docs subcommands.
 func runDocs(args []string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("missing docs subcommand (want library|pdf|skill|check)")
+		return fmt.Errorf("missing docs subcommand (want pdf|skill|check)")
 	}
 	switch args[0] {
-	case "library":
-		options, err := parseLibraryFlags(args[1:])
-		if err != nil {
-			return err
-		}
-		return app.BuildLibrary(options)
 	case "pdf":
 		options, err := parsePDFFlags(args[1:])
 		if err != nil {
@@ -82,24 +76,8 @@ func runDocs(args []string) error {
 		}
 		return app.CheckPublication(options)
 	default:
-		return fmt.Errorf("unknown docs subcommand %q (want library|pdf|skill|check)", args[0])
+		return fmt.Errorf("unknown docs subcommand %q (want pdf|skill|check)", args[0])
 	}
-}
-
-func parseLibraryFlags(args []string) (app.LibraryOptions, error) {
-	var options app.LibraryOptions
-	flags := flag.NewFlagSet("docs library", flag.ContinueOnError)
-	flags.SetOutput(io.Discard)
-	flags.StringVar(&options.SourceDir, "source", "docs", "documentation source directory")
-	flags.StringVar(&options.OutDir, "out", "build/site/library", "public Library output directory")
-	flags.StringVar(&options.SearchIndexFile, "search-index", "generated/search/core-v2.index.json", "generated search-index projection to power client-side search (empty to disable)")
-	if err := flags.Parse(args); err != nil {
-		return app.LibraryOptions{}, err
-	}
-	if flags.NArg() != 0 {
-		return app.LibraryOptions{}, fmt.Errorf("unexpected docs library arguments: %v", flags.Args())
-	}
-	return options, nil
 }
 
 func parsePDFFlags(args []string) (app.PDFOptions, error) {
@@ -141,7 +119,7 @@ func parseDocsCheckFlags(args []string) (app.PublicationCheckOptions, error) {
 	var options app.PublicationCheckOptions
 	flags := flag.NewFlagSet("docs check", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
-	flags.StringVar(&options.LibraryDir, "library", "build/site/library", "public Library directory")
+	flags.StringVar(&options.LibraryDir, "library", "build/site", "generated site directory")
 	flags.StringVar(&options.PublicDir, "public-dir", "generated/downloads", "public downloads directory")
 	flags.StringVar(&options.Basename, "basename", "rgb-system-core-v2", "release artifact basename")
 	flags.StringVar(&options.Version, "version", "v2.0", "release version")

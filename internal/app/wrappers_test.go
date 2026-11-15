@@ -10,9 +10,6 @@ func TestFacadeMethodsSurfaceComponentErrors(t *testing.T) {
 	if err := BuildBundle(root); err == nil {
 		t.Fatal("expected BuildBundle to fail without semantic index")
 	}
-	if err := BuildLibrary(LibraryOptions{SourceDir: filepath.Join(root, "missing"), OutDir: filepath.Join(root, "out")}); err == nil {
-		t.Fatal("expected BuildLibrary to fail without docs/core")
-	}
 	if err := PublishPDFs(PDFOptions{PublicDir: filepath.Join(root, "downloads"), Basename: "rgb", Version: "v1"}); err == nil {
 		t.Fatal("expected PublishPDFs to fail without PDF sources")
 	}
