@@ -25,6 +25,10 @@ state different values for the same field of an entity.
      `conflict-on-dispute` so the user decides (never break ties by recency
      or detail level).
 4. Link the conflict report ID from every affected `entity-package`.
+5. **Post-resolution archival:** keep only `unresolved` reports directly in
+   `packages/conflicts/`. Once a report reaches `resolved_by_user` or
+   `resolved_by_authority_rule`, archive it under `packages/conflicts/resolved/`
+   and remove any stale copy from `packages/conflicts/`.
 
 ## Completion Check
 

@@ -60,7 +60,8 @@ func ProcessBatch(rawJSON []byte, index *components.SemanticIndex) (BatchResult,
 }
 
 // WriteBatchFiles writes maker-report.md and individual Markdown files under
-// outDir/entities/, outDir/visual-observations/, and outDir/conflicts/.
+// outDir/entities/, outDir/visual-observations/, outDir/conflicts/ (open),
+// and outDir/conflicts/resolved/ (archived decisions), pruning stale .md files.
 func WriteBatchFiles(outDir string, res BatchResult) error {
 	if strings.TrimSpace(outDir) == "" {
 		return fmt.Errorf("maker: outDir must not be empty")
@@ -77,24 +78,64 @@ func WriteBatchFiles(outDir string, res BatchResult) error {
 	if err := writePackageMarkdowns(filepath.Join(outDir, "visual-observations"), res.Input.VisualObservations, func(o VisualObservation) string { return o.ID }, RenderVisualObservation); err != nil {
 		return err
 	}
-	return writePackageMarkdowns(filepath.Join(outDir, "conflicts"), res.Input.ConflictReports, func(r ConflictReport) string { return r.ID }, RenderConflictReport)
+	return writeConflictMarkdowns(filepath.Join(outDir, "conflicts"), res.Input.ConflictReports)
+}
+
+func writeConflictMarkdowns(conflictsDir string, reports []ConflictReport) error {
+	var openReports, resolvedReports []ConflictReport
+	for _, r := range reports {
+		if r.Resolution == "unresolved" {
+			openReports = append(openReports, r)
+			continue
+		}
+		resolvedReports = append(resolvedReports, r)
+	}
+	if err := writePackageMarkdowns(conflictsDir, openReports, func(r ConflictReport) string { return r.ID }, RenderConflictReport); err != nil {
+		return err
+	}
+	return writePackageMarkdowns(filepath.Join(conflictsDir, "resolved"), resolvedReports, func(r ConflictReport) string { return r.ID }, RenderConflictReport)
 }
 
 func writePackageMarkdowns[T any](dir string, items []T, getID func(T) string, render func(T) string) error {
 	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return err
 	}
+	keep := make(map[string]bool, len(items))
 	for _, item := range items {
 		id := getID(item)
 		if err := validatePackageID("package", id); err != nil {
 			return err
 		}
-		target := filepath.Join(dir, id+".md")
-		if err := os.WriteFile(target, []byte(render(item)), 0o644); err != nil { //nolint:gosec // G306: rendered Markdown package artifact.
+		name := id + ".md"
+		keep[name] = true
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(render(item)), 0o644); err != nil { //nolint:gosec // G306: rendered Markdown package artifact.
+			return err
+		}
+	}
+	return pruneStaleMarkdowns(dir, keep)
+}
+
+func pruneStaleMarkdowns(dir string, keep map[string]bool) error {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return err
+	}
+	for _, entry := range entries {
+		if !isStaleMarkdown(entry, keep) {
+			continue
+		}
+		if err := os.Remove(filepath.Join(dir, entry.Name())); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func isStaleMarkdown(entry os.DirEntry, keep map[string]bool) bool {
+	if entry.IsDir() {
+		return false
+	}
+	return strings.HasSuffix(entry.Name(), ".md") && !keep[entry.Name()]
 }
 
 func validateBatchPackages(in BatchInput, index *components.SemanticIndex) []error {

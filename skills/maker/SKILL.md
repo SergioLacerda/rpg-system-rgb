@@ -26,7 +26,8 @@ Conforms to [`consumer.maker.v0_1`](../../docs/core/semantic/consumer-contracts.
    conflicting sources → follow
    [`prompts/detect-conflicts.md`](prompts/detect-conflicts.md).
 4. **Emit schema + template pairs** under `packages/` (`maker-report.md`,
-   `entities/`, `visual-observations/`, `conflicts/`):
+   `entities/`, `visual-observations/`, `conflicts/` for open disputes, and
+   `conflicts/resolved/` for archived decisions):
 
 | Kind | Schema | Template | Purpose |
 |---|---|---|---|
@@ -50,8 +51,12 @@ Conforms to [`consumer.maker.v0_1`](../../docs/core/semantic/consumer-contracts.
   named entity unless a text source or the user explicitly links them.
 - **`conflict-on-dispute`**: Whenever sources disagree on a field that
   `text-over-image` does not settle (text vs. text, or image vs. image on
-  appearance), open a `conflict-report` with `resolution: unresolved` so the
-  user decides; keep the disputed field in `unresolved_fields` on the entity.
+  appearance), open a `conflict-report` with `resolution: unresolved` under
+  `packages/conflicts/` so the user decides; keep the disputed field in
+  `unresolved_fields` on the entity. Once resolved (`resolved_by_user` or
+  `resolved_by_authority_rule`), archive the report under
+  `packages/conflicts/resolved/` so `packages/conflicts/` holds open disputes
+  only.
 - **`variant-preserved`**: When multiple inputs represent reboots, remakes,
   or distinct timeline versions of the same entity (where multiple fields
   diverge structurally), keep shared core facts in `explicit_facts` and

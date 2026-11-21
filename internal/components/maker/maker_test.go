@@ -1151,4 +1151,54 @@ func TestWriteBatchFilesAndSafety(t *testing.T) {
 	if err := WriteBatchFiles(roDir, res); err == nil {
 		t.Fatal("expected WriteBatchFiles to fail when entity file is read-only")
 	}
+	_ = os.Chmod(filepath.Join(roDir, "entities", "npc.files.md"), 0o600)
+
+	// Resolving a conflict moves it from conflicts/ to conflicts/resolved/ and prunes stale files.
+	resolvedRes := res
+	resolvedRes.Input.ConflictReports = []ConflictReport{{
+		ID:             "conflict.files-name",
+		Status:         "draft",
+		Field:          "name",
+		LinkedEntity:   "npc.files",
+		Claims:         res.Input.ConflictReports[0].Claims,
+		Resolution:     "resolved_by_user",
+		ResolutionNote: "GM chose A",
+	}}
+	if err := WriteBatchFiles(outDir, resolvedRes); err != nil {
+		t.Fatalf("WriteBatchFiles resolved failed: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(outDir, "conflicts", "conflict.files-name.md")); !os.IsNotExist(err) {
+		t.Fatalf("expected resolved conflict to be pruned from conflicts/, got err=%v", err)
+	}
+	if _, err := os.Stat(filepath.Join(outDir, "conflicts", "resolved", "conflict.files-name.md")); err != nil {
+		t.Fatalf("expected resolved conflict in conflicts/resolved/: %v", err)
+	}
+
+	// Prune error paths: unreadable dir and non-writable dir with stale file.
+	unreadableDir := filepath.Join(t.TempDir(), "no-read")
+	if err := os.MkdirAll(unreadableDir, 0o750); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(unreadableDir, 0o000); err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = os.Chmod(unreadableDir, 0o750) }()
+	if err := pruneStaleMarkdowns(unreadableDir, map[string]bool{}); err == nil {
+		t.Fatal("expected pruneStaleMarkdowns to fail on unreadable dir")
+	}
+
+	noRemoveDir := filepath.Join(t.TempDir(), "no-remove")
+	if err := os.MkdirAll(noRemoveDir, 0o750); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(noRemoveDir, "stale.md"), []byte("old"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(noRemoveDir, 0o500); err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = os.Chmod(noRemoveDir, 0o750) }()
+	if err := pruneStaleMarkdowns(noRemoveDir, map[string]bool{}); err == nil {
+		t.Fatal("expected pruneStaleMarkdowns to fail when dir is read-only")
+	}
 }
