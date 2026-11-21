@@ -5,6 +5,9 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/SergioLacerda/rpg-system-rgb/internal/components"
+	"github.com/SergioLacerda/rpg-system-rgb/internal/components/maker"
 )
 
 type makerEntityPackageFixture struct {
@@ -94,6 +97,68 @@ func TestMakerEntityPackageFieldsStaySeparate(t *testing.T) {
 					seen[field] = category.name
 				}
 			}
+
+			ep := fixtureToEntityPackage(pkg)
+			if errs := maker.ValidateEntityPackage(ep); len(errs) != 0 {
+				t.Errorf("%s: maker.ValidateEntityPackage rejected valid fixture: %v", pkg.id, errs)
+			}
+
+			dup := fixtureToEntityPackage(pkg)
+			dup.InferredSuggestions = append(dup.InferredSuggestions, maker.InferredSuggestion{
+				Field:      pkg.explicitFactFields[0],
+				Value:      "duplicate",
+				Confidence: "low",
+				Rationale:  "parity check",
+			})
+			if errs := maker.ValidateEntityPackage(dup); len(errs) == 0 {
+				t.Errorf("%s: maker.ValidateEntityPackage unexpectedly accepted duplicate field %q", pkg.id, pkg.explicitFactFields[0])
+			}
+
+			idx, err := components.LoadSemanticIndex("../../docs/core/semantic/core-v2.index.json")
+			if err != nil {
+				t.Fatalf("loading semantic index: %v", err)
+			}
+			withDeps := fixtureToEntityPackage(pkg)
+			withDeps.CanonicalDeps = []string{"core.ability.contract"}
+			if errs := maker.ValidateCanonicalDependencies(withDeps, idx); len(errs) != 0 {
+				t.Errorf("%s: maker.ValidateCanonicalDependencies rejected valid canonical unit: %v", pkg.id, errs)
+			}
+			withDeps.CanonicalDeps = []string{"core.nonexistent.unit"}
+			if errs := maker.ValidateCanonicalDependencies(withDeps, idx); len(errs) == 0 {
+				t.Errorf("%s: maker.ValidateCanonicalDependencies accepted nonexistent unit", pkg.id)
+			}
 		})
 	}
+}
+
+func fixtureToEntityPackage(pkg makerEntityPackageFixture) maker.EntityPackage {
+	entityType := strings.SplitN(pkg.id, ".", 2)[0]
+	ep := maker.EntityPackage{
+		ID:         pkg.id,
+		EntityType: entityType,
+		Status:     "needs_review",
+		SourceRefs: []string{"examples/maker-entity-package.yaml"},
+	}
+	for _, f := range pkg.explicitFactFields {
+		ep.ExplicitFacts = append(ep.ExplicitFacts, maker.ExplicitFact{
+			Field:     f,
+			Value:     "fixture",
+			SourceRef: "examples/maker-entity-package.yaml",
+		})
+	}
+	for _, f := range pkg.inferredSuggestionFields {
+		ep.InferredSuggestions = append(ep.InferredSuggestions, maker.InferredSuggestion{
+			Field:      f,
+			Value:      "fixture",
+			Confidence: "medium",
+			Rationale:  "fixture",
+		})
+	}
+	for _, f := range pkg.unresolvedFields {
+		ep.UnresolvedFields = append(ep.UnresolvedFields, maker.UnresolvedField{
+			Field:  f,
+			Reason: "fixture",
+		})
+	}
+	return ep
 }

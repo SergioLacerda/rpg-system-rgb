@@ -1,15 +1,21 @@
 # RGB Maker Skill
 
-Status: Contract defined, runtime not implemented. See
+Status: Contract defined in `skills/maker/**`; deterministic Go validation,
+diffing, aggregation, and input routing are implemented in
+`internal/components/maker/` per
+[ADR-015](../../docs/adr/adr-015-skill-runtime-split.md), while LLM-side
+runtime wiring remains deferred. See
 [`SKILL.md`](SKILL.md) for the full contract (truth layers, the
 image/text authority rule, and what Maker must never do),
+[`config.yaml`](config.yaml) for the consumer contract restatement,
 [`prompts/`](prompts/) for its two core prompts (extract entities, detect
 conflicts), [`schemas/`](schemas/) and [`templates/`](templates/) for its
 four package kinds (entity package, maker report, visual observation,
 conflict report), and [`examples/`](examples/) for a worked example.
 
-This package does not yet run — it should not be presented as an available
-product until a runtime implementation exists.
+The LLM-side skill workflow does not yet run end-to-end — it should not be
+presented as an available end-user product until an invocable LLM runtime
+is wired.
 
 **Runtime architecture:** the LLM-instruction vs. Go-component split for
 Maker's eventual runtime is decided in

@@ -1,8 +1,16 @@
+---
+name: rgb-maker
+description: Structures raw GM notes, text, and images into campaign/world artifacts (NPCs, locations, items, factions) with strict separation between explicit facts, inferred suggestions, unresolved fields, and conflict reports, never inventing or overriding RGB System canon.
+---
+
 # RGB Maker Skill
 
-Status: Contract defined. Runtime behavior is not implemented — this
-package specifies what a future Maker implementation must do, and must
-never do. See [ADR-001](../../docs/adr/adr-001-ai-first-documentation-authority.md)
+Status: Contract defined in `skills/maker/**`; deterministic Go validation,
+structured-fact diffing, report aggregation, and input routing live in
+`internal/components/maker/` per [ADR-015](../../docs/adr/adr-015-skill-runtime-split.md).
+The LLM-side runtime wiring remains unimplemented — this package specifies
+what a Maker implementation must do, and must never do. See
+[ADR-001](../../docs/adr/adr-001-ai-first-documentation-authority.md)
 (AI-First Documentation Authority) for the authority model this contract
 extends into content creation.
 
@@ -23,7 +31,9 @@ and what Maker inferred or generated.
 
 Maker consumes, and must conform to,
 [`consumer.maker.v0_1`](../../docs/core/semantic/consumer-contracts.v0.1.json)
-— the accepted consumer contract for this component.
+— the accepted consumer contract for this component. [`config.yaml`](config.yaml)
+in this directory restates that contract for quick machine-readable reference;
+the JSON file remains the single source of truth if the two ever disagree.
 
 ## Maker Must
 

@@ -1,0 +1,53 @@
+# Runtime configuration contract for RGB Maker.
+#
+# This restates the parts of consumer.maker.v0_1 that Maker must check at
+# runtime, for a quick machine-readable reference. If this file and
+# docs/core/semantic/consumer-contracts.v0.1.json ever disagree, the JSON file
+# wins — update this file to match, not the other way around.
+contract_id: consumer.maker.v0_1
+contract_source: docs/core/semantic/consumer-contracts.v0.1.json
+
+sources:
+  semantic_index: docs/core/semantic/core-v2.index.json
+
+allowed_inputs:
+  - canonical_markdown_bridge
+  - canonical_semantic
+  - translation
+  - design_record
+
+allowed_projection_surfaces:
+  - markdown_en
+  - markdown_pt_br
+  - ai_context_pack
+  - search_index
+
+forbidden_authority_types:
+  - projection
+  - generated_artifact
+
+required_disclosures:
+  - draft
+  - stale
+  - needs_review
+  - generated
+
+required_unit_fields:
+  - id
+  - kind
+  - locale
+  - authority_type
+  - source_status
+  - title
+  - relationships
+  - index
+  - provenance
+
+outputs:
+  - draft content proposals
+  - structured creation inputs
+
+validation_checks:
+  - generated proposals keep source IDs
+  - draft content is not marked canonical
+  - ability units keep required contract fields
