@@ -1,33 +1,28 @@
 # Procedure: Locate Authority
 
-Find which semantic unit(s) actually govern a topic, before answering.
-This is the step that precedes [`explain.md`](explain.md) whenever the
-right ID isn't already known — `explain.md` assumes resolution already
-happened; this procedure is how it happens.
+Find which semantic unit(s) govern a topic before answering.
 
 ## Input
 
-A topic, keyword, or question that hasn't yet been mapped to a semantic ID.
+A topic, keyword, or question not yet mapped to a semantic ID.
 
 ## Steps
 
-1. Search `docs/core/semantic/core-v2.index.json` units by `title`,
-   `index.tags`, and `index.retrieval_summary` for matches to the topic.
-2. Prefer `generated/ai-context/core-specialist-pack.json` first (smaller,
-   pre-scoped to Specialist) before falling back to the full index.
-3. Rank candidates: `kind: rule` or `kind: procedure` outrank `kind:
-   concept`, which outrank `kind: example` — the most authoritative unit
-   for a mechanical question is a rule or procedure, not a concept
-   definition or a worked instance.
-4. If exactly one unit clearly has authority, that is the answer to
-   "locate authority" — hand off to `explain.md` with that ID.
-5. If zero units match, this is not automatically an ambiguity — it may
-   simply mean the topic isn't covered yet. Report "no canonical unit
-   found for `<topic>`" and stop; do not guess a nearby unit as a
-   substitute.
-6. If two or more units plausibly have authority and neither is clearly
-   more specific, hand off to
-   [`identify-ambiguity.md`](identify-ambiguity.md) instead of picking one.
+1. Search `generated/ai-context/core-specialist-pack.json` first (fast,
+   pre-scoped to Specialist), falling back to
+   `docs/core/semantic/core-v2.index.json` by `title`, `index.tags`, and
+   `index.retrieval_summary`.
+2. Rank matching candidates per `rule-over-example`: `kind: rule` and
+   `kind: procedure` outrank `kind: concept`, which outrank `kind: example`.
+   Never settle on the first search hit or a `core.example.*` unit when a
+   `rule` or `procedure` unit also matches.
+3. If exactly one unit clearly holds authority, hand off to
+   [`explain.md`](explain.md) with that semantic ID.
+4. If zero units match, report `"no canonical unit found for <topic>"` and
+   stop — a clean zero-match is an uncovered topic, not an ambiguity or an
+   invitation to substitute a nearby unit.
+5. If two or more units plausibly hold authority and neither is clearly more
+   specific, hand off to [`identify-ambiguity.md`](identify-ambiguity.md).
 
 ## Output Shape
 
@@ -39,10 +34,5 @@ Source: <source_path>
 
 ## Worked Example
 
-See [`../examples/locate-authority-shield-vs-armor.md`](../examples/locate-authority-shield-vs-armor.md).
-
-## Forbidden
-
-- Picking the first search hit without checking `kind` — a `core.example.*`
-  hit is never the located authority when a `rule`/`procedure` unit also
-  matches.
+Read [`../examples/locate-authority-shield-vs-armor.md`](../examples/locate-authority-shield-vs-armor.md)
+only when disambiguating two adjacent defensive or mechanical units.

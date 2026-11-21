@@ -1,32 +1,29 @@
 # Procedure: Validate Example
 
-Check whether a worked example's numbers are internally consistent with
-the rule(s) it illustrates. This generalizes the fix behind the internal
-`core-rules-executable-examples-turn-contract` analysis (a published
-combat example that had shield absorption backwards and health increasing
-after damage) into a repeatable procedure.
+Verify whether a worked example's numbers and state transitions obey the
+canonical rule(s) it illustrates.
 
 ## Input
 
-A worked example — either a `core.example.*` semantic unit, or an
-arbitrary example text (e.g. a GM's own numbers) plus the rule(s) it
-claims to follow.
+A worked example — either a `core.example.*` semantic unit or custom
+numbers — together with the rule(s) it claims to illustrate.
 
 ## Steps
 
-1. Identify the rule(s)/procedure(s) the example is illustrating, via
-   `relationships.illustrated_by` on the rule side, or `relationships.depends_on`
-   on the example side (see `core.combat.attack-margin`'s
+1. Identify the governing rule(s)/procedure(s) via
+   `relationships.illustrated_by` on the rule side or `relationships.depends_on`
+   on the example side (e.g. `core.combat.attack-margin` →
    `illustrated_by: [core.example.combat-turn]`).
-2. Re-derive the example's numbers from the rule's `formula` or
-   `ordered_steps` independently — do not just re-read the example's
-   stated result and assume it followed the formula.
-3. Compare the re-derived numbers to the example's stated numbers, field
-   by field.
-4. Apply any structural invariants the rule implies even if the example
-   doesn't state them (e.g. `core.damage.flow`: health must never increase
-   from a damage step; shield absorbs before health).
-5. Report every mismatch found — do not stop at the first one.
+2. Independently re-derive every numerical step from the rule's `formula`
+   or `ordered_steps` in `docs/core/semantic/source/core-v2-rules.v0.1.json` —
+   verify the arithmetic directly rather than trusting narrative phrasing.
+3. Compare the re-derived values to the example's stated values field by
+   field.
+4. Enforce every structural invariant implied by the rule (e.g.
+   `core.damage.flow`: health never increases from a damage step; shield
+   absorbs before health).
+5. Report **every** mismatch found across all fields and invariants, then
+   cite all governing rule IDs and `source_path`s.
 
 ## Output Shape
 
@@ -40,12 +37,6 @@ Cited: <rule ids and their source_paths>
 
 ## Worked Example
 
-See [`../examples/validate-example-combat-turn.md`](../examples/validate-example-combat-turn.md)
-— includes the actual `tests/fixtures/combat_example_doc_parity_test.go`
-regression test this procedure describes in prose form.
-
-## Forbidden
-
-- Declaring an example consistent because its narrative reads plausibly —
-  the numbers must be independently re-derived and compared, not
-  eyeballed.
+Read [`../examples/validate-example-combat-turn.md`](../examples/validate-example-combat-turn.md)
+only when auditing multi-step combat turns involving attack margin, armor,
+and shield absorption.
