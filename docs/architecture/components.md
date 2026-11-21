@@ -13,15 +13,17 @@ C4Component
         Component(core, "core", "Go package", "RGB rule engine: characters, actions, combat, states")
         Component(tooling_c, "tooling", "Go package", "Semantic-docs validators + projection generator")
         Component(publication_c, "publication", "Go package", "PDF publication and site checks")
-        Component(maker_c, "maker", "Go package", "Campaign/content structuring (stub: boundary only, no behavior)")
+        Component(maker_c, "maker", "Go package", "Campaign/content structuring: input router, schema validators, fact differ, report aggregator, Markdown renderer (ADR-015)")
         Component(specialist_c, "specialist", "Go package", "Rule consultation and validation (stub: boundary only, no behavior)")
         Component(bundles_c, "bundles", "Go package", "Semantic index projection to generated/bundle/rgb.bundle.json (implemented, minimal — see ADR-007)")
     }
 
     Rel(app_c, core, "imports")
+    Rel(app_c, maker_c, "imports")
     Rel(app_c, tooling_c, "imports")
     Rel(app_c, publication_c, "imports")
     Rel(core, contract, "imports")
+    Rel(maker_c, contract, "imports")
     Rel(tooling_c, contract, "imports")
     Rel(publication_c, contract, "imports")
 ```
