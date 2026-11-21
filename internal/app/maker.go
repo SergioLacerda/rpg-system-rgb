@@ -8,9 +8,9 @@ import (
 )
 
 // ProcessMakerBatch reads a JSON Maker batch file, optionally validates
-// canonical_dependencies against indexFile, and returns the combined rendered
-// Markdown artifacts for all validated packages.
-func ProcessMakerBatch(batchFile, indexFile string) (string, error) {
+// canonical_dependencies against indexFile, writes per-package Markdown files
+// when outDir is non-empty, and returns the combined rendered Markdown.
+func ProcessMakerBatch(batchFile, indexFile, outDir string) (string, error) {
 	raw, err := os.ReadFile(batchFile) //nolint:gosec // G304: path is a caller-supplied batch file, by design
 	if err != nil {
 		return "", err
@@ -26,6 +26,11 @@ func ProcessMakerBatch(batchFile, indexFile string) (string, error) {
 	res, err := maker.ProcessBatch(raw, idxPtr)
 	if err != nil {
 		return "", err
+	}
+	if outDir != "" {
+		if err := maker.WriteBatchFiles(outDir, res); err != nil {
+			return "", err
+		}
 	}
 	return res.Markdown, nil
 }

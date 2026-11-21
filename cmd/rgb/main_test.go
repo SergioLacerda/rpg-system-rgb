@@ -298,8 +298,12 @@ func TestRunMakerSubcommands(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := run([]string{"maker", "process", "--batch", batchFile}); err != nil {
+	outDir := filepath.Join(dir, "packages")
+	if err := run([]string{"maker", "process", "--batch", batchFile, "--out-dir", outDir}); err != nil {
 		t.Fatalf("expected maker process to succeed, got %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(outDir, "maker-report.md")); err != nil {
+		t.Fatalf("expected maker-report.md in outDir: %v", err)
 	}
 	if err := run([]string{"maker", "process", "--batch", filepath.Join(dir, "missing.json")}); err == nil {
 		t.Fatal("expected maker process with missing batch to fail")

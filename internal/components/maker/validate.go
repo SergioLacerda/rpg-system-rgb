@@ -61,8 +61,8 @@ func ValidateEntityPackage(p EntityPackage) []error {
 
 func validateEntityHeader(p EntityPackage) []error {
 	var errs []error
-	if strings.TrimSpace(p.ID) == "" {
-		errs = append(errs, fmt.Errorf("entity package: id must not be empty"))
+	if err := validatePackageID("entity package", p.ID); err != nil {
+		errs = append(errs, err)
 	}
 	if !validEntityType[p.EntityType] {
 		errs = append(errs, fmt.Errorf("entity package %q: invalid entity_type %q", p.ID, p.EntityType))
@@ -180,8 +180,8 @@ func validateAppearanceFact(obsID string, f AppearanceFact) []error {
 
 func validateVisualHeader(o VisualObservation) []error {
 	var errs []error
-	if strings.TrimSpace(o.ID) == "" {
-		errs = append(errs, fmt.Errorf("visual observation: id must not be empty"))
+	if err := validatePackageID("visual observation", o.ID); err != nil {
+		errs = append(errs, err)
 	}
 	if !validStatus[o.Status] {
 		errs = append(errs, fmt.Errorf("visual observation %q: invalid status %q", o.ID, o.Status))

@@ -42,7 +42,7 @@ func TestFacadeMethodsSurfaceComponentErrors(t *testing.T) {
 	if err := GenerateProjections(root); err == nil {
 		t.Fatal("expected GenerateProjections to fail without semantic docs")
 	}
-	if _, err := ProcessMakerBatch(filepath.Join(root, "missing.json"), ""); err == nil {
+	if _, err := ProcessMakerBatch(filepath.Join(root, "missing.json"), "", ""); err == nil {
 		t.Fatal("expected ProcessMakerBatch to fail when batch file is missing")
 	}
 }
@@ -66,7 +66,7 @@ func TestProcessMakerBatchSuccessAndIndexErrors(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if _, err := ProcessMakerBatch(batchFile, filepath.Join(dir, "missing-index.json")); err == nil {
+	if _, err := ProcessMakerBatch(batchFile, filepath.Join(dir, "missing-index.json"), ""); err == nil {
 		t.Fatal("expected missing index file to fail")
 	}
 
@@ -75,18 +75,26 @@ func TestProcessMakerBatchSuccessAndIndexErrors(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	md, err := ProcessMakerBatch(batchFile, indexFile)
+	outDir := filepath.Join(dir, "out")
+	md, err := ProcessMakerBatch(batchFile, indexFile, outDir)
 	if err != nil {
 		t.Fatalf("ProcessMakerBatch failed: %v", err)
 	}
 	if !strings.Contains(md, "# Entity Package: npc.guard") {
 		t.Fatalf("unexpected markdown:\n%s", md)
 	}
+	if _, err := os.Stat(filepath.Join(outDir, "entities", "npc.guard.md")); err != nil {
+		t.Fatalf("expected rendered entity file: %v", err)
+	}
+
+	if _, err := ProcessMakerBatch(batchFile, indexFile, batchFile); err == nil {
+		t.Fatal("expected unwritable outDir to fail")
+	}
 
 	if err := os.WriteFile(batchFile, []byte(`{"report_id":""}`), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := ProcessMakerBatch(batchFile, ""); err == nil {
+	if _, err := ProcessMakerBatch(batchFile, "", ""); err == nil {
 		t.Fatal("expected invalid batch to fail")
 	}
 }

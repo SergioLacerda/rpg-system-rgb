@@ -5,9 +5,15 @@ import (
 	"strings"
 )
 
+var tableCellEscaper = strings.NewReplacer("|", `\|`, "\r\n", " ", "\n", " ")
+
+func escapeTableCell(s string) string {
+	return tableCellEscaper.Replace(s)
+}
+
 // RenderEntityPackage renders an EntityPackage as Markdown matching
-// skills/maker/templates/entity-package.md. Empty optional sections render
-// explicitly as "None." rather than being omitted.
+// skills/maker/templates/entity-package.md. Canonical Dependencies is omitted
+// when empty so standalone story packages carry no external rule metadata.
 func RenderEntityPackage(p EntityPackage) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "# Entity Package: %s\n\n", p.ID)
@@ -17,7 +23,9 @@ func RenderEntityPackage(p EntityPackage) string {
 	writeInferredSection(&b, p.InferredSuggestions)
 	writeUnresolvedSection(&b, p.UnresolvedFields)
 	writeBulletSection(&b, "Conflicts", p.Conflicts)
-	writeBulletSection(&b, "Canonical Dependencies", p.CanonicalDeps)
+	if len(p.CanonicalDeps) > 0 {
+		writeBulletSection(&b, "Canonical Dependencies", p.CanonicalDeps)
+	}
 	return strings.TrimRight(b.String(), "\n") + "\n"
 }
 
@@ -29,7 +37,7 @@ func writeExplicitFactsSection(b *strings.Builder, facts []ExplicitFact) {
 	}
 	b.WriteString("| Field | Value | Source |\n|---|---|---|\n")
 	for _, f := range facts {
-		fmt.Fprintf(b, "| %s | %s | %s |\n", f.Field, f.Value, f.SourceRef)
+		fmt.Fprintf(b, "| %s | %s | %s |\n", escapeTableCell(f.Field), escapeTableCell(f.Value), escapeTableCell(f.SourceRef))
 	}
 	b.WriteByte('\n')
 }
@@ -42,7 +50,7 @@ func writeInferredSection(b *strings.Builder, items []InferredSuggestion) {
 	}
 	b.WriteString("| Field | Value | Confidence | Rationale |\n|---|---|---|---|\n")
 	for _, s := range items {
-		fmt.Fprintf(b, "| %s | %s | %s | %s |\n", s.Field, s.Value, s.Confidence, s.Rationale)
+		fmt.Fprintf(b, "| %s | %s | %s | %s |\n", escapeTableCell(s.Field), escapeTableCell(s.Value), escapeTableCell(s.Confidence), escapeTableCell(s.Rationale))
 	}
 	b.WriteByte('\n')
 }
@@ -82,7 +90,7 @@ func RenderVisualObservation(o VisualObservation) string {
 	b.WriteString("## Appearance\n\nWhat the image shows — visual properties only.\n\n")
 	b.WriteString("| Field | Value | Confidence |\n|---|---|---|\n")
 	for _, f := range o.AppearanceFacts {
-		fmt.Fprintf(&b, "| %s | %s | %s |\n", f.Field, f.Value, f.Confidence)
+		fmt.Fprintf(&b, "| %s | %s | %s |\n", escapeTableCell(f.Field), escapeTableCell(f.Value), escapeTableCell(f.Confidence))
 	}
 	fmt.Fprintf(&b, "\n---\n\n> %s\n", strings.TrimSpace(o.NonAuthoritativeNote))
 	return b.String()
@@ -98,7 +106,7 @@ func RenderConflictReport(r ConflictReport) string {
 	fmt.Fprintf(&b, "**Linked entity:** %s\n\n", orNone(r.LinkedEntity))
 	b.WriteString("## Competing Claims\n\n| Value | Source | Source Kind |\n|---|---|---|\n")
 	for _, c := range r.Claims {
-		fmt.Fprintf(&b, "| %s | %s | %s |\n", c.Value, c.SourceRef, c.SourceKind)
+		fmt.Fprintf(&b, "| %s | %s | %s |\n", escapeTableCell(c.Value), escapeTableCell(c.SourceRef), escapeTableCell(c.SourceKind))
 	}
 	fmt.Fprintf(&b, "\n## Resolution\n\n**Status:** %s\n", r.Resolution)
 	if strings.TrimSpace(r.ResolutionNote) != "" {

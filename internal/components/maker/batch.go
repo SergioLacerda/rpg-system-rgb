@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components"
@@ -20,11 +22,12 @@ type BatchInput struct {
 	OpenQuestions      []string            `json:"open_questions,omitempty"`
 }
 
-// BatchResult holds the routed inputs, validated session report, and combined
-// human-readable Markdown output for one Maker batch.
+// BatchResult holds the routed inputs, validated session report, original
+// parsed batch input, and combined human-readable Markdown output.
 type BatchResult struct {
 	Report       MakerReport `json:"report"`
 	RoutedInputs []InputRef  `json:"routed_inputs"`
+	Input        BatchInput  `json:"-"`
 	Markdown     string      `json:"markdown"`
 }
 
@@ -51,8 +54,47 @@ func ProcessBatch(rawJSON []byte, index *components.SemanticIndex) (BatchResult,
 	return BatchResult{
 		Report:       report,
 		RoutedInputs: routed,
+		Input:        in,
 		Markdown:     renderBatchMarkdown(report, in),
 	}, nil
+}
+
+// WriteBatchFiles writes maker-report.md and individual Markdown files under
+// outDir/entities/, outDir/visual-observations/, and outDir/conflicts/.
+func WriteBatchFiles(outDir string, res BatchResult) error {
+	if strings.TrimSpace(outDir) == "" {
+		return fmt.Errorf("maker: outDir must not be empty")
+	}
+	if err := os.MkdirAll(outDir, 0o750); err != nil {
+		return err
+	}
+	if err := os.WriteFile(filepath.Join(outDir, "maker-report.md"), []byte(res.Markdown), 0o644); err != nil { //nolint:gosec // G306: rendered Markdown package artifact.
+		return err
+	}
+	if err := writePackageMarkdowns(filepath.Join(outDir, "entities"), res.Input.EntityPackages, func(p EntityPackage) string { return p.ID }, RenderEntityPackage); err != nil {
+		return err
+	}
+	if err := writePackageMarkdowns(filepath.Join(outDir, "visual-observations"), res.Input.VisualObservations, func(o VisualObservation) string { return o.ID }, RenderVisualObservation); err != nil {
+		return err
+	}
+	return writePackageMarkdowns(filepath.Join(outDir, "conflicts"), res.Input.ConflictReports, func(r ConflictReport) string { return r.ID }, RenderConflictReport)
+}
+
+func writePackageMarkdowns[T any](dir string, items []T, getID func(T) string, render func(T) string) error {
+	if err := os.MkdirAll(dir, 0o750); err != nil {
+		return err
+	}
+	for _, item := range items {
+		id := getID(item)
+		if err := validatePackageID("package", id); err != nil {
+			return err
+		}
+		target := filepath.Join(dir, id+".md")
+		if err := os.WriteFile(target, []byte(render(item)), 0o644); err != nil { //nolint:gosec // G306: rendered Markdown package artifact.
+			return err
+		}
+	}
+	return nil
 }
 
 func validateBatchPackages(in BatchInput, index *components.SemanticIndex) []error {

@@ -1,6 +1,8 @@
 package maker
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -48,6 +50,11 @@ func TestValidateEntityPackage(t *testing.T) {
 			name:   "empty id",
 			mutate: func(p *EntityPackage) { p.ID = "" },
 			want:   "id must not be empty",
+		},
+		{
+			name:   "path traversal id rejected",
+			mutate: func(p *EntityPackage) { p.ID = "../escape" },
+			want:   "must not contain path separators or '..'",
 		},
 		{
 			name:   "invalid entity_type",
@@ -216,6 +223,11 @@ func TestValidateVisualObservation(t *testing.T) {
 			want:   "id must not be empty",
 		},
 		{
+			name:   "unsafe id rejected",
+			mutate: func(o *VisualObservation) { o.ID = "a/b" },
+			want:   "must not contain path separators or '..'",
+		},
+		{
 			name:   "invalid status",
 			mutate: func(o *VisualObservation) { o.Status = "canonical" },
 			want:   "invalid status",
@@ -350,6 +362,11 @@ func TestValidateConflictReport(t *testing.T) {
 			want:   "id must not be empty",
 		},
 		{
+			name:   "unsafe id rejected",
+			mutate: func(r *ConflictReport) { r.ID = `a\b` },
+			want:   "must not contain path separators or '..'",
+		},
+		{
 			name:   "empty field",
 			mutate: func(r *ConflictReport) { r.Field = "" },
 			want:   "field must not be empty",
@@ -476,6 +493,11 @@ func TestValidateMakerReport(t *testing.T) {
 			want:   "id must not be empty",
 		},
 		{
+			name:   "unsafe id rejected",
+			mutate: func(r *MakerReport) { r.ID = "../report" },
+			want:   "must not contain path separators or '..'",
+		},
+		{
 			name:   "invalid status",
 			mutate: func(r *MakerReport) { r.Status = "canonical" },
 			want:   "invalid status",
@@ -571,6 +593,7 @@ func TestDiffEntityPackages(t *testing.T) {
 			SourceRefs: []string{"note-2.txt"},
 			ExplicitFacts: []ExplicitFact{
 				{Field: "role", Value: "quartermaster", SourceRef: "note-2.txt"},
+				{Field: "alias", Value: "Captain", SourceRef: "note-2.txt"},
 			},
 		},
 	}
@@ -776,8 +799,20 @@ func TestRenderTemplatesAndEmptySections(t *testing.T) {
 	}
 
 	emptyEpMD := RenderEntityPackage(EntityPackage{ID: "npc.empty", EntityType: "npc", Status: "draft"})
-	if strings.Count(emptyEpMD, "None.") < 5 {
-		t.Fatalf("expected explicit None. placeholders in empty entity package:\n%s", emptyEpMD)
+	if strings.Count(emptyEpMD, "None.") < 5 || strings.Contains(emptyEpMD, "## Canonical Dependencies") {
+		t.Fatalf("expected explicit None. placeholders and omitted Canonical Dependencies in empty entity package:\n%s", emptyEpMD)
+	}
+
+	pipeEp := EntityPackage{
+		ID:            "npc.pipe",
+		EntityType:    "npc",
+		Status:        "draft",
+		SourceRefs:    []string{"note|1"},
+		ExplicitFacts: []ExplicitFact{{Field: "note|a", Value: "line1\nline2 | extra", SourceRef: "note|1"}},
+	}
+	pipeMD := RenderEntityPackage(pipeEp)
+	if !strings.Contains(pipeMD, `| note\|a | line1 line2 \| extra | note\|1 |`) {
+		t.Fatalf("expected escaped table cells, got:\n%s", pipeMD)
 	}
 
 	voMD := RenderVisualObservation(validSampleVisualObservation())
@@ -867,5 +902,103 @@ func TestProcessBatchSuccessAndErrors(t *testing.T) {
 	}`)
 	if _, err := ProcessBatch(badJSON, &idx); err == nil {
 		t.Fatal("expected validation errors for invalid batch")
+	}
+}
+
+func TestWriteBatchFilesAndSafety(t *testing.T) {
+	raw := []byte(`{
+		"report_id": "report.files",
+		"input_batch": ["note.txt", "sketch.png"],
+		"entity_packages": [{
+			"id": "npc.files",
+			"entity_type": "npc",
+			"status": "draft",
+			"source_refs": ["note.txt"],
+			"explicit_facts": [{"field": "role", "value": "courier", "source_ref": "note.txt"}]
+		}],
+		"conflict_reports": [{
+			"id": "conflict.files-name",
+			"status": "needs_review",
+			"field": "name",
+			"linked_entity": "npc.files",
+			"claims": [
+				{"value": "A", "source_ref": "note.txt", "source_kind": "text"},
+				{"value": "B", "source_ref": "note2.txt", "source_kind": "text"}
+			],
+			"resolution": "unresolved"
+		}],
+		"visual_observations": [{
+			"id": "obs.files",
+			"status": "draft",
+			"source_ref": "sketch.png",
+			"appearance_facts": [{"field": "clothing", "value": "jacket", "confidence": "high"}],
+			"linked_entity": "npc.files",
+			"non_authoritative_note": "appearance only"
+		}]
+	}`)
+	res, err := ProcessBatch(raw, nil)
+	if err != nil {
+		t.Fatalf("ProcessBatch failed: %v", err)
+	}
+
+	outDir := t.TempDir()
+	if err := WriteBatchFiles(outDir, res); err != nil {
+		t.Fatalf("WriteBatchFiles failed: %v", err)
+	}
+	for _, rel := range []string{
+		"maker-report.md",
+		"entities/npc.files.md",
+		"visual-observations/obs.files.md",
+		"conflicts/conflict.files-name.md",
+	} {
+		data, err := os.ReadFile(filepath.Join(outDir, rel))
+		if err != nil || len(data) == 0 {
+			t.Fatalf("expected non-empty %s: %v", rel, err)
+		}
+	}
+
+	if err := WriteBatchFiles(" ", res); err == nil {
+		t.Fatal("expected empty outDir to fail")
+	}
+
+	fileAsDir := filepath.Join(outDir, "maker-report.md")
+	if err := WriteBatchFiles(fileAsDir, res); err == nil {
+		t.Fatal("expected file-as-outDir to fail")
+	}
+
+	badRes := res
+	badRes.Input.EntityPackages = []EntityPackage{{ID: "../bad"}}
+	if err := WriteBatchFiles(t.TempDir(), badRes); err == nil {
+		t.Fatal("expected unsafe ID in WriteBatchFiles to fail")
+	}
+
+	// Trigger subdirectory creation error under writePackageMarkdowns for entities, visual-observations, and conflicts.
+	for _, subdir := range []string{"entities", "visual-observations", "conflicts"} {
+		blocked := t.TempDir()
+		if err := os.WriteFile(filepath.Join(blocked, subdir), []byte("file"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		if err := WriteBatchFiles(blocked, res); err == nil {
+			t.Fatalf("expected WriteBatchFiles to fail when %s is a regular file", subdir)
+		}
+	}
+
+	// Trigger write failure on read-only target files.
+	roDir := t.TempDir()
+	if err := WriteBatchFiles(roDir, res); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(filepath.Join(roDir, "maker-report.md"), 0o400); err != nil {
+		t.Fatal(err)
+	}
+	if err := WriteBatchFiles(roDir, res); err == nil {
+		t.Fatal("expected WriteBatchFiles to fail when maker-report.md is read-only")
+	}
+	_ = os.Chmod(filepath.Join(roDir, "maker-report.md"), 0o600)
+	if err := os.Chmod(filepath.Join(roDir, "entities", "npc.files.md"), 0o400); err != nil {
+		t.Fatal(err)
+	}
+	if err := WriteBatchFiles(roDir, res); err == nil {
+		t.Fatal("expected WriteBatchFiles to fail when entity file is read-only")
 	}
 }

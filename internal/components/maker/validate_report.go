@@ -23,10 +23,24 @@ func ValidateConflictReport(r ConflictReport) []error {
 	return errs
 }
 
+func isSafePackageID(id string) bool {
+	return strings.TrimSpace(id) != "" && !strings.Contains(id, "..") && !strings.ContainsAny(id, `/\`)
+}
+
+func validatePackageID(kind, id string) error {
+	if strings.TrimSpace(id) == "" {
+		return fmt.Errorf("%s: id must not be empty", kind)
+	}
+	if !isSafePackageID(id) {
+		return fmt.Errorf("%s %q: id must not contain path separators or '..'", kind, id)
+	}
+	return nil
+}
+
 func validateConflictHeader(r ConflictReport) []error {
 	var errs []error
-	if strings.TrimSpace(r.ID) == "" {
-		errs = append(errs, fmt.Errorf("conflict report: id must not be empty"))
+	if err := validatePackageID("conflict report", r.ID); err != nil {
+		errs = append(errs, err)
 	}
 	if strings.TrimSpace(r.Field) == "" {
 		errs = append(errs, fmt.Errorf("conflict report %q: field must not be empty", r.ID))
@@ -103,8 +117,8 @@ func ValidateMakerReport(r MakerReport) []error {
 
 func validateMakerReportHeader(r MakerReport) []error {
 	var errs []error
-	if strings.TrimSpace(r.ID) == "" {
-		errs = append(errs, fmt.Errorf("maker report: id must not be empty"))
+	if err := validatePackageID("maker report", r.ID); err != nil {
+		errs = append(errs, err)
 	}
 	if !validStatus[r.Status] {
 		errs = append(errs, fmt.Errorf("maker report %q: invalid status %q", r.ID, r.Status))

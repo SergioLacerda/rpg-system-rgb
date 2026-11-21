@@ -1,7 +1,8 @@
 # Prompt: Extract Entities
 
 Extract campaign entities (NPCs, locations, items, factions) from raw GM
-notes, text, or images into validated packages.
+notes, text, or images into validated packages grounded strictly in the
+story's own sources.
 
 ## Steps
 
@@ -16,15 +17,17 @@ notes, text, or images into validated packages.
    deliberately:
    - **Explicit fact** — stated directly in a text source (`source_ref`
      must match the package's `source_refs`).
-   - **Inferred suggestion** — plausible given the source, tagged with
-     `confidence` (`low|medium|high`) and explicit `rationale`.
+   - **Inferred suggestion** — plausible given the story sources alone,
+     tagged with `confidence` (`low|medium|high`) and explicit `rationale`.
    - **Unresolved field** — expected for the `entity_type`, missing from
      the source, and not licensed for inference (leave `"None."` only after
      checking deliberately).
 4. Route every image input through a separate
    [`visual-observation`](../templates/visual-observation.md) per
    `text-over-image` (appearance only, never directly into `explicit_facts`),
-   checking conflicts with [`detect-conflicts.md`](detect-conflicts.md).
+   linking to an entity only when a text source or the user confirms the
+   identity, and checking conflicts with
+   [`detect-conflicts.md`](detect-conflicts.md).
 5. When two mentions of the same entity disagree on a field, keep the
    disputed field in `unresolved_fields`, open a
    [`conflict-report`](../templates/conflict-report.md) per
@@ -38,8 +41,10 @@ notes, text, or images into validated packages.
 
 - Every emitted `EntityPackage` has at least one `explicit_facts` item and
   disjoint field names across all three layers.
+- Every fact, inference, and open question stays strictly within the
+  story's own universe without injecting external game mechanics.
 - Every conflict and image observation ID referenced in the report matches
-  an emitted package (verifiable via `go run ./cmd/rgb maker process`).
+  an emitted package.
 
 ## Worked Example
 

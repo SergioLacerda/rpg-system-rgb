@@ -11,6 +11,7 @@ import (
 type makerProcessOptions struct {
 	BatchFile string
 	IndexFile string
+	OutDir    string
 }
 
 func runMaker(args []string) error {
@@ -23,7 +24,7 @@ func runMaker(args []string) error {
 		if err != nil {
 			return err
 		}
-		out, err := app.ProcessMakerBatch(opts.BatchFile, opts.IndexFile)
+		out, err := app.ProcessMakerBatch(opts.BatchFile, opts.IndexFile, opts.OutDir)
 		if err != nil {
 			return err
 		}
@@ -40,6 +41,7 @@ func parseMakerProcessFlags(args []string) (makerProcessOptions, error) {
 	flags.SetOutput(io.Discard)
 	flags.StringVar(&opts.BatchFile, "batch", "", "path to Maker batch JSON file")
 	flags.StringVar(&opts.IndexFile, "index", "", "optional path to semantic index JSON file")
+	flags.StringVar(&opts.OutDir, "out-dir", "", "optional directory to write rendered package files")
 	if err := flags.Parse(args); err != nil {
 		return makerProcessOptions{}, err
 	}
