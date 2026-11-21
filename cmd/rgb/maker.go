@@ -16,23 +16,92 @@ type makerProcessOptions struct {
 
 func runMaker(args []string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("missing maker subcommand (want process)")
+		return fmt.Errorf("missing maker subcommand (want process|stats|export)")
 	}
 	switch args[0] {
 	case "process":
-		opts, err := parseMakerProcessFlags(args[1:])
-		if err != nil {
-			return err
-		}
-		out, err := app.ProcessMakerBatch(opts.BatchFile, opts.IndexFile, opts.OutDir)
-		if err != nil {
-			return err
-		}
-		fmt.Print(out)
-		return nil
+		return runMakerProcess(args[1:])
+	case "stats":
+		return runMakerStats(args[1:])
+	case "export":
+		return runMakerExport(args[1:])
 	default:
-		return fmt.Errorf("unknown maker subcommand %q (want process)", args[0])
+		return fmt.Errorf("unknown maker subcommand %q (want process|stats|export)", args[0])
 	}
+}
+
+func runMakerProcess(args []string) error {
+	opts, err := parseMakerProcessFlags(args)
+	if err != nil {
+		return err
+	}
+	out, err := app.ProcessMakerBatch(opts.BatchFile, opts.IndexFile, opts.OutDir)
+	if err != nil {
+		return err
+	}
+	fmt.Print(out)
+	return nil
+}
+
+func runMakerStats(args []string) error {
+	dir, err := parseMakerStatsFlags(args)
+	if err != nil {
+		return err
+	}
+	out, err := app.MakerWorkspaceStats(dir)
+	if err != nil {
+		return err
+	}
+	fmt.Print(out)
+	return nil
+}
+
+func runMakerExport(args []string) error {
+	dir, outDir, err := parseMakerExportFlags(args)
+	if err != nil {
+		return err
+	}
+	out, err := app.ExportMakerChatPack(dir, outDir)
+	if err != nil {
+		return err
+	}
+	fmt.Print(out)
+	return nil
+}
+
+func parseMakerExportFlags(args []string) (string, string, error) {
+	var dir, outDir string
+	flags := flag.NewFlagSet("maker export", flag.ContinueOnError)
+	flags.SetOutput(io.Discard)
+	flags.StringVar(&dir, "dir", "", "path to Maker workspace directory")
+	flags.StringVar(&outDir, "out", "", "path to output chat-pack directory")
+	if err := flags.Parse(args); err != nil {
+		return "", "", err
+	}
+	if flags.NArg() != 0 {
+		return "", "", fmt.Errorf("unexpected maker export arguments: %v", flags.Args())
+	}
+	if dir == "" || outDir == "" {
+		return "", "", fmt.Errorf("maker export requires --dir and --out")
+	}
+	return dir, outDir, nil
+}
+
+func parseMakerStatsFlags(args []string) (string, error) {
+	var dir string
+	flags := flag.NewFlagSet("maker stats", flag.ContinueOnError)
+	flags.SetOutput(io.Discard)
+	flags.StringVar(&dir, "dir", "", "path to Maker workspace directory")
+	if err := flags.Parse(args); err != nil {
+		return "", err
+	}
+	if flags.NArg() != 0 {
+		return "", fmt.Errorf("unexpected maker stats arguments: %v", flags.Args())
+	}
+	if dir == "" {
+		return "", fmt.Errorf("maker stats requires --dir")
+	}
+	return dir, nil
 }
 
 func parseMakerProcessFlags(args []string) (makerProcessOptions, error) {

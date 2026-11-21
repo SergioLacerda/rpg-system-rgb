@@ -1202,3 +1202,196 @@ func TestWriteBatchFilesAndSafety(t *testing.T) {
 		t.Fatal("expected pruneStaleMarkdowns to fail when dir is read-only")
 	}
 }
+
+func TestCollectAndRenderWorkspaceStats(t *testing.T) {
+	if _, err := CollectWorkspaceStats(" "); err == nil {
+		t.Fatal("expected empty dir to fail")
+	}
+	if _, err := CollectWorkspaceStats(filepath.Join(t.TempDir(), "missing")); err == nil {
+		t.Fatal("expected missing dir to fail")
+	}
+	filePath := filepath.Join(t.TempDir(), "plain.txt")
+	if err := os.WriteFile(filePath, []byte("x"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := CollectWorkspaceStats(filePath); err == nil {
+		t.Fatal("expected non-dir path to fail")
+	}
+
+	ws := t.TempDir()
+	for _, sub := range []string{
+		"sources/text",
+		"sources/images/armor",
+		"packages/entities",
+		"packages/visual-observations",
+		"packages/conflicts/resolved",
+	} {
+		if err := os.MkdirAll(filepath.Join(ws, sub), 0o750); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := os.WriteFile(filepath.Join(ws, "sources/text/raw.md"), []byte("line1\nline2\nline3\nline4\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(ws, "sources/images/root.png"), []byte("img"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(ws, "sources/images/armor/suit.jpg"), []byte("img"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(ws, "sources/images/IMAGE_CATALOG.md"), []byte("# catalog\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(ws, "packages/entities/npc-a.md"), []byte("one two\nthree"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(ws, "packages/entities/empty.md"), nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(ws, "packages/visual-observations/vis-a.md"), []byte("vis\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(ws, "packages/conflicts/resolved/c1.md"), []byte("resolved\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	unreadableEnt := filepath.Join(ws, "packages/entities/unreadable.md")
+	if err := os.WriteFile(unreadableEnt, []byte("secret"), 0o000); err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = os.Chmod(unreadableEnt, 0o600) }()
+
+	stats, err := CollectWorkspaceStats(ws)
+	if err != nil {
+		t.Fatalf("CollectWorkspaceStats failed: %v", err)
+	}
+	if stats.RawTextFiles != 1 || stats.RawTextLines != 4 {
+		t.Fatalf("unexpected raw text stats: %+v", stats)
+	}
+	if stats.CatalogedImages != 2 || stats.ImagesByFolder["."] != 1 || stats.ImagesByFolder["armor"] != 1 {
+		t.Fatalf("unexpected image stats: %+v", stats)
+	}
+	if stats.EntityFiles != 2 || stats.EntityLines != 2 || stats.EntityWords != 3 {
+		t.Fatalf("unexpected entity stats: %+v", stats)
+	}
+	if stats.VisualObservationFiles != 1 || stats.OpenConflictFiles != 0 || stats.ResolvedConflictFiles != 1 {
+		t.Fatalf("unexpected obs/conflict stats: %+v", stats)
+	}
+
+	out := RenderWorkspaceStats(stats)
+	for _, want := range []string{
+		"# Maker Workspace Stats:",
+		"2 files",
+		"50.00%",
+		"## Cataloged Images by Folder",
+		"`armor`: 1",
+	} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("RenderWorkspaceStats missing %q:\n%s", want, out)
+		}
+	}
+
+	emptyStats, err := CollectWorkspaceStats(t.TempDir())
+	if err != nil {
+		t.Fatalf("CollectWorkspaceStats on empty dir failed: %v", err)
+	}
+	if strings.Contains(RenderWorkspaceStats(emptyStats), "## Cataloged Images by Folder") {
+		t.Fatal("expected empty workspace render to omit image folder breakdown")
+	}
+}
+
+func TestExportChatPackAndSummary(t *testing.T) {
+	if _, err := ExportChatPack(BatchInput{}, " "); err == nil {
+		t.Fatal("expected empty outDir to fail")
+	}
+	if _, err := ExportChatPack(BatchInput{}, t.TempDir()); err == nil {
+		t.Fatal("expected empty entity_packages to fail")
+	}
+
+	batch := BatchInput{
+		ReportID: "report.chat",
+		EntityPackages: []EntityPackage{
+			{
+				ID:            "other.world",
+				EntityType:    "other",
+				Status:        "draft",
+				SourceRefs:    []string{"n.md"},
+				ExplicitFacts: []ExplicitFact{{Field: "event", Value: "2030 blackout", SourceRef: "n.md"}},
+			},
+			{
+				ID:                  "npc.hero",
+				EntityType:          "npc",
+				Status:              "draft",
+				SourceRefs:          []string{"n.md"},
+				ExplicitFacts:       []ExplicitFact{{Field: "role", Value: "operative", SourceRef: "n.md"}},
+				InferredSuggestions: []InferredSuggestion{{Field: "tier", Value: "SS", Confidence: "medium", Rationale: "shown"}},
+				UnresolvedFields:    []UnresolvedField{{Field: "ceiling", Reason: "untested"}},
+			},
+			{
+				ID:            "faction.aurora",
+				EntityType:    "faction",
+				Status:        "draft",
+				SourceRefs:    []string{"n.md"},
+				ExplicitFacts: []ExplicitFact{{Field: "style", Value: "decentralized", SourceRef: "n.md"}},
+			},
+			{
+				ID:            "item.suit",
+				EntityType:    "item",
+				Status:        "draft",
+				SourceRefs:    []string{"n.md"},
+				ExplicitFacts: []ExplicitFact{{Field: "material", Value: "3D composite", SourceRef: "n.md"}},
+			},
+			{
+				ID:            "location.hq",
+				EntityType:    "location",
+				Status:        "draft",
+				SourceRefs:    []string{"n.md"},
+				ExplicitFacts: []ExplicitFact{{Field: "desc", Value: "abandoned building", SourceRef: "n.md"}},
+			},
+		},
+		VisualObservations: []VisualObservation{
+			{
+				ID:                   "vis.hero",
+				Status:               "draft",
+				SourceRef:            "hero.png",
+				LinkedEntity:         "npc.hero",
+				AppearanceFacts:      []AppearanceFact{{Field: "silhouette", Value: "black hooded stealth coat", Confidence: "high"}},
+				NonAuthoritativeNote: "visual only",
+			},
+		},
+	}
+
+	outDir := filepath.Join(t.TempDir(), "output-chat")
+	res, err := ExportChatPack(batch, outDir)
+	if err != nil {
+		t.Fatalf("ExportChatPack failed: %v", err)
+	}
+	if len(res.Files) != 4 {
+		t.Fatalf("expected 4 exported files, got %d", len(res.Files))
+	}
+	summary := RenderExportSummary(res)
+	if !strings.Contains(summary, "01_CORE_AND_RULES.md") || !strings.Contains(summary, "**Total:**") {
+		t.Fatalf("unexpected export summary:\n%s", summary)
+	}
+
+	coreBytes, err := os.ReadFile(filepath.Join(outDir, "01_CORE_AND_RULES.md"))
+	if err != nil || !strings.Contains(string(coreBytes), "Open / Unresolved Mysteries") || !strings.Contains(string(coreBytes), "ceiling") {
+		t.Fatalf("expected unresolved mysteries in 01_CORE_AND_RULES.md: err=%v\n%s", err, string(coreBytes))
+	}
+	castBytes, err := os.ReadFile(filepath.Join(outDir, "02_CAST_AND_FACTIONS.md"))
+	if err != nil || !strings.Contains(string(castBytes), "black hooded stealth coat") || strings.Contains(string(castBytes), "n.md") {
+		t.Fatalf("expected visual ref without source clutter in 02_CAST_AND_FACTIONS.md: err=%v\n%s", err, string(castBytes))
+	}
+
+	// Error paths: file-as-outDir and read-only target file.
+	fileAsDir := filepath.Join(outDir, "00_BOOT_PROMPT.md")
+	if _, err := ExportChatPack(batch, fileAsDir); err == nil {
+		t.Fatal("expected file-as-outDir to fail")
+	}
+	if err := os.Chmod(fileAsDir, 0o400); err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = os.Chmod(fileAsDir, 0o600) }()
+	if _, err := ExportChatPack(batch, outDir); err == nil {
+		t.Fatal("expected read-only target file to fail")
+	}
+}

@@ -21,16 +21,26 @@ func TestRunGoldenErrorText(t *testing.T) {
 		{
 			name: "missing maker subcommand",
 			args: []string{"maker"},
-			want: "missing maker subcommand (want process)",
+			want: "missing maker subcommand (want process|stats|export)",
 		},
 		{
 			name: "unknown maker subcommand",
 			args: []string{"maker", "bogus"},
-			want: `unknown maker subcommand "bogus" (want process)`,
+			want: `unknown maker subcommand "bogus" (want process|stats|export)`,
 		},
 		{
 			name: "unknown flag on maker process",
 			args: []string{"maker", "process", "--bogus"},
+			want: "flag provided but not defined: -bogus",
+		},
+		{
+			name: "unknown flag on maker stats",
+			args: []string{"maker", "stats", "--bogus"},
+			want: "flag provided but not defined: -bogus",
+		},
+		{
+			name: "unknown flag on maker export",
+			args: []string{"maker", "export", "--bogus"},
 			want: "flag provided but not defined: -bogus",
 		},
 		{
