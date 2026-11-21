@@ -1,36 +1,35 @@
 # Prompt: Detect Conflicts
 
-Use whenever two or more sources (two notes, a note and an image, two
-images) describe the same field of the same entity differently.
+Record and classify disagreements when two or more sources (notes or images)
+state different values for the same field of an entity.
 
-## Instructions
+## Steps
 
-1. Identify the disputed field precisely — a conflict report covers
-   exactly one field. "The quartermaster's name" and "the quartermaster's
-   loyalty" are two separate conflict reports even if they come from the
-   same pair of sources.
-2. Record every competing claim with its source and `source_kind`
-   (`text` or `image`) in a [`conflict-report`](../templates/conflict-report.md).
-3. Apply the authority rule from `../SKILL.md` (`image = appearance, text
-   = facts`) to decide resolution:
-   - If one claim's `source_kind` is `image` and the disputed field is
-     **not** an appearance property (name, loyalty, backstory, canon
-     status, relationships, stats) — the image was never authoritative
-     over that field. Set `resolution: resolved_by_authority_rule` and
-     explain in `resolution_note` why the image claim doesn't apply.
-   - If both claims are `text`, or the field genuinely is an appearance
-     property both sources address, the rule does not resolve it — leave
-     `resolution: unresolved` for the user.
-4. Never default to "most recent source wins" or "most detailed source
-   wins" — those are not the authority rule, and using them silently
-   would misattribute a Maker guess as a resolved fact.
-5. Link the conflict report from every entity-package it affects.
+1. Isolate each disputed field into its own
+   [`conflict-report`](../templates/conflict-report.md) — split multi-field
+   disagreements (e.g. `name` vs. `loyalty`) into separate reports.
+2. Record every competing claim with `value`, `source_ref`, and
+   `source_kind` (`text` or `image`).
+3. Apply `text-over-image` from [`../SKILL.md`](../SKILL.md) to set
+   `resolution`:
+   - If claims include both `text` and `image` and the disputed field is a
+     **non-appearance** fact (name, loyalty, backstory, canon status,
+     relationships, stats), set `resolution: resolved_by_authority_rule`
+     and explain in `resolution_note` why the text source wins.
+   - If all claims are `text`, or all claims are `image`, or the field
+     genuinely addresses appearance, keep `resolution: unresolved` per
+     `conflict-on-dispute` so the user decides (never break ties by recency
+     or detail level).
+4. Link the conflict report ID from every affected `entity-package`.
 
-## Do Not
+## Completion Check
 
-- Resolve a conflict between two text sources on Maker's own judgment —
-  that decision belongs to the user.
-- Apply `resolved_by_authority_rule` to a field the image genuinely could
-  speak to (e.g. "what does the merchant look like" — if the dispute is
-  image vs. image, the authority rule doesn't apply either, since neither
-  side is text).
+- At least two claims are recorded on every conflict report.
+- `resolution_note` is present whenever `resolution` is
+  `resolved_by_authority_rule` or `resolved_by_user`.
+
+## Worked Example
+
+Read [`../examples/harbor-quartermaster.md`](../examples/harbor-quartermaster.md)
+only when verifying how `conflict-report` interacts with an entity's
+`unresolved_fields`.

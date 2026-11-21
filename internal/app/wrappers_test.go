@@ -1,7 +1,9 @@
 package app
 
 import (
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -39,5 +41,52 @@ func TestFacadeMethodsSurfaceComponentErrors(t *testing.T) {
 	}
 	if err := GenerateProjections(root); err == nil {
 		t.Fatal("expected GenerateProjections to fail without semantic docs")
+	}
+	if _, err := ProcessMakerBatch(filepath.Join(root, "missing.json"), ""); err == nil {
+		t.Fatal("expected ProcessMakerBatch to fail when batch file is missing")
+	}
+}
+
+func TestProcessMakerBatchSuccessAndIndexErrors(t *testing.T) {
+	dir := t.TempDir()
+	batchFile := filepath.Join(dir, "batch.json")
+	batch := `{
+		"report_id": "report.app-test",
+		"input_batch": ["note.txt"],
+		"entity_packages": [{
+			"id": "npc.guard",
+			"entity_type": "npc",
+			"status": "draft",
+			"source_refs": ["note.txt"],
+			"explicit_facts": [{"field": "role", "value": "watchman", "source_ref": "note.txt"}],
+			"canonical_dependencies": ["core.ability.contract"]
+		}]
+	}`
+	if err := os.WriteFile(batchFile, []byte(batch), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := ProcessMakerBatch(batchFile, filepath.Join(dir, "missing-index.json")); err == nil {
+		t.Fatal("expected missing index file to fail")
+	}
+
+	indexFile := filepath.Join(dir, "index.json")
+	if err := os.WriteFile(indexFile, []byte(`{"units":[{"id":"core.ability.contract","authority_type":"canonical_semantic"}]}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	md, err := ProcessMakerBatch(batchFile, indexFile)
+	if err != nil {
+		t.Fatalf("ProcessMakerBatch failed: %v", err)
+	}
+	if !strings.Contains(md, "# Entity Package: npc.guard") {
+		t.Fatalf("unexpected markdown:\n%s", md)
+	}
+
+	if err := os.WriteFile(batchFile, []byte(`{"report_id":""}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ProcessMakerBatch(batchFile, ""); err == nil {
+		t.Fatal("expected invalid batch to fail")
 	}
 }

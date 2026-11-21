@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -260,5 +262,46 @@ func TestParseSkillReleaseFlagsRejectsPositionalArgs(t *testing.T) {
 	})
 	if err == nil {
 		t.Fatal("expected positional skill release argument to be rejected")
+	}
+}
+
+func TestRunMakerSubcommands(t *testing.T) {
+	if err := run([]string{"maker"}); err == nil || !strings.Contains(err.Error(), "missing maker subcommand") {
+		t.Fatalf("expected missing maker subcommand error, got %v", err)
+	}
+	if err := run([]string{"maker", "bogus"}); err == nil || !strings.Contains(err.Error(), "bogus") {
+		t.Fatalf("expected unknown maker subcommand error, got %v", err)
+	}
+	if _, err := parseMakerProcessFlags([]string{"--bad"}); err == nil {
+		t.Fatal("expected invalid maker process flag to fail")
+	}
+	if _, err := parseMakerProcessFlags([]string{"--batch", "a.json", "extra"}); err == nil {
+		t.Fatal("expected positional maker process argument to fail")
+	}
+	if _, err := parseMakerProcessFlags([]string{"--index", "idx.json"}); err == nil {
+		t.Fatal("expected missing --batch to fail")
+	}
+
+	dir := t.TempDir()
+	batchFile := filepath.Join(dir, "batch.json")
+	if err := os.WriteFile(batchFile, []byte(`{
+		"report_id": "report.cli",
+		"input_batch": ["note.txt"],
+		"entity_packages": [{
+			"id": "npc.cli",
+			"entity_type": "npc",
+			"status": "draft",
+			"source_refs": ["note.txt"],
+			"explicit_facts": [{"field": "role", "value": "scribe", "source_ref": "note.txt"}]
+		}]
+	}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := run([]string{"maker", "process", "--batch", batchFile}); err != nil {
+		t.Fatalf("expected maker process to succeed, got %v", err)
+	}
+	if err := run([]string{"maker", "process", "--batch", filepath.Join(dir, "missing.json")}); err == nil {
+		t.Fatal("expected maker process with missing batch to fail")
 	}
 }

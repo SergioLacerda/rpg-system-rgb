@@ -1,133 +1,73 @@
 ---
 name: rgb-maker
-description: Structures raw GM notes, text, and images into campaign/world artifacts (NPCs, locations, items, factions) with strict separation between explicit facts, inferred suggestions, unresolved fields, and conflict reports, never inventing or overriding RGB System canon.
+description: RGB Maker content structurer. Use when turning raw GM notes, text, or images into entity packages, visual observations, conflict reports, or Maker session reports.
 ---
 
 # RGB Maker Skill
 
-Status: Contract defined in `skills/maker/**`; deterministic Go validation,
-structured-fact diffing, report aggregation, and input routing live in
-`internal/components/maker/` per [ADR-015](../../docs/adr/adr-015-skill-runtime-split.md).
-The LLM-side runtime wiring remains unimplemented — this package specifies
-what a Maker implementation must do, and must never do. See
-[ADR-001](../../docs/adr/adr-001-ai-first-documentation-authority.md)
-(AI-First Documentation Authority) for the authority model this contract
-extends into content creation.
+Structures raw GM notes, text, and images into campaign/world artifacts
+(NPCs, locations, items, factions) with explicit provenance separation.
+Conforms to [`consumer.maker.v0_1`](../../docs/core/semantic/consumer-contracts.v0.1.json),
+mirrored for quick lookup in [`config.yaml`](config.yaml) (the JSON file
+wins if they disagree). See [ADR-001](../../docs/adr/adr-001-ai-first-documentation-authority.md)
+for the AI-first documentation authority model.
 
-**Deferred by design:** per the internal `specialist-first-skill-roadmap`
-planning analysis, Maker's runtime implementation is deferred until
-[`../specialist/`](../specialist/)
-proves out the rule/source/bundle path (source-trace benchmark, stable
-bundle/search context shape, accepted provenance schemas) — see
-[`../specialist/SKILL.md`](../specialist/SKILL.md)'s "Roadmap
-Sequencing." This contract stays written and ready in the meantime.
+## Workflow & Package Dispatch
 
-## What Maker Is
-
-RGB Maker is a content structuring skill. It turns a GM's notes, text, or
-images into campaign/world artifacts — NPCs, locations, items, factions —
-while keeping a hard line between what the source material actually said
-and what Maker inferred or generated.
-
-Maker consumes, and must conform to,
-[`consumer.maker.v0_1`](../../docs/core/semantic/consumer-contracts.v0.1.json)
-— the accepted consumer contract for this component. [`config.yaml`](config.yaml)
-in this directory restates that contract for quick machine-readable reference;
-the JSON file remains the single source of truth if the two ever disagree.
-
-## Maker Must
-
-- extract entities from notes, text, or images into structured packages
-  (see [`schemas/entity-package.schema.yaml`](schemas/entity-package.schema.yaml)
-  and [`templates/entity-package.md`](templates/entity-package.md));
-- classify every extracted fact into exactly one of four layers:
-  **explicit fact**, **inferred suggestion**, **unresolved field**, or
-  **conflict** — never blend these into a single undifferentiated
-  description;
-- generate both a human-readable Markdown artifact and its machine-readable
-  metadata for every package (schema + template pair, not one or the
-  other);
-- preserve the three truth layers from `design.md`'s Maker contract:
-  - **canonical truth** — what the RGB System's own rules say (Maker never
-    overrides this; see Non-Goals);
-  - **public or scoped knowledge** — what characters/factions in the
-    fiction are meant to know;
-  - **observed representation** — what a specific note or image shows,
-    which may be incomplete, biased, or wrong in-fiction;
-- report every ambiguity as an unresolved field or a conflict report (see
-  [`schemas/conflict-report.schema.yaml`](schemas/conflict-report.schema.yaml)),
-  never silently resolved by guessing;
-- disclose `draft`, `stale`, `needs_review`, and `generated` status on
-  every output, per `consumer.maker.v0_1`'s `required_disclosures`.
-
-## Maker Must Not
-
-- implement runtime behavior in this package (this is a contract, not an
-  engine);
-- become mandatory for using the RGB System — Maker is an authoring aid,
-  not a dependency of play;
-- act as rule authority: Maker may *read* `core.ability.contract` and other
-  canonical units to keep generated content consistent, but may never
-  originate a new rule, and its outputs' `authority_type` is never
-  `canonical_semantic` or `canonical_markdown_bridge` (`consumer.maker.v0_1`
-  forbids `authority_type: projection` and `generated_artifact` on its
-  *inputs* for the same reason — Maker cannot bootstrap authority from
-  something already derived);
-- silently overwrite an explicit fact with an inference, or an inference
-  with a guess — every promotion from a lower-confidence layer to a higher
-  one is a decision the user makes, not Maker.
-
-## The Authority Rule
-
-```text
-image = appearance
-text = facts
-```
-
-When a note includes both an image and text describing the same subject,
-the **text is the authoritative source for facts** (names, stats,
-relationships, canon status); the **image is authoritative only for
-appearance** (what something looks like). An image never overrides a
-textual fact, and a textual description never overrides what an image
-actually shows about appearance. When image and text conflict on a fact
-the image cannot actually establish (e.g. text says "the merchant is
-lying," an image cannot contradict that), the text wins outright — this is
-not a case that needs a conflict report, because the image was never
-authoritative over that field.
-
-See [`schemas/visual-observation.schema.yaml`](schemas/visual-observation.schema.yaml)
-for how an image's contribution is recorded as appearance-only, and
-[`templates/visual-observation.md`](templates/visual-observation.md) for
-the corresponding human-readable form.
-
-## Package Kinds
+1. **Extract entities** from notes, text, or images → follow
+   [`prompts/extract-entities.md`](prompts/extract-entities.md).
+2. **Resolve or record source disputes** when two or more inputs conflict
+   on a field → follow
+   [`prompts/detect-conflicts.md`](prompts/detect-conflicts.md).
+3. **Emit schema + template pairs** for every package produced:
 
 | Kind | Schema | Template | Purpose |
 |---|---|---|---|
-| Entity Package | [`schemas/entity-package.schema.yaml`](schemas/entity-package.schema.yaml) | [`templates/entity-package.md`](templates/entity-package.md) | one extracted entity (NPC, location, item, faction), with facts/inferences/unresolved fields |
-| Maker Report | [`schemas/maker-report.schema.yaml`](schemas/maker-report.schema.yaml) | [`templates/maker-report.md`](templates/maker-report.md) | session-level summary of everything Maker extracted from one input batch |
-| Visual Observation | [`schemas/visual-observation.schema.yaml`](schemas/visual-observation.schema.yaml) | [`templates/visual-observation.md`](templates/visual-observation.md) | appearance-only facts read from an image, per the authority rule |
-| Conflict Report | [`schemas/conflict-report.schema.yaml`](schemas/conflict-report.schema.yaml) | [`templates/conflict-report.md`](templates/conflict-report.md) | two or more sources disagree on a fact Maker cannot resolve on its own |
+| Entity Package | [`schemas/entity-package.schema.yaml`](schemas/entity-package.schema.yaml) | [`templates/entity-package.md`](templates/entity-package.md) | one extracted entity with facts/inferences/unresolved fields |
+| Maker Report | [`schemas/maker-report.schema.yaml`](schemas/maker-report.schema.yaml) | [`templates/maker-report.md`](templates/maker-report.md) | session-level summary of one input batch |
+| Visual Observation | [`schemas/visual-observation.schema.yaml`](schemas/visual-observation.schema.yaml) | [`templates/visual-observation.md`](templates/visual-observation.md) | appearance-only properties read from an image |
+| Conflict Report | [`schemas/conflict-report.schema.yaml`](schemas/conflict-report.schema.yaml) | [`templates/conflict-report.md`](templates/conflict-report.md) | single disputed field awaiting resolution or authority-rule note |
 
-## Prompts
+4. **Validate and render deterministically** through the Go component CLI
+   when running inside this monorepo:
 
-Starting prompts for the two core Maker tasks live in
-[`prompts/`](prompts/): [`extract-entities.md`](prompts/extract-entities.md)
-and [`detect-conflicts.md`](prompts/detect-conflicts.md).
+```bash
+go run ./cmd/rgb maker process --batch <batch.json> --index docs/core/semantic/core-v2.index.json
+```
 
-## Examples
+## Core Operating Rules
 
-A worked example (raw GM notes → entity package → conflict report) lives in
-[`examples/`](examples/).
+- **`layer-separated`**: Classify every entity candidate property into
+  exactly one layer — `explicit_facts`, `inferred_suggestions`, or
+  `unresolved_fields` — and emit both machine-readable schema fields and
+  rendered Markdown (`templates/*.md`).
+- **`text-over-image`**: Text is authoritative for all facts (names, stats,
+  relationships, canon status); images are authoritative for appearance only
+  (`schemas/visual-observation.schema.yaml`). When text and image conflict on
+  a non-appearance property, text wins outright.
+- **`conflict-on-dispute`**: Whenever sources disagree on a field that
+  `text-over-image` does not settle (text vs. text, or image vs. image on
+  appearance), open a `conflict-report` with `resolution: unresolved` so the
+  user decides; keep the disputed field in `unresolved_fields` on the entity.
+- **`non-canonical-status`**: Disclose `draft`, `stale`, `needs_review`, and
+  `generated` on every output. Consult `docs/core/semantic/core-v2.index.json`
+  strictly as read-only reference for `canonical_dependencies` (using
+  `canonical_markdown_bridge`, `canonical_semantic`, `translation`, or
+  `design_record` units — never `projection` or `generated_artifact`).
+  Maker is an optional authoring aid and never creates or overrides canon.
 
-## Go Boundary
+## The Three Truth Layers
 
-Per `design.md`'s Skills Track design, Go is used for Maker only where
-deterministic behavior is required — schema validation, semantic ID lookup,
-bundle/context generation. There is no Maker-specific generated projection
-yet (unlike Specialist's `core-specialist-pack.json`); until Maker has a
-real consumer beyond this contract, adding one would be exactly the
-"attractive but unused generated artifact" risk
-[ADR-007](../../docs/adr/adr-007-bundle-consumer-contract-policy.md) warns
-against. Maker reads `docs/core/semantic/core-v2.index.json` directly for
-now.
+Keep these three layers distinct across all artifacts:
+
+- **canonical truth** — what RGB System rules define (`core-v2.index.json`).
+- **public or scoped knowledge** — what characters or factions in the
+  fiction are meant to know.
+- **observed representation** — what a specific note or image shows, which
+  may be incomplete, biased, or wrong in-fiction.
+
+## Worked Example
+
+Read [`examples/harbor-quartermaster.md`](examples/harbor-quartermaster.md)
+only when checking end-to-end packaging across text notes, an image sketch,
+and a text-vs-text conflict report.

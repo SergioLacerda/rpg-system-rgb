@@ -162,3 +162,61 @@ func fixtureToEntityPackage(pkg makerEntityPackageFixture) maker.EntityPackage {
 	}
 	return ep
 }
+
+func TestMakerHarborQuartermasterEndToEnd(t *testing.T) {
+	raw, err := os.ReadFile("examples/maker-harbor-batch.json")
+	if err != nil {
+		t.Fatalf("reading harbor batch fixture: %v", err)
+	}
+	idx, err := components.LoadSemanticIndex("../../docs/core/semantic/core-v2.index.json")
+	if err != nil {
+		t.Fatalf("loading semantic index: %v", err)
+	}
+
+	res, err := maker.ProcessBatch(raw, &idx)
+	if err != nil {
+		t.Fatalf("ProcessBatch returned error: %v", err)
+	}
+	if len(res.RoutedInputs) != 3 || res.RoutedInputs[2].Type != maker.InputTypeImage {
+		t.Fatalf("unexpected routed inputs: %+v", res.RoutedInputs)
+	}
+	if res.Report.ID != "report.2026-08-01-harbor-session" || len(res.Report.EntityPackages) != 1 {
+		t.Fatalf("unexpected report: %+v", res.Report)
+	}
+	for _, want := range []string{
+		"# Maker Report: report.2026-08-01-harbor-session",
+		"# Visual Observation: observation.harbor-npc-sketch",
+		"# Conflict Report: conflict.harbor-quartermaster-name",
+		"# Entity Package: npc.harbor-quartermaster",
+		"Yssa Kell",
+		"Yssa Voss",
+	} {
+		if !strings.Contains(res.Markdown, want) {
+			t.Errorf("rendered markdown missing %q", want)
+		}
+	}
+
+	diffReports := maker.DiffEntityPackages([]maker.EntityPackage{
+		{
+			ID:         "npc.harbor-quartermaster",
+			EntityType: "npc",
+			Status:     "draft",
+			SourceRefs: []string{"Note 1 (session prep)"},
+			ExplicitFacts: []maker.ExplicitFact{
+				{Field: "name", Value: "Yssa Kell", SourceRef: "Note 1 (session prep)"},
+			},
+		},
+		{
+			ID:         "npc.harbor-quartermaster",
+			EntityType: "npc",
+			Status:     "draft",
+			SourceRefs: []string{"Note 2 (session recap)"},
+			ExplicitFacts: []maker.ExplicitFact{
+				{Field: "name", Value: "Yssa Voss", SourceRef: "Note 2 (session recap)"},
+			},
+		},
+	})
+	if len(diffReports) != 1 || diffReports[0].Resolution != "unresolved" || diffReports[0].Field != "name" {
+		t.Fatalf("unexpected DiffEntityPackages result for Harbor notes: %+v", diffReports)
+	}
+}

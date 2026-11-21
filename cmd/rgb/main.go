@@ -19,28 +19,31 @@ func main() {
 	}
 }
 
+var repoRootCommands = map[string]func(string) error{
+	"validate": app.ValidateDocs,
+	"generate": app.GenerateProjections,
+	"bundle":   app.BuildBundle,
+}
+
 func run(args []string) error {
 	if len(args) < 1 {
 		fmt.Println(app.Hello())
 		return nil
 	}
 
+	if fn, ok := repoRootCommands[args[0]]; ok {
+		return fn(optionalRepoRoot(args[1:]))
+	}
+
 	switch args[0] {
-	case "validate":
-		repoRoot := optionalRepoRoot(args[1:])
-		return app.ValidateDocs(repoRoot)
-	case "generate":
-		repoRoot := optionalRepoRoot(args[1:])
-		return app.GenerateProjections(repoRoot)
-	case "bundle":
-		repoRoot := optionalRepoRoot(args[1:])
-		return app.BuildBundle(repoRoot)
 	case "release":
 		return runRelease(args[1:])
 	case "docs":
 		return runDocs(args[1:])
+	case "maker":
+		return runMaker(args[1:])
 	default:
-		return fmt.Errorf("unknown subcommand %q (want validate|generate|bundle|release|docs)", args[0])
+		return fmt.Errorf("unknown subcommand %q (want validate|generate|bundle|release|docs|maker)", args[0])
 	}
 }
 

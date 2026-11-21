@@ -759,3 +759,113 @@ func containsError(errs []error, substr string) bool {
 	}
 	return false
 }
+
+func TestRenderTemplatesAndEmptySections(t *testing.T) {
+	ep := validSampleEntityPackage()
+	ep.CanonicalDeps = []string{"core.ability.contract"}
+	epMD := RenderEntityPackage(ep)
+	for _, want := range []string{
+		"# Entity Package: npc.harbor-quartermaster",
+		"| role | harbor quartermaster | Note 1 (session prep) |",
+		"## Canonical Dependencies",
+		"- core.ability.contract",
+	} {
+		if !strings.Contains(epMD, want) {
+			t.Fatalf("RenderEntityPackage missing %q:\n%s", want, epMD)
+		}
+	}
+
+	emptyEpMD := RenderEntityPackage(EntityPackage{ID: "npc.empty", EntityType: "npc", Status: "draft"})
+	if strings.Count(emptyEpMD, "None.") < 5 {
+		t.Fatalf("expected explicit None. placeholders in empty entity package:\n%s", emptyEpMD)
+	}
+
+	voMD := RenderVisualObservation(validSampleVisualObservation())
+	if !strings.Contains(voMD, "# Visual Observation: observation.harbor-npc-sketch") || !strings.Contains(voMD, "| clothing | weathered coat | high |") {
+		t.Fatalf("unexpected RenderVisualObservation:\n%s", voMD)
+	}
+	voNoLink := validSampleVisualObservation()
+	voNoLink.LinkedEntity = ""
+	if !strings.Contains(RenderVisualObservation(voNoLink), "**Linked entity:** None.") {
+		t.Fatalf("expected None. when LinkedEntity is empty")
+	}
+
+	cr := validSampleConflictReport()
+	cr.Resolution = "resolved_by_user"
+	cr.ResolutionNote = "GM chose Voss"
+	crMD := RenderConflictReport(cr)
+	if !strings.Contains(crMD, "# Conflict Report: conflict.harbor-quartermaster-name") || !strings.Contains(crMD, "GM chose Voss") {
+		t.Fatalf("unexpected RenderConflictReport:\n%s", crMD)
+	}
+
+	emptyReportMD := RenderMakerReport(MakerReport{ID: "rep.empty", Status: "draft"})
+	if !strings.Contains(emptyReportMD, "No extractable entities found in this batch.") || strings.Count(emptyReportMD, "None.") < 4 {
+		t.Fatalf("expected empty batch markers in RenderMakerReport:\n%s", emptyReportMD)
+	}
+}
+
+func TestProcessBatchSuccessAndErrors(t *testing.T) {
+	validJSON := []byte(`{
+		"report_id": "report.test",
+		"input_batch": ["Note 1", "sketch.png"],
+		"entity_packages": [{
+			"id": "npc.dren",
+			"entity_type": "npc",
+			"status": "draft",
+			"source_refs": ["Note 1", "sketch.png"],
+			"explicit_facts": [{"field": "role", "value": "merchant", "source_ref": "Note 1"}],
+			"conflicts": ["conflict.dren-name"],
+			"canonical_dependencies": ["core.ability.contract"]
+		}],
+		"conflict_reports": [{
+			"id": "conflict.dren-name",
+			"status": "needs_review",
+			"field": "name",
+			"linked_entity": "npc.dren",
+			"claims": [
+				{"value": "Dren", "source_ref": "Note 1", "source_kind": "text"},
+				{"value": "Drenn", "source_ref": "sketch.png", "source_kind": "image"}
+			],
+			"resolution": "resolved_by_authority_rule",
+			"resolution_note": "text wins for name"
+		}],
+		"visual_observations": [{
+			"id": "obs.dren",
+			"status": "draft",
+			"source_ref": "sketch.png",
+			"appearance_facts": [{"field": "clothing", "value": "cloak", "confidence": "high"}],
+			"linked_entity": "npc.dren",
+			"non_authoritative_note": "appearance only"
+		}]
+	}`)
+
+	idx := components.SemanticIndex{
+		Units: []components.SemanticIndexUnit{
+			{ID: "core.ability.contract", AuthorityType: "canonical_semantic"},
+		},
+	}
+
+	res, err := ProcessBatch(validJSON, &idx)
+	if err != nil {
+		t.Fatalf("expected valid batch to succeed, got %v", err)
+	}
+	if len(res.RoutedInputs) != 2 || res.RoutedInputs[1].Type != InputTypeImage {
+		t.Fatalf("unexpected routed inputs: %+v", res.RoutedInputs)
+	}
+	if !strings.Contains(res.Markdown, "# Maker Report: report.test") || !strings.Contains(res.Markdown, "# Entity Package: npc.dren") {
+		t.Fatalf("unexpected batch markdown:\n%s", res.Markdown)
+	}
+
+	if _, err := ProcessBatch([]byte(`{`), nil); err == nil {
+		t.Fatal("expected invalid JSON error")
+	}
+
+	badJSON := []byte(`{
+		"report_id": "",
+		"input_batch": [],
+		"entity_packages": [{"id": "npc.bad", "entity_type": "npc", "status": "canonical", "canonical_dependencies": ["core.unknown"]}]
+	}`)
+	if _, err := ProcessBatch(badJSON, &idx); err == nil {
+		t.Fatal("expected validation errors for invalid batch")
+	}
+}
