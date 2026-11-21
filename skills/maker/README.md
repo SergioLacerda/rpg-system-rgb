@@ -2,10 +2,12 @@
 
 Status: Contract defined in `skills/maker/**`; deterministic Go input
 routing, schema validation, canonical dependency validation, structured-fact
-diffing, report aggregation, Markdown rendering, and `rgb maker process`
-CLI orchestration live in `internal/components/maker/`, `internal/app/`, and
-`cmd/rgb/` per [ADR-015](../../docs/adr/adr-015-skill-runtime-split.md).
-End-to-end LLM runtime wiring remains deferred.
+diffing, report aggregation, Markdown rendering (with `conflicts/resolved/`
+archival and stale-file pruning), workspace statistics, compact chat-pack
+export, and `rgb maker process|stats|export` CLI orchestration live in
+`internal/components/maker/`, `internal/app/`, and `cmd/rgb/` per
+[ADR-015](../../docs/adr/adr-015-skill-runtime-split.md). End-to-end LLM
+runtime wiring remains deferred.
 
 See [`SKILL.md`](SKILL.md) for the agent contract, [`config.yaml`](config.yaml)
 for the consumer contract restatement, [`prompts/`](prompts/) for extraction
