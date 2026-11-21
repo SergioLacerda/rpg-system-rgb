@@ -7,20 +7,15 @@ import (
 	"github.com/SergioLacerda/rpg-system-rgb/internal/components"
 )
 
-var forbiddenAuthorityTypes = map[string]bool{
-	"projection":         true,
-	"generated_artifact": true,
-}
+var forbiddenAuthorityTypes = map[string]bool{"projection": true, "generated_artifact": true}
 
-// ValidateConflictReport checks a ConflictReport against conflict-report.schema.yaml:
-// at least 2 claims, valid enums, and resolved_by_authority_rule restricted to image-vs-text disputes.
+// ValidateConflictReport checks a ConflictReport against conflict-report.schema.yaml.
 func ValidateConflictReport(r ConflictReport) []error {
 	errs := validateConflictHeader(r)
 	for i, c := range r.Claims {
 		errs = append(errs, validateConflictClaim(r.ID, i, c)...)
 	}
-	errs = append(errs, validateConflictResolution(r)...)
-	return errs
+	return append(errs, validateConflictResolution(r)...)
 }
 
 func isSafePackageID(id string) bool {
@@ -102,9 +97,7 @@ func hasClaimKind(claims []Claim, kind string) bool {
 	return false
 }
 
-// ValidateMakerReport checks a MakerReport against maker-report.schema.yaml:
-// non-empty id, bounded status, non-empty input_batch, non-nil entity_packages,
-// and non-empty unique IDs across emitted package lists.
+// ValidateMakerReport checks a MakerReport against maker-report.schema.yaml.
 func ValidateMakerReport(r MakerReport) []error {
 	errs := validateMakerReportHeader(r)
 	errs = append(errs, validateReportStrings(r.ID, "input_batch", r.InputBatch)...)
@@ -112,7 +105,7 @@ func ValidateMakerReport(r MakerReport) []error {
 	errs = append(errs, validateUniqueIDs(r.ID, "conflict_reports", r.ConflictReports)...)
 	errs = append(errs, validateUniqueIDs(r.ID, "visual_observations", r.VisualObservations)...)
 	errs = append(errs, validateReportStrings(r.ID, "open_questions", r.OpenQuestions)...)
-	return errs
+	return append(errs, validateReportStrings(r.ID, "pending_decisions", r.PendingDecisions)...)
 }
 
 func validateMakerReportHeader(r MakerReport) []error {
@@ -159,16 +152,12 @@ func validateUniqueIDs(reportID, field string, ids []string) []error {
 	return errs
 }
 
-// ValidateCanonicalDependencies validates an EntityPackage's canonical_dependencies
-// against the loaded semantic index per consumer.maker.v0_1: every referenced ID
-// must exist in the index and must not have a forbidden authority_type
-// (projection or generated_artifact).
+// ValidateCanonicalDependencies validates canonical_dependencies against idx.
 func ValidateCanonicalDependencies(p EntityPackage, idx components.SemanticIndex) []error {
 	units := make(map[string]components.SemanticIndexUnit, len(idx.Units))
 	for _, u := range idx.Units {
 		units[u.ID] = u
 	}
-
 	var errs []error
 	for _, dep := range p.CanonicalDeps {
 		unit, ok := units[dep]

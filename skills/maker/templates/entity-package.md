@@ -39,6 +39,19 @@ Links to conflict reports touching this entity, if any.
 
 - {{conflict-report id}}
 
+## Version / Reboot Variants
+
+Alternative versions, reboots, or remakes preserved as appendices pending
+final choice (omit only if no alternative versions exist).
+
+### {{variant label}} ({{source_ref}})
+
+{{summary}}
+
+| Field | Value |
+|---|---|
+| {{field}} | {{value}} |
+
 ## Canonical Dependencies
 
 RGB System semantic IDs this entity's mechanics depend on, if any (e.g. an

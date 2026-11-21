@@ -52,6 +52,17 @@ Conforms to [`consumer.maker.v0_1`](../../docs/core/semantic/consumer-contracts.
   `text-over-image` does not settle (text vs. text, or image vs. image on
   appearance), open a `conflict-report` with `resolution: unresolved` so the
   user decides; keep the disputed field in `unresolved_fields` on the entity.
+- **`variant-preserved`**: When multiple inputs represent reboots, remakes,
+  or distinct timeline versions of the same entity (where multiple fields
+  diverge structurally), keep shared core facts in `explicit_facts` and
+  preserve each distinct version intact under `variants` as structured
+  appendices with `status: needs_review` — never blend two reboots into a
+  single muddled description.
+- **`prompt-user-decisions`**: At the end of every extraction run, surface a
+  numbered decision/guidance prompt for every ambiguity (`needs_review`
+  entities of uncertain nature, unlinked images, unresolved conflicts, and
+  multi-variant entities awaiting final canon choice) so the user can steer
+  promotion directly.
 - **`non-canonical-status`**: Disclose `draft`, `stale`, `needs_review`, or
   `generated` on every output. Maker is an authoring and organization aid; it
   never invents story canon or overwrites user decisions.

@@ -23,10 +23,32 @@ func RenderEntityPackage(p EntityPackage) string {
 	writeInferredSection(&b, p.InferredSuggestions)
 	writeUnresolvedSection(&b, p.UnresolvedFields)
 	writeBulletSection(&b, "Conflicts", p.Conflicts)
+	if len(p.Variants) > 0 {
+		writeVariantsSection(&b, p.Variants)
+	}
 	if len(p.CanonicalDeps) > 0 {
 		writeBulletSection(&b, "Canonical Dependencies", p.CanonicalDeps)
 	}
 	return strings.TrimRight(b.String(), "\n") + "\n"
+}
+
+func writeVariantsSection(b *strings.Builder, variants []EntityVariant) {
+	b.WriteString("## Version / Reboot Variants\n\nAlternative drafts or reboots preserved as separate appendices pending final choice.\n\n")
+	for _, v := range variants {
+		writeVariantBlock(b, v)
+	}
+}
+
+func writeVariantBlock(b *strings.Builder, v EntityVariant) {
+	fmt.Fprintf(b, "### %s (%s)\n\n%s\n\n", v.Label, v.SourceRef, strings.TrimSpace(v.Summary))
+	if len(v.Facts) == 0 {
+		return
+	}
+	b.WriteString("| Field | Value |\n|---|---|\n")
+	for _, f := range v.Facts {
+		fmt.Fprintf(b, "| %s | %s |\n", escapeTableCell(f.Field), escapeTableCell(f.Value))
+	}
+	b.WriteByte('\n')
 }
 
 func writeExplicitFactsSection(b *strings.Builder, facts []ExplicitFact) {
@@ -126,6 +148,7 @@ func RenderMakerReport(r MakerReport) string {
 	writeBulletSection(&b, "Conflict Reports", r.ConflictReports)
 	writeBulletSection(&b, "Visual Observations", r.VisualObservations)
 	writeBulletSection(&b, "Open Questions For The GM", r.OpenQuestions)
+	writeBulletSection(&b, "Pending User Decisions & Guidance", r.PendingDecisions)
 	return strings.TrimRight(b.String(), "\n") + "\n"
 }
 

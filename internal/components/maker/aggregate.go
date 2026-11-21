@@ -1,6 +1,9 @@
 package maker
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // AggregateInput holds the already-validated packages emitted by the Maker
 // LLM layer for one input batch.
@@ -14,8 +17,7 @@ type AggregateInput struct {
 }
 
 // AggregateMakerReport builds a MakerReport from a batch of validated
-// packages, checking that every referenced ID corresponds to an emitted
-// package and rejecting duplicate package IDs.
+// packages, checking cross-references and deriving pending user decisions.
 //
 // The returned MakerReport is always in status "draft" — promotion to
 // needs_review or stale is a user decision.
@@ -48,9 +50,60 @@ func AggregateMakerReport(in AggregateInput) (MakerReport, []error) {
 		ConflictReports:    crIDs,
 		VisualObservations: voIDs,
 		OpenQuestions:      in.OpenQuestions,
+		PendingDecisions:   buildPendingDecisions(in),
 	}
 
 	return report, errs
+}
+
+func buildPendingDecisions(in AggregateInput) []string {
+	var decisions []string
+	decisions = append(decisions, collectEntityDecisions(in.EntityPackages)...)
+	decisions = append(decisions, collectConflictDecisions(in.ConflictReports)...)
+	decisions = append(decisions, collectVisualDecisions(in.VisualObservations)...)
+	return decisions
+}
+
+func collectEntityDecisions(pkgs []EntityPackage) []string {
+	var out []string
+	for _, p := range pkgs {
+		if len(p.Variants) > 0 {
+			out = append(out, fmt.Sprintf("entity %s: choose or merge version variant (%s)", p.ID, joinVariantLabels(p.Variants)))
+			continue
+		}
+		if p.Status == "needs_review" && len(p.Conflicts) == 0 {
+			out = append(out, fmt.Sprintf("entity %s: review unresolved fields and confirm classification", p.ID))
+		}
+	}
+	return out
+}
+
+func collectConflictDecisions(reports []ConflictReport) []string {
+	var out []string
+	for _, r := range reports {
+		if r.Resolution == "unresolved" {
+			out = append(out, fmt.Sprintf("conflict %s (field %q): choose winning claim across %d sources", r.ID, r.Field, len(r.Claims)))
+		}
+	}
+	return out
+}
+
+func collectVisualDecisions(obs []VisualObservation) []string {
+	var out []string
+	for _, o := range obs {
+		if strings.TrimSpace(o.LinkedEntity) == "" {
+			out = append(out, fmt.Sprintf("visual observation %s (%s): confirm which entity this image depicts", o.ID, o.SourceRef))
+		}
+	}
+	return out
+}
+
+func joinVariantLabels(variants []EntityVariant) string {
+	labels := make([]string, 0, len(variants))
+	for _, v := range variants {
+		labels = append(labels, v.Label)
+	}
+	return strings.Join(labels, ", ")
 }
 
 func collectBatchIDs[T any](kind string, items []T, getID func(T) string) ([]string, map[string]bool, []error) {

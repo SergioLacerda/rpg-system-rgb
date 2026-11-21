@@ -56,6 +56,7 @@ func ValidateEntityPackage(p EntityPackage) []error {
 	errs = append(errs, validateExplicitFacts(p.ID, p.ExplicitFacts, sourceSet, seen)...)
 	errs = append(errs, validateInferredSuggestions(p.ID, p.InferredSuggestions, seen)...)
 	errs = append(errs, validateUnresolvedFields(p.ID, p.UnresolvedFields, seen)...)
+	errs = append(errs, validateEntityVariants(p.ID, p.Variants, sourceSet)...)
 	return errs
 }
 

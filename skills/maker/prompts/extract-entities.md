@@ -32,14 +32,20 @@ packages grounded strictly in the story's own sources.
    linking to an entity only when a text source or the user confirms the
    identity, and checking conflicts with
    [`detect-conflicts.md`](detect-conflicts.md).
-5. When two mentions of the same entity disagree on a field, keep the
-   disputed field in `unresolved_fields`, open a
+5. When two mentions of the same entity disagree on a single field, keep
+   the disputed field in `unresolved_fields`, open a
    [`conflict-report`](../templates/conflict-report.md) per
-   `conflict-on-dispute`, and link its ID in `conflicts`.
+   `conflict-on-dispute`, and link its ID in `conflicts`. When sources
+   reflect distinct reboots, remakes, or alternative drafts across multiple
+   fields, record shared core facts once and preserve each version under
+   `variants` per `variant-preserved` with `status: needs_review`.
 6. Summarize the entire batch in one
    [`maker-report`](../templates/maker-report.md) listing every emitted
-   package ID, and set `status` to `draft` or `needs_review` per
-   `non-canonical-status`.
+   package ID, set `status` to `draft` or `needs_review` per
+   `non-canonical-status`, and emit `pending_decisions` per
+   `prompt-user-decisions` so the user can resolve ambiguities (e.g. an
+   unclassified system/character), assign unlinked images, or pick the
+   final reboot version.
 
 ## Completion Check
 
@@ -47,6 +53,10 @@ packages grounded strictly in the story's own sources.
   pivotal event, project, or unclassified system in the source batch has
   its own `entity-package` — never fold a standalone event, project, or
   named entity into another package's description.
+- Every reboot or multi-source alternative version is preserved under
+  `variants`, and every `needs_review` entity, unlinked image, unresolved
+  conflict, and variant entity is surfaced in `pending_decisions` for user
+  orientation.
 - Every emitted `EntityPackage` has at least one `explicit_facts` item and
   disjoint field names across all three layers.
 - Every fact, inference, and open question stays strictly within the

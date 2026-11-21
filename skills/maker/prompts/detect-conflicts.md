@@ -7,7 +7,11 @@ state different values for the same field of an entity.
 
 1. Isolate each disputed field into its own
    [`conflict-report`](../templates/conflict-report.md) — split multi-field
-   disagreements (e.g. `name` vs. `loyalty`) into separate reports.
+   disagreements (e.g. `name` vs. `loyalty`) into separate reports. When a
+   disagreement reflects a whole-entity reboot or remake across many
+   fields rather than an isolated field dispute, record alternative
+   versions under `variants` on the `entity-package` per
+   `variant-preserved` instead of flooding single-field conflict reports.
 2. Record every competing claim with `value`, `source_ref`, and
    `source_kind` (`text` or `image`).
 3. Apply `text-over-image` from [`../SKILL.md`](../SKILL.md) to set

@@ -179,6 +179,70 @@ func TestValidateEntityPackage(t *testing.T) {
 			},
 			want: "appears in both inferred_suggestions and unresolved_fields",
 		},
+		{
+			name: "variant empty label",
+			mutate: func(p *EntityPackage) {
+				p.Variants = []EntityVariant{{Label: " ", SourceRef: "Note 1 (session prep)", Summary: "s"}}
+			},
+			want: "has empty label",
+		},
+		{
+			name: "variant empty source_ref",
+			mutate: func(p *EntityPackage) {
+				p.Variants = []EntityVariant{{Label: "v1", SourceRef: "", Summary: "s"}}
+			},
+			want: "has empty source_ref",
+		},
+		{
+			name: "variant undeclared source_ref",
+			mutate: func(p *EntityPackage) {
+				p.Variants = []EntityVariant{{Label: "v1", SourceRef: "Missing Note", Summary: "s"}}
+			},
+			want: "references undeclared source_ref",
+		},
+		{
+			name: "variant empty summary",
+			mutate: func(p *EntityPackage) {
+				p.Variants = []EntityVariant{{Label: "v1", SourceRef: "Note 1 (session prep)", Summary: "  "}}
+			},
+			want: "has empty summary",
+		},
+		{
+			name: "variant empty fact field and value",
+			mutate: func(p *EntityPackage) {
+				p.Variants = []EntityVariant{{
+					Label: "v1", SourceRef: "Note 1 (session prep)", Summary: "reboot",
+					Facts: []ExplicitFact{{Field: "", Value: ""}},
+				}}
+			},
+			want: "has fact with empty field",
+		},
+		{
+			name: "variant duplicate fact field",
+			mutate: func(p *EntityPackage) {
+				p.Variants = []EntityVariant{{
+					Label: "v1", SourceRef: "Note 1 (session prep)", Summary: "reboot",
+					Facts: []ExplicitFact{
+						{Field: "origin", Value: "a"},
+						{Field: "origin", Value: "b"},
+					},
+				}}
+			},
+			want: "has duplicate field \"origin\"",
+		},
+	}
+
+	validVariantsPkg := validSampleEntityPackage()
+	validVariantsPkg.Variants = []EntityVariant{
+		{
+			Label:     "v1 (draft)",
+			SourceRef: "Note 1 (session prep)",
+			Summary:   "Original draft version.",
+			Facts:     []ExplicitFact{{Field: "origin", Value: "harbor guild"}},
+		},
+	}
+	if errs := ValidateEntityPackage(validVariantsPkg); len(errs) != 0 {
+		t.Fatalf("expected valid package with variants to pass, got: %v", errs)
 	}
 
 	for _, tc := range cases {
@@ -532,6 +596,11 @@ func TestValidateMakerReport(t *testing.T) {
 			mutate: func(r *MakerReport) { r.OpenQuestions = []string{""} },
 			want:   "open_questions[0] must not be empty",
 		},
+		{
+			name:   "empty pending_decisions item",
+			mutate: func(r *MakerReport) { r.PendingDecisions = []string{"  "} },
+			want:   "pending_decisions[0] must not be empty",
+		},
 	}
 
 	for _, tc := range cases {
@@ -732,6 +801,50 @@ func TestAggregateMakerReport(t *testing.T) {
 	if !containsError(errs, "duplicate entity_package id") || !containsError(errs, "duplicate conflict_report id") {
 		t.Fatalf("expected duplicate batch ID errors, got: %v", errs)
 	}
+
+	epWithVariants := EntityPackage{
+		ID:            "npc.stormy",
+		EntityType:    "npc",
+		Status:        "needs_review",
+		SourceRefs:    []string{"v1.md", "v2.md"},
+		ExplicitFacts: []ExplicitFact{{Field: "codename", Value: "Stormy", SourceRef: "v1.md"}},
+		Variants: []EntityVariant{
+			{Label: "v1", SourceRef: "v1.md", Summary: "Draft v1"},
+			{Label: "v2", SourceRef: "v2.md", Summary: "Canon v2"},
+		},
+	}
+	epNeedsGuidance := EntityPackage{
+		ID:            "other.vesper",
+		EntityType:    "other",
+		Status:        "needs_review",
+		SourceRefs:    []string{"v2.md"},
+		ExplicitFacts: []ExplicitFact{{Field: "role", Value: "evaluator", SourceRef: "v2.md"}},
+	}
+	voUnlinked := validSampleVisualObservation()
+	voUnlinked.LinkedEntity = ""
+	crUnlinked := cr
+	crUnlinked.LinkedEntity = ""
+	decReport, decErrs := AggregateMakerReport(AggregateInput{
+		ReportID:           "rep.decisions",
+		InputBatch:         []string{"v1.md", "v2.md", "harbor-npc-sketch.png"},
+		EntityPackages:     []EntityPackage{epWithVariants, epNeedsGuidance},
+		ConflictReports:    []ConflictReport{crUnlinked},
+		VisualObservations: []VisualObservation{voUnlinked},
+	})
+	if len(decErrs) != 0 {
+		t.Fatalf("unexpected aggregation errors: %v", decErrs)
+	}
+	joinedDecisions := strings.Join(decReport.PendingDecisions, "\n")
+	for _, want := range []string{
+		"entity npc.stormy: choose or merge version variant (v1, v2)",
+		"entity other.vesper: review unresolved fields and confirm classification",
+		`conflict conflict.harbor-quartermaster-name (field "name"): choose winning claim across 2 sources`,
+		"visual observation observation.harbor-npc-sketch (harbor-npc-sketch.png): confirm which entity this image depicts",
+	} {
+		if !strings.Contains(joinedDecisions, want) {
+			t.Fatalf("expected pending decision %q in:\n%s", want, joinedDecisions)
+		}
+	}
 }
 
 func TestRouteInputAndRouteInputs(t *testing.T) {
@@ -786,10 +899,27 @@ func containsError(errs []error, substr string) bool {
 func TestRenderTemplatesAndEmptySections(t *testing.T) {
 	ep := validSampleEntityPackage()
 	ep.CanonicalDeps = []string{"core.ability.contract"}
+	ep.Variants = []EntityVariant{
+		{
+			Label:     "v1 (draft)",
+			SourceRef: "Note 1 (session prep)",
+			Summary:   "Original harbor note version.",
+			Facts:     []ExplicitFact{{Field: "surname", Value: "Kell"}},
+		},
+		{
+			Label:     "v2 (recap)",
+			SourceRef: "Note 2 (session recap)",
+			Summary:   "Recap correction without facts table.",
+		},
+	}
 	epMD := RenderEntityPackage(ep)
 	for _, want := range []string{
 		"# Entity Package: npc.harbor-quartermaster",
 		"| role | harbor quartermaster | Note 1 (session prep) |",
+		"## Version / Reboot Variants",
+		"### v1 (draft) (Note 1 (session prep))",
+		"| surname | Kell |",
+		"### v2 (recap) (Note 2 (session recap))",
 		"## Canonical Dependencies",
 		"- core.ability.contract",
 	} {
@@ -834,8 +964,19 @@ func TestRenderTemplatesAndEmptySections(t *testing.T) {
 	}
 
 	emptyReportMD := RenderMakerReport(MakerReport{ID: "rep.empty", Status: "draft"})
-	if !strings.Contains(emptyReportMD, "No extractable entities found in this batch.") || strings.Count(emptyReportMD, "None.") < 4 {
+	if !strings.Contains(emptyReportMD, "No extractable entities found in this batch.") || strings.Count(emptyReportMD, "None.") < 5 {
 		t.Fatalf("expected empty batch markers in RenderMakerReport:\n%s", emptyReportMD)
+	}
+
+	decisionReportMD := RenderMakerReport(MakerReport{
+		ID:               "rep.decisions",
+		Status:           "draft",
+		InputBatch:       []string{"note.txt"},
+		EntityPackages:   []string{"other.vesper"},
+		PendingDecisions: []string{"entity other.vesper: confirm classification"},
+	})
+	if !strings.Contains(decisionReportMD, "## Pending User Decisions & Guidance") || !strings.Contains(decisionReportMD, "- entity other.vesper: confirm classification") {
+		t.Fatalf("expected Pending User Decisions & Guidance section:\n%s", decisionReportMD)
 	}
 }
 

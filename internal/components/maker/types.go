@@ -21,6 +21,16 @@ type EntityPackage struct {
 	UnresolvedFields    []UnresolvedField    `json:"unresolved_fields,omitempty"`
 	Conflicts           []string             `json:"conflicts,omitempty"`
 	CanonicalDeps       []string             `json:"canonical_dependencies,omitempty"`
+	Variants            []EntityVariant      `json:"variants,omitempty"`
+}
+
+// EntityVariant captures one alternative version, reboot, or remake of an
+// entity preserved alongside shared facts instead of silently overwriting them.
+type EntityVariant struct {
+	Label     string         `json:"label"`
+	SourceRef string         `json:"source_ref"`
+	Summary   string         `json:"summary"`
+	Facts     []ExplicitFact `json:"facts,omitempty"`
 }
 
 // ExplicitFact is a fact stated directly in the source text.
@@ -101,4 +111,5 @@ type MakerReport struct { //nolint:revive // MakerReport mirrors the maker-repor
 	ConflictReports    []string `json:"conflict_reports,omitempty"`
 	VisualObservations []string `json:"visual_observations,omitempty"`
 	OpenQuestions      []string `json:"open_questions,omitempty"`
+	PendingDecisions   []string `json:"pending_decisions,omitempty"`
 }

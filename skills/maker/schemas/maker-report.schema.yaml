@@ -38,6 +38,12 @@ fields:
     description: Cross-cutting questions for the GM that don't belong to
       any single entity package (e.g. "two locations in these notes seem
       to be the same place under different names — confirm?").
+  pending_decisions:
+    type: list<string>
+    required: false
+    description: Actionable prompts requesting user guidance on ambiguous
+      entities, unlinked images, unresolved conflicts, or reboot/version
+      variants awaiting final selection.
 
 invariants:
   - every id listed in entity_packages/conflict_reports/visual_observations

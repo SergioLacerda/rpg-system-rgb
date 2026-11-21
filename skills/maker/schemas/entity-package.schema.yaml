@@ -59,6 +59,12 @@ fields:
       this entity's mechanics depend on (e.g. an NPC ability referencing
       core.ability.contract). Read-only reference — Maker does not modify
       these units.
+  variants:
+    type: list<object>
+    required: false
+    description: Alternative versions, reboots, or remakes of this entity
+      preserved as structured appendices rather than silently blended. Each
+      item has `label`, `source_ref`, `summary`, and optional `facts`.
 
 invariants:
   - explicit_facts is never empty (a package with zero explicit facts is
