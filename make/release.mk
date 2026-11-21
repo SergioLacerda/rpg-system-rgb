@@ -30,11 +30,13 @@ release-supply-chain-check: FORCE ## Validate release SBOM and provenance metada
 pdf-editorial-check: release-artifact-check release-supply-chain-check FORCE ## Validate PDF editorial smoke, raster, and supply-chain checks
 	@echo "pdf-editorial-check: all gates passed"
 
-release-skill-manifest: FORCE ## Write release skill .zip manifest and checksums
+release-skill-manifest: FORCE ## Write release skill .zip manifests and checksums
 	$(GOENV) $(GO) run ./cmd/rgb release skill-manifest --public-dir "$(PDF_PUBLIC_DIR)" --name "$(SKILL_NAME)" --version "$(SKILL_VERSION)" --manifest "$(SKILL_MANIFEST)" --checksums "$(SKILL_CHECKSUMS)"
+	$(GOENV) $(GO) run ./cmd/rgb release skill-manifest --public-dir "$(PDF_PUBLIC_DIR)" --name "$(MAKER_SKILL_NAME)" --version "$(MAKER_SKILL_VERSION)" --manifest "$(MAKER_SKILL_MANIFEST)" --checksums "$(MAKER_SKILL_CHECKSUMS)"
 
-release-skill-check: FORCE ## Validate release skill .zip manifest and checksums
+release-skill-check: FORCE ## Validate release skill .zip manifests and checksums
 	$(GOENV) $(GO) run ./cmd/rgb release skill-check --public-dir "$(PDF_PUBLIC_DIR)" --name "$(SKILL_NAME)" --version "$(SKILL_VERSION)" --manifest "$(SKILL_MANIFEST)" --checksums "$(SKILL_CHECKSUMS)"
+	$(GOENV) $(GO) run ./cmd/rgb release skill-check --public-dir "$(PDF_PUBLIC_DIR)" --name "$(MAKER_SKILL_NAME)" --version "$(MAKER_SKILL_VERSION)" --manifest "$(MAKER_SKILL_MANIFEST)" --checksums "$(MAKER_SKILL_CHECKSUMS)"
 
 # --- Namespaced aliases (additive, non-breaking) ---
 .PHONY: release.pdf-publish release.artifact-manifest release.artifact-check release.pdf-regression-check \

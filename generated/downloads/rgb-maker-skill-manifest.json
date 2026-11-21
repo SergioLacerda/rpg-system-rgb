@@ -1,0 +1,19 @@
+{
+  "artifacts": [
+    {
+      "bytes": 15316,
+      "file": "rgb-maker-latest.zip",
+      "path": "/downloads/rgb-maker-latest.zip",
+      "sha256": "830720383c734315071e29569f0a447b7bdb90a4e98941adb96673ac9015bc9a"
+    },
+    {
+      "bytes": 15316,
+      "file": "rgb-maker-v1.0.0.zip",
+      "path": "/downloads/rgb-maker-v1.0.0.zip",
+      "sha256": "830720383c734315071e29569f0a447b7bdb90a4e98941adb96673ac9015bc9a"
+    }
+  ],
+  "name": "rgb-maker",
+  "schema": "rgb-system-skill-artifacts/0.1",
+  "version": "v1.0.0"
+}
