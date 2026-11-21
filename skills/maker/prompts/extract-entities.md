@@ -1,16 +1,20 @@
 # Prompt: Extract Entities
 
-Extract campaign entities (NPCs, locations, items, factions) from raw GM
-notes, text, or images into validated packages grounded strictly in the
-story's own sources.
+Extract campaign entities (`npc`, `location`, `item`, `faction`, and
+`other`: pivotal events, projects, phenomena, or named systems of
+uncertain nature) from raw GM notes, text, or images into validated
+packages grounded strictly in the story's own sources.
 
 ## Steps
 
 1. Read the entire input batch before extracting anything so late facts
    can reclassify or resolve earlier passages.
 2. Open one [`entity-package`](../templates/entity-package.md) per
-   distinct entity (`npc`, `location`, `item`, `faction`, `other`); check
-   same-named mentions carefully and route ambiguity through
+   distinct entity across all five scopes (`npc` characters/operators,
+   `location` places/zones/territories, `item` resources/gear/artifacts,
+   `faction` organizations/cells, `other` pivotal events, projects,
+   world phenomena, or unclassified named systems); check same-named
+   mentions carefully and route ambiguity through
    [`detect-conflicts.md`](detect-conflicts.md) before merging.
 3. Enforce `layer-separated` by placing every candidate property into
    exactly one bucket and checking the entity type's normal field set
@@ -39,6 +43,10 @@ story's own sources.
 
 ## Completion Check
 
+- Every distinct named actor, faction, location/zone, item/resource, and
+  pivotal event, project, or unclassified system in the source batch has
+  its own `entity-package` — never fold a standalone event, project, or
+  named entity into another package's description.
 - Every emitted `EntityPackage` has at least one `explicit_facts` item and
   disjoint field names across all three layers.
 - Every fact, inference, and open question stays strictly within the

@@ -68,7 +68,7 @@ func WriteBatchFiles(outDir string, res BatchResult) error {
 	if err := os.MkdirAll(outDir, 0o750); err != nil {
 		return err
 	}
-	if err := os.WriteFile(filepath.Join(outDir, "maker-report.md"), []byte(res.Markdown), 0o644); err != nil { //nolint:gosec // G306: rendered Markdown package artifact.
+	if err := os.WriteFile(filepath.Join(outDir, "maker-report.md"), []byte(RenderMakerReport(res.Report)), 0o644); err != nil { //nolint:gosec // G306: rendered Markdown package artifact.
 		return err
 	}
 	if err := writePackageMarkdowns(filepath.Join(outDir, "entities"), res.Input.EntityPackages, func(p EntityPackage) string { return p.ID }, RenderEntityPackage); err != nil {

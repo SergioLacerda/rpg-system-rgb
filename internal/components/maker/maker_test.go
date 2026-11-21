@@ -957,6 +957,15 @@ func TestWriteBatchFilesAndSafety(t *testing.T) {
 		}
 	}
 
+	reportBytes, err := os.ReadFile(filepath.Join(outDir, "maker-report.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	reportText := string(reportBytes)
+	if !strings.Contains(reportText, "# Maker Report: report.files") || strings.Contains(reportText, "# Entity Package: npc.files") {
+		t.Fatalf("expected maker-report.md to hold index only without duplicating individual entity packages:\n%s", reportText)
+	}
+
 	if err := WriteBatchFiles(" ", res); err == nil {
 		t.Fatal("expected empty outDir to fail")
 	}

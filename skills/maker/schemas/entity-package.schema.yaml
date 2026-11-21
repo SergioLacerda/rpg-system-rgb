@@ -14,6 +14,12 @@ fields:
     type: string
     required: true
     enum: [npc, location, item, faction, other]
+    description: >
+      npc (characters/operators), location (places, territories, operational
+      or conceptual zones), item (resources, gear, artifacts, modular tech),
+      faction (organizations, corporations, state layers, cells), other
+      (pivotal events, projects/programs, world phenomena, or named
+      entities/systems of uncertain nature).
   status:
     type: string
     required: true

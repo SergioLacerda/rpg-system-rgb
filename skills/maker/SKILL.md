@@ -6,7 +6,8 @@ description: Story and campaign content structurer. Use when turning raw GM note
 # Maker Skill
 
 Structures raw campaign notes, lore documents, text, and images into
-organized story artifacts (NPCs, locations, items, factions) with explicit
+organized story artifacts (NPCs, locations/zones, items/resources,
+factions, and pivotal events, projects, or named systems) with explicit
 provenance separation — staying focused purely on the target story's own
 universe and sources without projecting external rules or ungrounded facts.
 
