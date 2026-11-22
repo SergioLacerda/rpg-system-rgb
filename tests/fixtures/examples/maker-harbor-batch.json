@@ -1,0 +1,95 @@
+{
+  "report_id": "report.2026-08-01-harbor-session",
+  "input_batch": [
+    "Note 1 (session prep)",
+    "Note 2 (session recap)",
+    "harbor-npc-sketch.png"
+  ],
+  "entity_packages": [
+    {
+      "id": "npc.harbor-quartermaster",
+      "entity_type": "npc",
+      "status": "needs_review",
+      "source_refs": [
+        "Note 1 (session prep)",
+        "Note 2 (session recap)",
+        "harbor-npc-sketch.png"
+      ],
+      "explicit_facts": [
+        {
+          "field": "role",
+          "value": "harbor quartermaster, controls dock space assignments",
+          "source_ref": "Note 1 (session prep)"
+        },
+        {
+          "field": "missing_fingers",
+          "value": "two fingers missing on left hand, lost to a rope winch",
+          "source_ref": "Note 1 (session prep)"
+        }
+      ],
+      "inferred_suggestions": [
+        {
+          "field": "attitude_toward_party",
+          "value": "likely transactional/guarded until the party earns favor",
+          "confidence": "medium",
+          "rationale": "note 1 frames dock access as something the party must earn"
+        }
+      ],
+      "unresolved_fields": [
+        {
+          "field": "name",
+          "reason": "disputed — see conflict.harbor-quartermaster-name"
+        }
+      ],
+      "conflicts": [
+        "conflict.harbor-quartermaster-name"
+      ],
+      "canonical_dependencies": []
+    }
+  ],
+  "conflict_reports": [
+    {
+      "id": "conflict.harbor-quartermaster-name",
+      "status": "needs_review",
+      "field": "name",
+      "linked_entity": "npc.harbor-quartermaster",
+      "claims": [
+        {
+          "value": "Yssa Kell",
+          "source_ref": "Note 1 (session prep)",
+          "source_kind": "text"
+        },
+        {
+          "value": "Yssa Voss",
+          "source_ref": "Note 2 (session recap)",
+          "source_kind": "text"
+        }
+      ],
+      "resolution": "unresolved"
+    }
+  ],
+  "visual_observations": [
+    {
+      "id": "observation.harbor-npc-sketch",
+      "status": "draft",
+      "source_ref": "harbor-npc-sketch.png",
+      "appearance_facts": [
+        {
+          "field": "clothing",
+          "value": "weathered coat",
+          "confidence": "high"
+        },
+        {
+          "field": "hands",
+          "value": "both hands appear undamaged in the sketch",
+          "confidence": "medium"
+        }
+      ],
+      "linked_entity": "npc.harbor-quartermaster",
+      "non_authoritative_note": "This observation may describe appearance only. It does not establish or override any fact, name, relationship, or canon status — those come from text sources only, per the authority rule in SKILL.md."
+    }
+  ],
+  "open_questions": [
+    "Confirm the quartermaster's actual name (Kell vs Voss) before next session."
+  ]
+}

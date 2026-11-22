@@ -44,7 +44,7 @@ This project documentation is available in multiple languages.
 | Library HTML | Implemented | The pinned Illusionist site kit builds the Docs tab from `docs/core`; `scripts/ci/compose-site.sh` adds RGB downloads. |
 | PDF downloads | Implemented | `make docs-pdf` publishes latest and versioned PDFs with manifest, checksums, and editorial smoke checks. |
 | Landing | Implemented | Hosted outside this repository: the Pages site is composed from a pinned external ILLUSIONISTA surface by `scripts/ci/compose-site.sh`. See [ADR-019](adr/adr-019-consume-illusionista-surface-and-retire-landing-consumer.md). |
-| Maker | Contract defined | Contract, schemas, templates, prompts, and examples exist; runtime behavior is not implemented. |
+| Maker | Contract + Go runtime | Contract, schemas, templates, prompts, and examples exist alongside the Go validation, diffing, aggregation, and Markdown rendering runtime (`internal/components/maker/`, `rgb maker process`). |
 | Specialist | Contract defined | Contract, procedures, terminology, examples, and benchmark scaffolding exist; runtime behavior is not implemented. |
 | PDF/UA tagging | Deferred | Full accessibility tagging is outside the first editorial PDF quality gate. |
 
@@ -112,7 +112,7 @@ This allows the system to work both for **story‑driven campaigns** and **tacti
 ```text
 rpg-system-rgb/
 cmd/
-   rgb/              unified CLI: status, validate, generate, bundle (ADR-006)
+   rgb/              unified CLI: status, validate, generate, bundle, release, docs, maker (ADR-006)
    rgb-tooling/      deprecated compatibility path for validate/generate/bundle
 
 internal/
@@ -120,7 +120,7 @@ internal/
    components/
       core/          RGB rule engine: characters, actions, combat, states
       tooling/       semantic-docs validators + projection generator
-      maker/         planned campaign/content structuring boundary
+      maker/         campaign/content structuring: router, validators, differ, aggregator, renderer (ADR-015)
       specialist/    planned rule consultation and validation boundary
       bundles/       experimental semantic bundle output (ADR-007)
 
@@ -147,7 +147,7 @@ docs/
    engineering/         review workflow and guardrail documentation
 
 skills/
-   maker/            RGB Maker skill contract; runtime not implemented
+   maker/            RGB Maker skill contract; deterministic Go runtime in internal/components/maker/
    specialist/       RGB Specialist skill contract; runtime not implemented
 
 build/                disposable output, ignored by git

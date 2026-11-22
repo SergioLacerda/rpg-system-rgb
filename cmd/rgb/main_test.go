@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -260,5 +262,99 @@ func TestParseSkillReleaseFlagsRejectsPositionalArgs(t *testing.T) {
 	})
 	if err == nil {
 		t.Fatal("expected positional skill release argument to be rejected")
+	}
+}
+
+func TestRunMakerSubcommands(t *testing.T) {
+	if err := run([]string{"maker"}); err == nil || !strings.Contains(err.Error(), "missing maker subcommand") {
+		t.Fatalf("expected missing maker subcommand error, got %v", err)
+	}
+	if err := run([]string{"maker", "bogus"}); err == nil || !strings.Contains(err.Error(), "bogus") {
+		t.Fatalf("expected unknown maker subcommand error, got %v", err)
+	}
+	if _, err := parseMakerProcessFlags([]string{"--bad"}); err == nil {
+		t.Fatal("expected invalid maker process flag to fail")
+	}
+	if _, err := parseMakerProcessFlags([]string{"--batch", "a.json", "extra"}); err == nil {
+		t.Fatal("expected positional maker process argument to fail")
+	}
+	if _, err := parseMakerProcessFlags([]string{"--index", "idx.json"}); err == nil {
+		t.Fatal("expected missing --batch to fail")
+	}
+
+	dir := t.TempDir()
+	batchFile := filepath.Join(dir, "batch.json")
+	if err := os.WriteFile(batchFile, []byte(`{
+		"report_id": "report.cli",
+		"input_batch": ["note.txt"],
+		"entity_packages": [{
+			"id": "npc.cli",
+			"entity_type": "npc",
+			"status": "draft",
+			"source_refs": ["note.txt"],
+			"explicit_facts": [{"field": "role", "value": "scribe", "source_ref": "note.txt"}]
+		}]
+	}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	outDir := filepath.Join(dir, "packages")
+	if err := run([]string{"maker", "process", "--batch", batchFile, "--out-dir", outDir}); err != nil {
+		t.Fatalf("expected maker process to succeed, got %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(outDir, "maker-report.md")); err != nil {
+		t.Fatalf("expected maker-report.md in outDir: %v", err)
+	}
+	if err := run([]string{"maker", "process", "--batch", filepath.Join(dir, "missing.json")}); err == nil {
+		t.Fatal("expected maker process with missing batch to fail")
+	}
+
+	if _, err := parseMakerStatsFlags([]string{"--bad"}); err == nil {
+		t.Fatal("expected invalid maker stats flag to fail")
+	}
+	if _, err := parseMakerStatsFlags([]string{"--dir", dir, "extra"}); err == nil {
+		t.Fatal("expected positional maker stats argument to fail")
+	}
+	if _, err := parseMakerStatsFlags([]string{}); err == nil {
+		t.Fatal("expected missing --dir to fail")
+	}
+	if err := run([]string{"maker", "stats", "--dir", dir}); err != nil {
+		t.Fatalf("expected maker stats to succeed, got %v", err)
+	}
+	if err := run([]string{"maker", "stats", "--dir", filepath.Join(dir, "missing-dir")}); err == nil {
+		t.Fatal("expected maker stats with missing dir to fail")
+	}
+
+	if _, _, err := parseMakerExportFlags([]string{"--bad"}); err == nil {
+		t.Fatal("expected invalid maker export flag to fail")
+	}
+	if _, _, err := parseMakerExportFlags([]string{"--dir", dir, "--out", outDir, "extra"}); err == nil {
+		t.Fatal("expected positional maker export argument to fail")
+	}
+	if _, _, err := parseMakerExportFlags([]string{"--dir", dir}); err == nil {
+		t.Fatal("expected missing --out to fail")
+	}
+	if err := os.WriteFile(filepath.Join(outDir, "batch.json"), []byte(`{
+		"report_id": "report.cli",
+		"input_batch": ["note.txt"],
+		"entity_packages": [{
+			"id": "npc.cli",
+			"entity_type": "npc",
+			"status": "draft",
+			"source_refs": ["note.txt"],
+			"explicit_facts": [{"field": "role", "value": "scribe", "source_ref": "note.txt"}]
+		}]
+	}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	chatOut := filepath.Join(dir, "output-chat")
+	if err := run([]string{"maker", "export", "--dir", dir, "--out", chatOut}); err != nil {
+		t.Fatalf("expected maker export to succeed, got %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(chatOut, "00_BOOT_PROMPT.md")); err != nil {
+		t.Fatalf("expected 00_BOOT_PROMPT.md in chatOut: %v", err)
+	}
+	if err := run([]string{"maker", "export", "--dir", filepath.Join(dir, "missing-dir"), "--out", chatOut}); err == nil {
+		t.Fatal("expected maker export with missing dir to fail")
 	}
 }

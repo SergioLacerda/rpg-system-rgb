@@ -4,35 +4,32 @@ Check whether a proposed ability declaration satisfies `core.ability.contract`.
 
 ## Input
 
-An ability description — structured (a draft YAML/JSON block) or prose
-that names the ability's id, name, vector, tier, requirements, action type,
-cost, range, duration, effect, limits, and tags.
+An ability description — structured (YAML/JSON) or prose — providing its
+declaration fields.
 
 ## Steps
 
-1. Load `core.ability.contract`'s `required_fields` from
-   `docs/core/semantic/source/core-v2-rules.v0.1.json`:
-
-   ```text
-   id, name, vector, tier, requirements, action_type, cost, range,
-   duration, effect, limits, tags, source_status
-   ```
-
-2. Check every required field is present and non-empty in the input. List
-   every missing field — do not stop at the first one.
-3. Apply the same value-level checks the Go engine enforces
-   (`internal/components/core/ability.go`, `Ability.Validate`), so a
-   Specialist "pass" and an engine "pass" never disagree:
-   - `vector` must be a valid RGB vector (R, G, or B);
-   - `tier` must be at least 1;
-   - each `requirements` value must be non-negative;
-   - `action_type` (Go: `Timing`) must be `action` or `reaction`;
-   - `cost` and `range` must be non-negative;
-   - `duration` must be non-empty;
-   - `effect`/`effects` and `tags` must each be non-empty lists.
-4. Report every failure found (missing fields and value-level violations),
-   not just the first.
-5. If everything passes, report pass and cite `core.ability.contract`.
+1. Load `core.ability.contract`'s `required_fields` directly from
+   `docs/core/semantic/source/core-v2-rules.v0.1.json`.
+2. Verify every required field is present and non-empty; collect **every**
+   missing field rather than stopping at the first.
+3. Apply the Go engine's value-level constraints from
+   `internal/components/core/ability.go` (`Ability.Validate`) so Specialist
+   matches the engine:
+   - `vector`: valid RGB vector (`R`, `G`, or `B`)
+   - `tier`: integer >= 1
+   - `requirements`: every value >= 0
+   - `action_type` (Go: `Timing`): `action` or `reaction`
+   - `cost` and `range`: >= 0
+   - `duration`: non-empty
+   - `effect`/`effects` and `tags`: non-empty lists
+   If `core.ability.contract` and `Ability.Validate` ever disagree on a rule,
+   report both sides explicitly as a contract/engine mismatch rather than
+   silently choosing one.
+4. Report every missing field and every value violation found (`PASS` only
+   when both lists are empty).
+5. Cite `core.ability.contract` with its `source_path` and disclose any
+   status/locale flags (`citation-gated`).
 
 ## Output Shape
 
@@ -42,16 +39,11 @@ Result: <PASS | FAIL>
 Missing fields: <list, or "none">
 Violations: <list, or "none">
 Cited: core.ability.contract (docs/core/en/core/skills_and_abilities.md)
+Disclosures: <draft | stale | needs_review | localized | generated, or "none (canonical en)">
 ```
 
 ## Worked Example
 
-See [`../examples/validate-sample-ability.md`](../examples/validate-sample-ability.md).
-
-## Forbidden
-
-- Declaring an ability valid without checking every required field.
-- Inventing a validation rule not present in `core.ability.contract` or
-  `internal/components/core/ability.go` — if the two ever disagree, say so
-  instead of picking one silently; that is a real product bug to report,
-  not something Specialist resolves on its own.
+Read [`../examples/validate-sample-ability.md`](../examples/validate-sample-ability.md)
+only when validating an ability written in free-form prose or checking
+field-mapping nuances.

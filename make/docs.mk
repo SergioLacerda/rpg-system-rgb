@@ -1,6 +1,6 @@
 ##@ Docs & Publication
 
-.PHONY: docs-build docs-check docs-pdf docs-preview pdf-author pdf-author-unit-test skill-package
+.PHONY: docs-build docs-check docs-pdf docs-preview pdf-author pdf-author-unit-test skill-package skills-install
 
 docs-build: FORCE ## Build the site with the pinned Illusionist kit into an empty directory
 	bash scripts/ci/build-illusionist-site.sh "$(LIBRARY_DIR)"
@@ -21,9 +21,13 @@ pdf-author: FORCE ## Manually author a reviewed PDF candidate with ADR-016 tooli
 pdf-author-unit-test: FORCE ## Run manual PDF authoring unit checks
 	tools/pdfbuild/test-combine-html
 
-skill-package: FORCE ## Build and publish the RGB Specialist skill .zip (ADR-013)
+skill-package: FORCE ## Build and publish RGB Specialist and RGB Maker skill .zip archives (ADR-013)
 	$(GOENV) $(GO) run ./cmd/rgb docs skill --source "$(SKILL_SOURCE_DIR)" --out "$(PDF_PUBLIC_DIR)" --name "$(SKILL_NAME)" --version "$(SKILL_VERSION)"
+	$(GOENV) $(GO) run ./cmd/rgb docs skill --source "$(MAKER_SKILL_SOURCE_DIR)" --out "$(PDF_PUBLIC_DIR)" --name "$(MAKER_SKILL_NAME)" --version "$(MAKER_SKILL_VERSION)"
 	$(MAKE) release-skill-manifest
+
+skills-install: FORCE ## Install or update rgb-specialist, rgb-maker, and rpg-maker skills locally
+	bash scripts/install-skills.sh
 
 docs-preview: FORCE ## Serve documentation locally
 	$(MAKE) docs-build

@@ -1,41 +1,45 @@
 # Prompt: Extract Entities
 
-Use when the input is raw GM notes, text, or images that may describe one
-or more entities (NPCs, locations, items, factions).
+Extract every distinct story entity across all five scopes (`npc`, `location`,
+`item`, `faction`, `other`) from raw text or images into packages grounded
+exclusively in the story's own sources.
 
-## Instructions
+## Steps
 
-1. Read the entire input before extracting anything — a fact stated late
-   in the notes may change how an earlier passage should be classified.
-2. For each distinct entity found, open one
-   [`entity-package`](../templates/entity-package.md).
-3. Classify every candidate fact into exactly one bucket:
-   - **Explicit fact** — the source states it directly ("the quartermaster
-     is missing three fingers on his left hand").
-   - **Inferred suggestion** — plausible given the source, but not stated
-     ("likely lost the fingers in the same accident mentioned earlier" —
-     mark confidence and say why).
-   - **Unresolved field** — the entity type normally has this field (e.g.
-     a faction usually has a stated goal), the source doesn't cover it,
-     and nothing licenses an inference.
-4. If an image is part of the input, route its contribution through
-   [`detect-conflicts.md`](detect-conflicts.md)'s authority-rule check
-   before merging it into the entity package — appearance facts go through
-   a [`visual-observation`](../templates/visual-observation.md), never
-   directly into `explicit_facts`.
-5. If the same entity appears more than once in the batch with differing
-   details, do not merge silently — open a
-   [`conflict-report`](../templates/conflict-report.md) for the disputed
-   field(s) and reference it from both mentions.
-6. When the batch is done, summarize it in one
-   [`maker-report`](../templates/maker-report.md) listing every package
-   produced.
+1. Read the entire input batch before extracting so later passages can clarify
+   or reclassify earlier mentions.
+2. Open one [`entity-package`](../templates/entity-package.md) per distinct
+   named actor, organization, place/zone, item/technology, or standalone event,
+   project, phenomenon, or unclassified system; route ambiguous same-named
+   mentions through [`detect-conflicts.md`](detect-conflicts.md) before merging.
+3. Apply `layer-separated` from [`../SKILL.md`](../SKILL.md) to every candidate
+   property, checking the entity type's normal field set deliberately:
+   - **Explicit fact** — stated directly in a text source (`source_ref` declared
+     in `source_refs`).
+   - **Inferred suggestion** — plausible from story sources alone, tagged with
+     `confidence` (`low|medium|high`) and explicit `rationale`.
+   - **Unresolved field** — expected for the `entity_type` and absent from the
+     sources (write `"None."` only after deliberate checking).
+4. Route every image through [`visual-observation`](../templates/visual-observation.md)
+   per `text-over-image` (grouping large collections into thematic packages plus
+   `sources/images/IMAGE_CATALOG.md`).
+5. Route single-field disagreements per `conflict-on-dispute` and multi-field
+   reboots or drafts per `variant-preserved`.
+6. Summarize the batch in one [`maker-report`](../templates/maker-report.md)
+   per `non-canonical-status` and `prompt-user-decisions`.
 
-## Do Not
+## Completion Check
 
-- Invent a name, relationship, or stat not licensed by an explicit fact or
-  a clearly-marked inference.
-- Merge two same-named entities without checking whether they're actually
-  the same entity (a conflict-report candidate, not an assumption).
-- Skip the unresolved-fields section because nothing came to mind — check
-  the entity type's normal field set deliberately.
+- Every distinct named entity, event, project, or unclassified system has its
+  own dedicated `entity-package`.
+- Every `entity-package` has at least one `explicit_facts` entry and disjoint
+  field names across all three layers.
+- Every reboot variant, `needs_review` entity, unlinked visual observation, and
+  unresolved conflict is surfaced in `pending_decisions`.
+- Every referenced conflict and visual observation ID matches an emitted package.
+
+## Worked Example
+
+Read [`../examples/harbor-quartermaster.md`](../examples/harbor-quartermaster.md)
+only when checking how mixed text notes and an image sketch split across
+packages.

@@ -18,7 +18,8 @@ done
 for file in index.html en/index.html library/index.html en/library/index.html \
   library/search-index.json assets/library.js \
   downloads/rgb-system-core-v2-latest-pt-br.pdf downloads/rgb-system-core-v2-latest-en.pdf \
-  downloads/rgb-specialist-latest.zip downloads/SHA256SUMS downloads/rgb-specialist-SHA256SUMS; do
+  downloads/rgb-specialist-latest.zip downloads/rgb-maker-latest.zip \
+  downloads/SHA256SUMS downloads/rgb-specialist-SHA256SUMS downloads/rgb-maker-SHA256SUMS; do
   [ -s "$site_dir/$file" ] || { echo "missing site artifact: $file" >&2; exit 1; }
 done
 while IFS= read -r file; do

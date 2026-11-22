@@ -17,31 +17,30 @@ in and swings a greatsword" or "the scout ducks behind cover").
    | Reposition | G | `core.action.reposition` | changes relation to pressure — movement, evasion, positioning |
    | Sustain | B | `core.action.sustain` | preserves continuity under pressure — endurance, shields, stabilization |
 
-2. If the action clearly maps to exactly one procedure, classify it and
-   cite the matching `core.action.*` unit and its `depends_on` vector
-   (`core.vector.r`, `core.vector.g`, or `core.vector.b`).
-3. If the action plausibly maps to more than one procedure (e.g. "shove an
-   enemy off a ledge" touches both Press and Reposition), report all
-   plausible classifications instead of silently picking one — this is an
-   uncertainty, not a rule gap, and must be surfaced per `SKILL.md`'s
-   "surface uncertainty" requirement.
-4. If the action does not describe a combat/tactical decision at all (pure
-   roleplay, no mechanical resolution), classification does not apply —
-   say so rather than forcing a fit.
+2. If the action clearly maps to one procedure, classify it and cite the
+   matching `core.action.*` unit and its `depends_on` vector
+   (`core.vector.r`, `core.vector.g`, or `core.vector.b`) per
+   `citation-gated`.
+3. Per `split-on-tension`, if the action plausibly spans multiple procedures
+   (e.g. "shove an enemy off a ledge" touches Press and Reposition), list all
+   plausible classifications and cite each corresponding `core.action.*` unit
+   rather than picking one silently.
+4. If the action is pure roleplay with no mechanical resolution, state that
+   tactical classification does not apply.
+5. Record any non-canonical or localized status flags on the cited units in
+   `Disclosures`.
 
 ## Output Shape
 
 ```text
 Action: <restated action>
-Classification: <Press|Reposition|Sustain> (<vector>)
-Cited: <core.action.* id>
+Classification: <Press|Reposition|Sustain> (<vector>) | <multiple candidates> | "none (non-mechanical)"
+Cited: <core.action.* id> (<source_path>)
+Disclosures: <draft | stale | needs_review | localized | generated, or "none (canonical en)">
 ```
 
 ## Worked Example
 
-See [`../examples/classify-charge-attack.md`](../examples/classify-charge-attack.md).
-
-## Forbidden
-
-- Forcing an ambiguous action into a single procedure to look decisive.
-- Classifying without citing the `core.action.*` unit.
+Read [`../examples/classify-charge-attack.md`](../examples/classify-charge-attack.md)
+only when handling a multi-clause action description or checking citation
+format.

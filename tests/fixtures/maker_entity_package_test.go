@@ -5,6 +5,9 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/SergioLacerda/rpg-system-rgb/internal/components"
+	"github.com/SergioLacerda/rpg-system-rgb/internal/components/maker"
 )
 
 type makerEntityPackageFixture struct {
@@ -94,6 +97,126 @@ func TestMakerEntityPackageFieldsStaySeparate(t *testing.T) {
 					seen[field] = category.name
 				}
 			}
+
+			ep := fixtureToEntityPackage(pkg)
+			if errs := maker.ValidateEntityPackage(ep); len(errs) != 0 {
+				t.Errorf("%s: maker.ValidateEntityPackage rejected valid fixture: %v", pkg.id, errs)
+			}
+
+			dup := fixtureToEntityPackage(pkg)
+			dup.InferredSuggestions = append(dup.InferredSuggestions, maker.InferredSuggestion{
+				Field:      pkg.explicitFactFields[0],
+				Value:      "duplicate",
+				Confidence: "low",
+				Rationale:  "parity check",
+			})
+			if errs := maker.ValidateEntityPackage(dup); len(errs) == 0 {
+				t.Errorf("%s: maker.ValidateEntityPackage unexpectedly accepted duplicate field %q", pkg.id, pkg.explicitFactFields[0])
+			}
+
+			idx, err := components.LoadSemanticIndex("../../docs/core/semantic/core-v2.index.json")
+			if err != nil {
+				t.Fatalf("loading semantic index: %v", err)
+			}
+			withDeps := fixtureToEntityPackage(pkg)
+			withDeps.CanonicalDeps = []string{"core.ability.contract"}
+			if errs := maker.ValidateCanonicalDependencies(withDeps, idx); len(errs) != 0 {
+				t.Errorf("%s: maker.ValidateCanonicalDependencies rejected valid canonical unit: %v", pkg.id, errs)
+			}
+			withDeps.CanonicalDeps = []string{"core.nonexistent.unit"}
+			if errs := maker.ValidateCanonicalDependencies(withDeps, idx); len(errs) == 0 {
+				t.Errorf("%s: maker.ValidateCanonicalDependencies accepted nonexistent unit", pkg.id)
+			}
 		})
+	}
+}
+
+func fixtureToEntityPackage(pkg makerEntityPackageFixture) maker.EntityPackage {
+	entityType := strings.SplitN(pkg.id, ".", 2)[0]
+	ep := maker.EntityPackage{
+		ID:         pkg.id,
+		EntityType: entityType,
+		Status:     "needs_review",
+		SourceRefs: []string{"examples/maker-entity-package.yaml"},
+	}
+	for _, f := range pkg.explicitFactFields {
+		ep.ExplicitFacts = append(ep.ExplicitFacts, maker.ExplicitFact{
+			Field:     f,
+			Value:     "fixture",
+			SourceRef: "examples/maker-entity-package.yaml",
+		})
+	}
+	for _, f := range pkg.inferredSuggestionFields {
+		ep.InferredSuggestions = append(ep.InferredSuggestions, maker.InferredSuggestion{
+			Field:      f,
+			Value:      "fixture",
+			Confidence: "medium",
+			Rationale:  "fixture",
+		})
+	}
+	for _, f := range pkg.unresolvedFields {
+		ep.UnresolvedFields = append(ep.UnresolvedFields, maker.UnresolvedField{
+			Field:  f,
+			Reason: "fixture",
+		})
+	}
+	return ep
+}
+
+func TestMakerHarborQuartermasterEndToEnd(t *testing.T) {
+	raw, err := os.ReadFile("examples/maker-harbor-batch.json")
+	if err != nil {
+		t.Fatalf("reading harbor batch fixture: %v", err)
+	}
+	idx, err := components.LoadSemanticIndex("../../docs/core/semantic/core-v2.index.json")
+	if err != nil {
+		t.Fatalf("loading semantic index: %v", err)
+	}
+
+	res, err := maker.ProcessBatch(raw, &idx)
+	if err != nil {
+		t.Fatalf("ProcessBatch returned error: %v", err)
+	}
+	if len(res.RoutedInputs) != 3 || res.RoutedInputs[2].Type != maker.InputTypeImage {
+		t.Fatalf("unexpected routed inputs: %+v", res.RoutedInputs)
+	}
+	if res.Report.ID != "report.2026-08-01-harbor-session" || len(res.Report.EntityPackages) != 1 {
+		t.Fatalf("unexpected report: %+v", res.Report)
+	}
+	for _, want := range []string{
+		"# Maker Report: report.2026-08-01-harbor-session",
+		"# Visual Observation: observation.harbor-npc-sketch",
+		"# Conflict Report: conflict.harbor-quartermaster-name",
+		"# Entity Package: npc.harbor-quartermaster",
+		"Yssa Kell",
+		"Yssa Voss",
+	} {
+		if !strings.Contains(res.Markdown, want) {
+			t.Errorf("rendered markdown missing %q", want)
+		}
+	}
+
+	diffReports := maker.DiffEntityPackages([]maker.EntityPackage{
+		{
+			ID:         "npc.harbor-quartermaster",
+			EntityType: "npc",
+			Status:     "draft",
+			SourceRefs: []string{"Note 1 (session prep)"},
+			ExplicitFacts: []maker.ExplicitFact{
+				{Field: "name", Value: "Yssa Kell", SourceRef: "Note 1 (session prep)"},
+			},
+		},
+		{
+			ID:         "npc.harbor-quartermaster",
+			EntityType: "npc",
+			Status:     "draft",
+			SourceRefs: []string{"Note 2 (session recap)"},
+			ExplicitFacts: []maker.ExplicitFact{
+				{Field: "name", Value: "Yssa Voss", SourceRef: "Note 2 (session recap)"},
+			},
+		},
+	})
+	if len(diffReports) != 1 || diffReports[0].Resolution != "unresolved" || diffReports[0].Field != "name" {
+		t.Fatalf("unexpected DiffEntityPackages result for Harbor notes: %+v", diffReports)
 	}
 }

@@ -43,13 +43,13 @@ rules, tactical combat, modular design, and adaptable worlds.
 | Library HTML | Implemented |
 | PDF downloads | Implemented |
 | Landing | Implemented |
-| Maker | Contract defined |
+| Maker | Contract + Go runtime |
 | Specialist | Contract defined |
 | PDF/UA tagging | Deferred |
 
 ## Development
 
-**Prerequisites:** Go 1.27.x.
+**Prerequisites:** Go 1.27.4 or newer.
 
 ```bash
 git clone https://github.com/SergioLacerda/rpg-system-rgb.git
@@ -68,7 +68,3 @@ make release-check
 See [docs/README-details.md](docs/README-details.md) for project structure,
 documentation links, compatibility details, publication commands, contributing
 notes, and licensing details.
-
-# RGB System
-
-S

@@ -29,3 +29,10 @@ this section.)
 Cross-cutting questions that don't belong to a single entity package.
 
 - {{question}}
+
+## Pending User Decisions & Guidance
+
+Numbered prompts awaiting user confirmation (ambiguous classifications,
+unlinked images, unresolved conflicts, or reboot/version variant choices).
+
+- {{decision prompt}}
